@@ -1,5 +1,4 @@
 /* eslint require-await: off */
-/* eslint multiline-ternary: off */
 
 // Require Node.JS dependencies
 const Event = require("event");
@@ -12,9 +11,6 @@ const uuidv4 = require("uuid/v4");
 // Require internal dependencie(s)
 const CallbackScheduler = require("./scheduler.class");
 
-// Require callbacks keyword
-const ReservedCallbacksName = new Set(["start", "stop", "get_info"]);
-
 // Custom Variables
 const Interval = Symbol();
 
@@ -25,6 +21,7 @@ const Interval = Symbol();
  *
  * @property {String} name Addon name
  * @property {Boolean} isStarted
+ * @property {Boolean} isConnected
  * @property {Map<String, AsyncFunction>} callbacks
  * @property {Map<String, CallbackScheduler>} schedules
  * @property {Map<String, ZenObservable.SubscriptionObserver<any>>} observers
@@ -40,6 +37,7 @@ class Addon extends Event {
         this.on("error", console.error);
         this.name = name;
         this.isStarted = false;
+        this.isConnected = false;
         this.callbacks = new Map();
         this.schedules = new Map();
         this.observers = new Map();
@@ -107,7 +105,7 @@ class Addon extends Event {
         if (!is.asyncFunction(callback)) {
             throw new TypeError("Addon.registerCallback->callback should be an AsyncFunction");
         }
-        if (ReservedCallbacksName.has(name)) {
+        if (Addon.ReservedCallbacksName.has(name)) {
             throw new Error(`Addon.registerCallback - Callback name ${name} is not allowed!`);
         }
 
@@ -210,6 +208,7 @@ class Addon extends Event {
     }
 
 }
+Addon.ReservedCallbacksName = new Set(["start", "stop", "get_info"]);
 Addon.messageTimeOutMs = 5000;
 Addon.mainIntervalMs = 1000;
 
