@@ -62,12 +62,16 @@ class Addon extends Event {
             // Setup interval
             this[Interval] = setInterval(() => {
                 const toExecute = [];
+
+                // Pull callback(s) to execute
                 for (const [name, scheduler] of this.schedules) {
                     if (!scheduler.walk()) {
                         continue;
                     }
                     toExecute.push(this.callbacks.get(name));
                 }
+
+                // Execute all calbacks (Promise) together (if there has)
                 if (toExecute.length > 0) {
                     Promise.all(toExecute);
                 }
