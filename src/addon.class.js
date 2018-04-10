@@ -23,6 +23,8 @@ const Interval = Symbol();
  * @property {String} uid Addon unique id
  * @property {Boolean} isStarted
  * @property {Boolean} isConnected
+ * @property {Boolean} shadowRunAllowed
+ * @property {Boolean} multipleRunAllowed
  * @property {Map<String, AsyncFunction>} callbacks
  * @property {Map<String, CallbackScheduler>} schedules
  * @property {Map<String, ZenObservable.SubscriptionObserver<any>>} observers
@@ -32,8 +34,11 @@ class Addon extends Event {
     /**
      * @constructor
      * @param {!String} name addon name
+     * @param {Object} [options=[]] Addon options
+     * @param {Boolean=} [allowMultipleInstance=false] Enable/Disable multiple addon instance(s)
+     * @param {Boolean=} [allowShadowRun=false] Enable/Disable shadow running
      */
-    constructor(name) {
+    constructor(name, options = {}) {
         super();
         this.on("error", console.error);
         this.name = name;
@@ -43,6 +48,8 @@ class Addon extends Event {
         this.callbacks = new Map();
         this.schedules = new Map();
         this.observers = new Map();
+        this.shadowRunAllowed = options.allowShadowRun || false;
+        this.multipleRunAllowed = options.allowMultipleInstance || false;
 
         // Register default callback "start"
         this.callbacks.set("start", async() => {
