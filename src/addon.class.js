@@ -20,6 +20,7 @@ const Interval = Symbol();
  * @extends Event
  *
  * @property {String} name Addon name
+ * @property {String} uid Addon unique id
  * @property {Boolean} isStarted
  * @property {Boolean} isConnected
  * @property {Map<String, AsyncFunction>} callbacks
@@ -36,6 +37,7 @@ class Addon extends Event {
         super();
         this.on("error", console.error);
         this.name = name;
+        this.uid = uuidv4();
         this.isStarted = false;
         this.isConnected = false;
         this.callbacks = new Map();
@@ -80,6 +82,7 @@ class Addon extends Event {
         // Register default callback "get_info"
         this.callbacks.set("get_info", () => {
             return {
+                uid: this.uid,
                 name: this.name,
                 started: this.isStarted,
                 callbacks: this.callbacks.keys()
