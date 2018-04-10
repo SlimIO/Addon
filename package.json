@@ -4,6 +4,7 @@
   "description": "Slim.IO Addon package",
   "main": "index.js",
   "scripts": {
+    "doc": "npx jsdoc -c ./jsdoc.json -r",
     "test": "npx ava --verbose"
   },
   "repository": {
@@ -26,6 +27,7 @@
     "@slimio/eslint-config": "^1.1.2",
     "ava": "^0.25.0",
     "eslint": "^4.19.1",
+    "jsdoc": "^3.5.5",
     "nyc": "^11.6.0"
   },
   "dependencies": {
