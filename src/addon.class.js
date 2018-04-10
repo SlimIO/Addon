@@ -57,6 +57,11 @@ class Addon extends Event {
                 return;
             }
             this.isStarted = true;
+
+            /**
+             * @event Addon#start
+             * @type {void}
+             */
             this.emit("start");
 
             // Setup interval
@@ -84,6 +89,11 @@ class Addon extends Event {
                 return;
             }
             this.isStarted = false;
+
+            /**
+             * @event Addon#stop
+             * @type {void}
+             */
             this.emit("stop");
 
             // Clear interval
@@ -123,7 +133,7 @@ class Addon extends Event {
             throw new Error(`Addon.registerCallback - Callback name ${name} is not allowed!`);
         }
 
-        // Register callback
+        // Register callback on Addon
         this.callbacks.set(name, callback);
 
         return this;
@@ -179,7 +189,7 @@ class Addon extends Event {
             );
         }
 
-        // Register scheduler
+        // Register scheduler on Addon
         this.schedules.set(name, scheduler);
 
         return this;
@@ -197,17 +207,31 @@ class Addon extends Event {
      * @returns {this}
      *
      * @throws {TypeError}
+     * @fires Addon#message
      */
     sendMessage(target, options = {}) {
         if (!is.string(target)) {
             throw new TypeError("Addon.sendMessage->target should be typeof <string>");
         }
+        // Generate unique id for our message!
         const messageId = uuidv4();
+
+        // Send a message (on the next event loop iteration).
         setImmediate(() => {
+
+            /**
+             * @event Addon#message
+             * @param {String} messageId
+             * @param {String} target
+             * @param {Array} args
+             */
             this.emit("message", messageId, target, is.array(options.args) ? options.args : []);
         });
 
+        // Return an Observable that stream response
         return new Observable((observer) => {
+
+            // Setup a timeOut for our message
             const timer = setTimeout(() => {
                 this.observers.delete(messageId);
                 observer.error(
@@ -215,8 +239,11 @@ class Addon extends Event {
                     in a delay of ${Addon.messageTimeOutMs}ms`
                 );
             }, is.number(options.timeout) ? options.timeout : Addon.messageTimeOutMs);
+
+            // Setup the observer on the Addon.
             this.observers.set(messageId, observer);
 
+            // On unsubcription clear the timeOut timer and the registered observer
             return () => {
                 clearTimeout(timer);
                 this.observers.delete(messageId);
