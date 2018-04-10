@@ -11,7 +11,7 @@ const uuidv4 = require("uuid/v4");
 // Require internal dependencie(s)
 const CallbackScheduler = require("./scheduler.class");
 
-// Custom Variables
+// Interval Symbol
 const Interval = Symbol();
 
 /**
@@ -87,7 +87,7 @@ class Addon extends Event {
         });
 
         // Register default callback "get_info"
-        this.callbacks.set("get_info", () => {
+        this.callbacks.set("get_info", async() => {
             return {
                 uid: this.uid,
                 name: this.name,
@@ -119,6 +119,7 @@ class Addon extends Event {
             throw new Error(`Addon.registerCallback - Callback name ${name} is not allowed!`);
         }
 
+        // Register callback
         this.callbacks.set(name, callback);
 
         return this;
@@ -145,6 +146,7 @@ class Addon extends Event {
             throw new Error(`Addon.executeCallback - Unable to found callback with name ${name}`);
         }
 
+        // Return callback execution!
         return this.callbacks.get(name)(args);
     }
 
@@ -173,6 +175,7 @@ class Addon extends Event {
             );
         }
 
+        // Register scheduler
         this.schedules.set(name, scheduler);
 
         return this;
@@ -218,8 +221,11 @@ class Addon extends Event {
     }
 
 }
+
+// Register Static Addon variables...
 Addon.ReservedCallbacksName = new Set(["start", "stop", "get_info"]);
 Addon.messageTimeOutMs = 5000;
 Addon.mainIntervalMs = 1000;
 
+// Export (default) Addon
 module.exports = Addon;
