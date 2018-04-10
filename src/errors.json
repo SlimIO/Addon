@@ -1,0 +1,5 @@
+{
+    "messageTimeOut": "Failed to receive response for message id ${0} in a delay of ${1}ms",
+    "unableToFoundCallback": "Addon.executeCallback - Unable to found callback with name ${0}",
+    "unallowedCallbackName": "Addon.registerCallback - Callback name '${0}' is a reserved callback name!"
+}

@@ -15,6 +15,35 @@ const CallbackScheduler = require("./scheduler.class");
 const Interval = Symbol();
 
 /**
+ * @method taggedString
+ * @param {!String} chaines initial string
+ * @param {any[]} cles string keys
+ * @returns {Function}
+ */
+function taggedString(chaines, ...cles) {
+    return function cur(...valeurs) {
+        const dict = valeurs[valeurs.length - 1] || {};
+        const resultat = [chaines[0]];
+        cles.forEach((cle, index) => {
+            resultat.push(
+                is.number(cle) ? valeurs[cle] : dict[cle],
+                chaines[index + 1]
+            );
+        });
+
+        return resultat.join("");
+    };
+}
+
+/**
+ * @const ERRORS
+ */
+const ERRORS = require("./errors.json");
+for (const [key, value] of Object.entries(ERRORS)) {
+    Reflect.set(ERRORS, key, taggedString`${value}`);
+}
+
+/**
  * @class Addon
  * @classdesc Slim.IO Addon container
  * @extends Event
@@ -130,7 +159,7 @@ class Addon extends Event {
             throw new TypeError("Addon.registerCallback->callback should be an AsyncFunction");
         }
         if (Addon.ReservedCallbacksName.has(name)) {
-            throw new Error(`Addon.registerCallback - Callback name ${name} is not allowed!`);
+            throw new Error(ERRORS.unallowedCallbackName(name));
         }
 
         // Register callback on Addon
@@ -157,7 +186,7 @@ class Addon extends Event {
             throw new TypeError("Addon.executeCallback->name should be typeof <string>");
         }
         if (!this.callbacks.has(name)) {
-            throw new Error(`Addon.executeCallback - Unable to found callback with name ${name}`);
+            throw new Error(ERRORS.unableToFoundCallback(name));
         }
 
         // Return callback execution!
@@ -181,7 +210,7 @@ class Addon extends Event {
             throw new TypeError("Addon.schedule->name should be typeof <string>");
         }
         if (!this.callbacks.has(name)) {
-            throw new Error(`Addon.schedule - Unable to found callback with name ${name}`);
+            throw new Error(ERRORS.unableToFoundCallback(name));
         }
         if (scheduler instanceof CallbackScheduler === false) {
             throw new TypeError(
@@ -241,8 +270,7 @@ class Addon extends Event {
             const timer = setTimeout(() => {
                 this.observers.delete(messageId);
                 observer.error(
-                    `Failed to receive response for message id ${messageId}
-                    in a delay of ${Addon.messageTimeOutMs}ms`
+                    ERRORS.messageTimeOut(messageId, Addon.messageTimeOutMs)
                 );
             }, is.number(options.timeout) ? options.timeout : Addon.messageTimeOutMs);
 
