@@ -35,8 +35,8 @@ class Addon extends Event {
      * @constructor
      * @param {!String} name addon name
      * @param {Object} [options=[]] Addon options
-     * @param {Boolean=} [allowMultipleInstance=false] Enable/Disable multiple addon instance(s)
-     * @param {Boolean=} [allowShadowRun=false] Enable/Disable shadow running
+     * @param {Boolean=} [options.allowMultipleInstance=false] Enable/Disable multiple addon instance(s)
+     * @param {Boolean=} [options.allowShadowRun=false] Enable/Disable shadow running
      */
     constructor(name, options = {}) {
         super();
