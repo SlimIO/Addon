@@ -202,14 +202,15 @@ class Addon extends Event {
      * @memberof Addon#
      * @param {!String} target Target path to the callback
      * @param {Object=} [options={}] Message options
-     * @param {Array<any>=} [args=[]] Callback arguments
-     * @param {number=} timeout Custom timeout
-     * @returns {this}
+     * @param {Array<any>=} [options.args=[]] Callback arguments
+     * @param {number=} options.timeout Custom timeout
+     * @param {Boolean=} noReturn Dont expect a response!
+     * @returns {Observable<any>}
      *
      * @throws {TypeError}
      * @fires Addon#message
      */
-    sendMessage(target, options = {}) {
+    sendMessage(target, options = {}, noReturn = false) {
         if (!is.string(target)) {
             throw new TypeError("Addon.sendMessage->target should be typeof <string>");
         }
@@ -227,6 +228,11 @@ class Addon extends Event {
              */
             this.emit("message", messageId, target, is.array(options.args) ? options.args : []);
         });
+
+        // Return void 0 if noReturn is true
+        if (noReturn) {
+            return void 0;
+        }
 
         // Return an Observable that stream response
         return new Observable((observer) => {
