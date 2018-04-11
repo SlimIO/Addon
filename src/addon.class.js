@@ -7,6 +7,7 @@ const Event = require("event");
 const is = require("@sindresorhus/is");
 const Observable = require("zen-observable");
 const uuidv4 = require("uuid/v4");
+const { taggedString } = require("@slimio/utils");
 
 // Require internal dependencie(s)
 const CallbackScheduler = require("./scheduler.class");
@@ -15,27 +16,7 @@ const CallbackScheduler = require("./scheduler.class");
 const Interval = Symbol();
 
 /**
- * @method taggedString
- * @param {!String} chaines initial string
- * @param {any[]} cles string keys
- * @returns {Function}
- */
-function taggedString(chaines, ...cles) {
-    return function cur(...valeurs) {
-        const dict = valeurs[valeurs.length - 1] || {};
-        const resultat = [chaines[0]];
-        cles.forEach((cle, index) => {
-            resultat.push(
-                is.number(cle) ? valeurs[cle] : dict[cle],
-                chaines[index + 1]
-            );
-        });
-
-        return resultat.join("");
-    };
-}
-
-/**
+ * @private
  * @const ERRORS
  */
 const ERRORS = require("./errors.json");
