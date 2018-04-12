@@ -1,3 +1,6 @@
 tests
+coverage
+docs
 .editorconfig
 .eslintrc
+.nyc_output
