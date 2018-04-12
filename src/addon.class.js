@@ -1,13 +1,14 @@
 /* eslint require-await: off */
 
 // Require Node.JS dependencies
-const Event = require("event");
+const Event = require("events");
 
 // Require third-party dependencies
 const is = require("@sindresorhus/is");
 const Observable = require("zen-observable");
 const uuidv4 = require("uuid/v4");
 const { taggedString } = require("@slimio/utils");
+const isSnakeCase = require("is-snake-case");
 
 // Require internal dependencie(s)
 const CallbackScheduler = require("@slimio/scheduler");
@@ -75,7 +76,7 @@ class Addon extends Event {
             this.emit("start");
 
             // Setup interval
-            this[Interval] = setInterval(() => {
+            this[Interval] = setInterval(async() => {
                 const toExecute = [];
 
                 // Pull callback(s) to execute
@@ -83,12 +84,12 @@ class Addon extends Event {
                     if (!scheduler.walk()) {
                         continue;
                     }
-                    toExecute.push(this.callbacks.get(name));
+                    toExecute.push(this.callbacks.get(name)());
                 }
 
                 // Execute all calbacks (Promise) together (if there has)
                 if (toExecute.length > 0) {
-                    Promise.all(toExecute);
+                    await Promise.all(toExecute);
                 }
             }, Addon.mainIntervalMs);
         });
@@ -142,6 +143,9 @@ class Addon extends Event {
         if (Addon.ReservedCallbacksName.has(name)) {
             throw new Error(ERRORS.unallowedCallbackName(name));
         }
+        if (!isSnakeCase(name)) {
+            throw new Error("Addon.registerCallback->name typo should be formated in snake_case");
+        }
 
         // Register callback on Addon
         this.callbacks.set(name, callback);
@@ -171,7 +175,7 @@ class Addon extends Event {
         }
 
         // Return callback execution!
-        return this.callbacks.get(name)(args);
+        return this.callbacks.get(name)(...args);
     }
 
     /**
@@ -271,7 +275,7 @@ class Addon extends Event {
 // Register Static Addon variables...
 Addon.ReservedCallbacksName = new Set(["start", "stop", "get_info"]);
 Addon.messageTimeOutMs = 5000;
-Addon.mainIntervalMs = 1000;
+Addon.mainIntervalMs = 500;
 
 // Export (default) Addon
 module.exports = Addon;

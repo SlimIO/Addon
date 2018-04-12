@@ -36,6 +36,7 @@
     "@sindresorhus/is": "^0.8.0",
     "@slimio/scheduler": "0.0.0",
     "@slimio/utils": "0.0.0",
+    "is-snake-case": "^0.1.0",
     "make-promises-safe": "^1.1.0",
     "uuid": "^3.2.1",
     "zen-observable": "^0.8.8"
