@@ -4,8 +4,10 @@
   "description": "Slim.IO Addon package",
   "main": "index.js",
   "scripts": {
+    "test": "npx ava --verbose",
     "doc": "npx jsdoc -c ./jsdoc.json -r",
-    "test": "npx ava --verbose"
+    "coverage": "npx nyc ava",
+    "report": "npx nyc report --reporter=html"
   },
   "repository": {
     "type": "git",
