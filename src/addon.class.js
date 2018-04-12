@@ -10,7 +10,7 @@ const uuidv4 = require("uuid/v4");
 const { taggedString } = require("@slimio/utils");
 
 // Require internal dependencie(s)
-const CallbackScheduler = require("./scheduler.class");
+const CallbackScheduler = require("@slimio/scheduler");
 
 // Interval Symbol
 const Interval = Symbol();

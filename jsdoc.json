@@ -8,8 +8,7 @@
     "source": {
         "include": [
             "index.js",
-            "src/addon.class.js",
-            "src/scheduler.class.js"
+            "src/addon.class.js"
         ],
         "exclude": [
             "node_modules",
