@@ -1,16 +1,16 @@
-/* eslint require-await: off */
+
 
 // Require Node.JS dependencies
 const Event = require("events");
 
-// Require third-party dependencies
+// Require Third-party dependencies
 const is = require("@sindresorhus/is");
 const Observable = require("zen-observable");
 const uuidv4 = require("uuid/v4");
-const { taggedString } = require("@slimio/utils");
 const isSnakeCase = require("is-snake-case");
 
-// Require internal dependencie(s)
+// Require Internal dependencie(s)
+const { taggedString } = require("@slimio/utils");
 const CallbackScheduler = require("@slimio/scheduler");
 
 // Interval Symbol
@@ -77,14 +77,13 @@ class Addon extends Event {
     /**
      * @private
      * @static
-     * @async
      * @method start
      * @desc start callback
      * @returns {Promise<void>}
      *
      * @version 0.1.0
      */
-    static async start() {
+    static start() {
         if (this.isStarted) {
             return;
         }
@@ -110,14 +109,13 @@ class Addon extends Event {
     /**
      * @private
      * @static
-     * @async
      * @method stop
      * @desc start callback
      * @returns {Promise<void>}
      *
      * @version 0.1.0
      */
-    static async stop() {
+    static stop() {
         if (!this.isStarted) {
             return;
         }
@@ -136,14 +134,13 @@ class Addon extends Event {
     /**
      * @private
      * @static
-     * @async
      * @method getInfo
      * @desc get_info callback
      * @returns {Object}
      *
      * @version 0.1.0
      */
-    static async getInfo() {
+    static getInfo() {
         return {
             uid: this.uid,
             name: this.name,
