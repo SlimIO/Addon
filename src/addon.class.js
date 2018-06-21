@@ -14,7 +14,7 @@ const isSnakeCase = require("is-snake-case");
 const CallbackScheduler = require("@slimio/scheduler");
 
 // Interval Symbol
-const Interval = Symbol();
+const Interval = Symbol("interval");
 
 /**
  * @private
