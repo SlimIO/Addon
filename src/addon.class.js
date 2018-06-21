@@ -154,7 +154,7 @@ class Addon extends Event {
      * @method registerCallback
      * @desc Register a new callback on the Addon
      * @memberof Addon#
-     * @param {!String} name Callback name
+     * @param {!String | Function} name Callback name
      * @param {!AsyncFunction} callback Asynchronous function to execute when required
      * @returns {this}
      *
@@ -162,8 +162,25 @@ class Addon extends Event {
      * @throws {Error}
      *
      * @version 0.0.0
+     *
+     * @example
+     * const myAddon = new Addon("test");
+     *
+     * async function hello() {
+     *     return "hello world";
+     * }
+     * myAddon.registerCallback(hello);
+     * myAddon.executeCallback("hello").then((ret) => {
+     *    assert.equal(ret, "hello world");
+     * });
      */
     registerCallback(name, callback) {
+        if (is.function(name) && is.nullOrUndefined(callback)) {
+            // eslint-disable-next-line
+            callback = name;
+            // eslint-disable-next-line
+            name = callback.name;
+        }
         if (!is.string(name)) {
             throw new TypeError("Addon.registerCallback->name should be typeof <string>");
         }

@@ -163,6 +163,23 @@ avaTest("Addon register & execute a callback", async(test) => {
 });
 
 /**
+ * Addon register & execute a callback
+ */
+avaTest("Addon register & execute a callback (direct registering)", async(test) => {
+    const myAddon = new Addon("myAddon");
+
+    // Register callback
+    myAddon.registerCallback(async function hello() {
+        return "hello world!";
+    });
+    test.is(myAddon.callbacks.has("hello"), true);
+
+    // Execute callback
+    const ret = await myAddon.executeCallback("hello");
+    test.is(ret, "hello world!");
+});
+
+/**
  * Addon send a message
  */
 avaTest("Addon send a message", async(test) => {
