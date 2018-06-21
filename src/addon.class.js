@@ -214,6 +214,17 @@ class Addon extends Event {
      * @throws {Error}
      *
      * @version 0.0.0
+     *
+     * @example
+     * const myAddon = new Addon("test");
+     *
+     * async function hello() {
+     *     return "hello world";
+     * }
+     * myAddon.registerCallback(hello);
+     * myAddon.executeCallback("hello").then((ret) => {
+     *    assert.equal(ret, "hello world");
+     * });
      */
     executeCallback(name, ...args) {
         if (!is.string(name)) {
@@ -230,7 +241,7 @@ class Addon extends Event {
     /**
      * @public
      * @method schedule
-     * @desc Schedule a callback execution!
+     * @desc Schedule the execution of a given callback (not a precision scheduler).
      * @memberof Addon#
      * @param {!String} name Callback name
      * @param {!CallbackScheduler} scheduler CallbackScheduler settings!
@@ -240,6 +251,21 @@ class Addon extends Event {
      * @throws {Error}
      *
      * @version 0.0.0
+     *
+     * @example
+     * const Scheduler = require("@slimio/scheduler");
+     * const myAddon = new Addon("test");
+     *
+     * // Schedule hello to be executed every second!
+     * async function hello() {
+     *     console.log("hello world!");
+     * }
+     * myAddon
+     *     .registerCallback(hello)
+     *     .schedule("hello", new Scheduler({
+     *         interval: 1000,
+     *         executeOnStart: true
+     *     }));
      */
     schedule(name, scheduler) {
         if (!is.string(name)) {
