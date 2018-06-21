@@ -49,77 +49,107 @@ class Addon extends Event {
      * @param {Boolean=} [options.allowMultipleInstance=false] Enable/Disable multiple addon instance(s)
      * @param {Boolean=} [options.allowShadowRun=false] Enable/Disable shadow running
      */
-    constructor(name, options = {}) {
+    constructor(name, options = Object.create(null)) {
         super();
         this.on("error", console.error);
         this.name = name;
         this.uid = uuidv4();
         this.isStarted = false;
         this.isConnected = false;
-        this.callbacks = new Map();
-        this.schedules = new Map();
-        this.observers = new Map();
         this.shadowRunAllowed = options.allowShadowRun || false;
         this.multipleRunAllowed = options.allowMultipleInstance || false;
 
-        // Register default callback "start"
-        this.callbacks.set("start", async() => {
-            if (this.isStarted) {
-                return;
-            }
-            this.isStarted = true;
+        /** @type {Map<String, () => Promise<any>>} */
+        this.callbacks = new Map();
 
-            /**
-             * @event Addon#start
-             * @type {void}
-             */
-            this.emit("start");
+        /** @type {Map<String, CallbackScheduler>} */
+        this.schedules = new Map();
 
-            // Setup interval
-            this[Interval] = setInterval(async() => {
-                const toExecute = [];
+        /** @type {Map<String, ZenObservable.SubscriptionObserver<any>>} */
+        this.observers = new Map();
 
-                // Pull callback(s) to execute
-                for (const [name, scheduler] of this.schedules) {
-                    if (!scheduler.walk()) {
-                        continue;
-                    }
-                    toExecute.push(this.callbacks.get(name)());
-                }
+        // Register Addon default callbacks!
+        this.callbacks.set("start", Addon.start.bind(this));
+        this.callbacks.set("stop", Addon.stop.bind(this));
+        this.callbacks.set("get_info", Addon.getInfo.bind(this));
+    }
 
-                // Execute all calbacks (Promise) together (if there has)
-                if (toExecute.length > 0) {
-                    await Promise.all(toExecute);
-                }
-            }, Addon.mainIntervalMs);
-        });
+    /**
+     * @private
+     * @static
+     * @async
+     * @method start
+     * @desc start callback
+     * @returns {Promise<void>}
+     *
+     * @version 0.1.0
+     */
+    static async start() {
+        if (this.isStarted) {
+            return;
+        }
+        this.isStarted = true;
 
-        // Register default callback "stop"
-        this.callbacks.set("stop", async() => {
-            if (!this.isStarted) {
-                return;
-            }
-            this.isStarted = false;
+        /**
+         * @event Addon#start
+         * @type {void}
+         */
+        this.emit("start");
 
-            /**
-             * @event Addon#stop
-             * @type {void}
-             */
-            this.emit("stop");
+        // Setup interval
+        this[Interval] = setInterval(async() => {
+            const toExecute = [...this.schedules.entries()]
+                .filter(([, scheduler]) => scheduler.walk())
+                .map(([name]) => this.callbacks.get(name)());
 
-            // Clear interval
-            clearInterval(this[Interval]);
-        });
+            // Execute all calbacks (Promise) together
+            await Promise.all(toExecute);
+        }, Addon.mainIntervalMs);
+    }
 
-        // Register default callback "get_info"
-        this.callbacks.set("get_info", async() => {
-            return {
-                uid: this.uid,
-                name: this.name,
-                started: this.isStarted,
-                callbacks: this.callbacks.keys()
-            };
-        });
+    /**
+     * @private
+     * @static
+     * @async
+     * @method stop
+     * @desc start callback
+     * @returns {Promise<void>}
+     *
+     * @version 0.1.0
+     */
+    static async stop() {
+        if (!this.isStarted) {
+            return;
+        }
+        this.isStarted = false;
+
+        /**
+         * @event Addon#stop
+         * @type {void}
+         */
+        this.emit("stop");
+
+        // Clear interval
+        clearInterval(this[Interval]);
+    }
+
+    /**
+     * @private
+     * @static
+     * @async
+     * @method getInfo
+     * @desc get_info callback
+     * @returns {Object}
+     *
+     * @version 0.1.0
+     */
+    static async getInfo() {
+        return {
+            uid: this.uid,
+            name: this.name,
+            started: this.isStarted,
+            callbacks: this.callbacks.keys()
+        };
     }
 
     /**
@@ -132,6 +162,9 @@ class Addon extends Event {
      * @returns {this}
      *
      * @throws {TypeError}
+     * @throws {Error}
+     *
+     * @version 0.0.0
      */
     registerCallback(name, callback) {
         if (!is.string(name)) {
@@ -165,6 +198,8 @@ class Addon extends Event {
      *
      * @throws {TypeError}
      * @throws {Error}
+     *
+     * @version 0.0.0
      */
     executeCallback(name, ...args) {
         if (!is.string(name)) {
@@ -189,6 +224,8 @@ class Addon extends Event {
      *
      * @throws {TypeError}
      * @throws {Error}
+     *
+     * @version 0.0.0
      */
     schedule(name, scheduler) {
         if (!is.string(name)) {
@@ -198,9 +235,8 @@ class Addon extends Event {
             throw new Error(ERRORS.unableToFoundCallback(name));
         }
         if (scheduler instanceof CallbackScheduler === false) {
-            throw new TypeError(
-                "Addon.schedule->scheduler should be an instance of CallbackScheduler"
-            );
+            // eslint-disable-next-line
+            throw new TypeError("Addon.schedule->scheduler should be an instance of CallbackScheduler");
         }
 
         // Register scheduler on Addon
@@ -223,11 +259,14 @@ class Addon extends Event {
      *
      * @throws {TypeError}
      * @fires Addon#message
+     *
+     * @version 0.0.0
      */
     sendMessage(target, options = {}, noReturn = false) {
         if (!is.string(target)) {
             throw new TypeError("Addon.sendMessage->target should be typeof <string>");
         }
+
         // Generate unique id for our message!
         const messageId = uuidv4();
 
@@ -245,7 +284,7 @@ class Addon extends Event {
 
         // Return void 0 if noReturn is true
         if (noReturn) {
-            return void 0;
+            return null;
         }
 
         // Return an Observable that stream response
