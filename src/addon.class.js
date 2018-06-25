@@ -8,6 +8,7 @@ const is = require("@sindresorhus/is");
 const Observable = require("zen-observable");
 const uuidv4 = require("uuid/v4");
 const isSnakeCase = require("is-snake-case");
+const { setDriftlessInterval, clearDriftless } = require("driftless");
 
 // Require Internal dependencie(s)
 const CallbackScheduler = require("@slimio/scheduler");
@@ -35,7 +36,7 @@ class Addon extends Event {
     /**
      * @constructor
      * @param {!String} name addon name
-     * @param {Object} [options=[]] Addon options
+     * @param {Object} [options={}] Addon options
      * @param {Boolean=} [options.allowMultipleInstance=false] Enable/Disable multiple addon instance(s)
      * @param {Boolean=} [options.allowShadowRun=false] Enable/Disable shadow running
      */
@@ -79,14 +80,8 @@ class Addon extends Event {
         }
         this.isStarted = true;
 
-        /**
-         * @event Addon#start
-         * @type {void}
-         */
-        this.emit("start");
-
         // Setup interval
-        this[Interval] = setInterval(async() => {
+        this[Interval] = setDriftlessInterval(async() => {
             const toExecute = [...this.schedules.entries()]
                 .filter(([, scheduler]) => scheduler.walk())
                 .map(([name]) => this.callbacks.get(name)());
@@ -94,6 +89,12 @@ class Addon extends Event {
             // Execute all calbacks (Promise) together
             await Promise.all(toExecute);
         }, Addon.mainIntervalMs);
+
+        /**
+         * @event Addon#start
+         * @type {void}
+         */
+        this.emit("start");
     }
 
     /**
@@ -111,14 +112,14 @@ class Addon extends Event {
         }
         this.isStarted = false;
 
+        // Clear interval
+        clearDriftless(this[Interval]);
+
         /**
          * @event Addon#stop
          * @type {void}
          */
         this.emit("stop");
-
-        // Clear interval
-        clearInterval(this[Interval]);
     }
 
     /**
@@ -258,6 +259,15 @@ class Addon extends Event {
      *     }));
      */
     schedule(name, scheduler) {
+        if (name instanceof CallbackScheduler) {
+            if (this.callbacks.size <= Addon.ReservedCallbacksName.size) {
+                throw new Error("Addon.schedule - No custom callback has been registered yet!");
+            }
+            // eslint-disable-next-line
+            scheduler = name;
+            // eslint-disable-next-line
+            name = [...this.callbacks.keys()].pop();
+        }
         if (!is.string(name)) {
             throw new TypeError("Addon.schedule->name should be typeof <string>");
         }
@@ -265,7 +275,6 @@ class Addon extends Event {
             throw new Error(`Addon.schedule - Unable to found callback with name ${name}`);
         }
         if (scheduler instanceof CallbackScheduler === false) {
-            // eslint-disable-next-line
             throw new TypeError("Addon.schedule->scheduler should be an instance of CallbackScheduler");
         }
 

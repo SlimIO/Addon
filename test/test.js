@@ -134,6 +134,36 @@ avaTest("Addon schedule (throw)", (test) => {
 });
 
 /**
+ * Addon schedule (latest callback registered)
+ */
+avaTest("Addon schedule (latest callback registered)", async(test) => {
+    const myAddon = new Addon("myAddon");
+
+    // Invalid callback name type
+    const noCallback = test.throws(() => {
+        myAddon.schedule(new CallbackScheduler());
+    }, Error);
+    test.is(noCallback.message, "Addon.schedule - No custom callback has been registered yet!");
+
+    // Register and Schedule callback
+    let executionTime = 0;
+    myAddon.registerCallback(async function test() {
+        executionTime++;
+    }).schedule(new CallbackScheduler({ interval: 0.5, executeOnStart: true }));
+
+    await new Promise((resolve) => {
+        myAddon.on("start", async() => {
+            await sleep(2100);
+            test.is(executionTime, 4);
+            resolve();
+        });
+        myAddon.executeCallback("start");
+    });
+    await myAddon.executeCallback("stop");
+    test.pass();
+});
+
+/**
  * Addon register & execute a callback
  */
 avaTest("Addon register & execute a callback", async(test) => {

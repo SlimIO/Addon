@@ -35,6 +35,7 @@
   "dependencies": {
     "@sindresorhus/is": "^0.9.0",
     "@slimio/scheduler": "^0.1.0",
+    "driftless": "^2.0.3",
     "is-snake-case": "^0.1.0",
     "uuid": "^3.2.1",
     "zen-observable": "^0.8.8"
