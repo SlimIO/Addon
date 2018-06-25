@@ -127,7 +127,7 @@ class Addon extends Event {
      * @static
      * @method getInfo
      * @desc get_info callback
-     * @returns {Object}
+     * @returns {Addon.CallbackGetInfo}
      *
      * @version 0.1.0
      */
