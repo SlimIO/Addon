@@ -27,6 +27,7 @@ const Interval = Symbol("interval");
  * @property {Boolean} isConnected
  * @property {Boolean} shadowRunAllowed
  * @property {Boolean} multipleRunAllowed
+ * @property {Set<String>} flags
  * @property {Map<String, AsyncFunction>} callbacks
  * @property {Map<String, CallbackScheduler>} schedules
  * @property {Map<String, ZenObservable.SubscriptionObserver<any>>} observers
@@ -47,6 +48,7 @@ class Addon extends Event {
         this.uid = uuidv4();
         this.isStarted = false;
         this.isConnected = false;
+        this.flags = new Set();
         this.shadowRunAllowed = options.allowShadowRun || false;
         this.multipleRunAllowed = options.allowMultipleInstance || false;
 
@@ -136,7 +138,8 @@ class Addon extends Event {
             uid: this.uid,
             name: this.name,
             started: this.isStarted,
-            callbacks: this.callbacks.keys()
+            callbacks: [...this.callbacks.keys()],
+            flags: [...this.flags]
         };
     }
 

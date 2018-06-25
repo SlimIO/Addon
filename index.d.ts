@@ -64,7 +64,8 @@ declare namespace Addon {
         uid: string;
         name: string;
         started: boolean;
-        callbacks: string[]
+        callbacks: string[];
+        flags: string[];
     }
 
 }
