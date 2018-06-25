@@ -1,6 +1,10 @@
-tests
+test
 coverage
 docs
 .editorconfig
 .eslintrc
 .nyc_output
+.gitignore
+LICENSE
+CONTRIBUTING.md
+jsdoc.json
