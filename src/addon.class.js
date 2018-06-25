@@ -10,20 +10,10 @@ const uuidv4 = require("uuid/v4");
 const isSnakeCase = require("is-snake-case");
 
 // Require Internal dependencie(s)
-const { taggedString } = require("@slimio/utils");
 const CallbackScheduler = require("@slimio/scheduler");
 
 // Interval Symbol
 const Interval = Symbol("interval");
-
-/**
- * @private
- * @const ERRORS
- */
-const ERRORS = require("./errors.json");
-for (const [key, value] of Object.entries(ERRORS)) {
-    Reflect.set(ERRORS, key, taggedString`${value}`);
-}
 
 /**
  * @class Addon
@@ -188,7 +178,7 @@ class Addon extends Event {
             throw new TypeError("Addon.registerCallback->callback should be an AsyncFunction");
         }
         if (Addon.ReservedCallbacksName.has(name)) {
-            throw new Error(ERRORS.unallowedCallbackName(name));
+            throw new Error(`Addon.registerCallback - Callback name '${name}' is a reserved callback name!`);
         }
         if (!isSnakeCase(name)) {
             throw new Error("Addon.registerCallback->name typo should be formated in snake_case");
@@ -231,7 +221,7 @@ class Addon extends Event {
             throw new TypeError("Addon.executeCallback->name should be typeof <string>");
         }
         if (!this.callbacks.has(name)) {
-            throw new Error(ERRORS.unableToFoundCallback(name));
+            throw new Error(`Addon.executeCallback - Unable to found callback with name ${name}`);
         }
 
         // Return callback execution!
@@ -272,7 +262,7 @@ class Addon extends Event {
             throw new TypeError("Addon.schedule->name should be typeof <string>");
         }
         if (!this.callbacks.has(name)) {
-            throw new Error(ERRORS.unableToFoundCallback(name));
+            throw new Error(`Addon.schedule - Unable to found callback with name ${name}`);
         }
         if (scheduler instanceof CallbackScheduler === false) {
             // eslint-disable-next-line
@@ -334,7 +324,7 @@ class Addon extends Event {
             const timer = setTimeout(() => {
                 this.observers.delete(messageId);
                 observer.error(
-                    ERRORS.messageTimeOut(messageId, Addon.messageTimeOutMs)
+                    `Failed to receive response for message id ${messageId} in a delay of ${Addon.messageTimeOutMs}ms`
                 );
             }, is.number(options.timeout) ? options.timeout : Addon.messageTimeOutMs);
 

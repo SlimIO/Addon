@@ -1,19 +1,13 @@
-/* eslint no-new: off */
 /* eslint require-await: off */
 /* eslint no-empty-function: off */
 
-// Require dependencies
+// Require Third-party Dependencies
 const avaTest = require("ava");
 const is = require("@sindresorhus/is");
-const Addon = require("../index");
-const { taggedString } = require("@slimio/utils");
-const CallbackScheduler = require("@slimio/scheduler");
 
-// Require Errors
-const ERRORS = require("../src/errors.json");
-for (const [key, value] of Object.entries(ERRORS)) {
-    Reflect.set(ERRORS, key, taggedString`${value}`);
-}
+// Require Internal Depedencies
+const Addon = require("../index");
+const CallbackScheduler = require("@slimio/scheduler");
 
 function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -75,7 +69,10 @@ avaTest("Addon registerCallback (throw)", (test) => {
     const unallowedCallbackName = test.throws(() => {
         myAddon.registerCallback("start", async() => {});
     }, Error);
-    test.is(unallowedCallbackName.message, ERRORS.unallowedCallbackName("start"));
+    test.is(
+        unallowedCallbackName.message,
+        "Addon.registerCallback - Callback name 'start' is a reserved callback name!"
+    );
 
     // Unallowed (reserved) callback name!
     const snakeCase = test.throws(() => {
@@ -103,7 +100,7 @@ avaTest("Addon executeCallback (throw)", (test) => {
     const unknowCallback = test.throws(() => {
         myAddon.executeCallback("unknow");
     }, Error);
-    test.is(unknowCallback.message, ERRORS.unableToFoundCallback("unknow"));
+    test.is(unknowCallback.message, "Addon.executeCallback - Unable to found callback with name unknow");
 });
 
 /**
@@ -122,7 +119,7 @@ avaTest("Addon schedule (throw)", (test) => {
     const unknowCallback = test.throws(() => {
         myAddon.schedule("unknow");
     }, Error);
-    test.is(unknowCallback.message, ERRORS.unableToFoundCallback("unknow"));
+    test.is(unknowCallback.message, "Addon.schedule - Unable to found callback with name unknow");
 
     myAddon.registerCallback("test", async() => {
         return { ok: 1 };
