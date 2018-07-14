@@ -37,20 +37,14 @@ class Addon extends Event {
     /**
      * @constructor
      * @param {!String} name addon name
-     * @param {Object} [options={}] Addon options
-     * @param {Boolean=} [options.allowMultipleInstance=false] Enable/Disable multiple addon instance(s)
-     * @param {Boolean=} [options.allowShadowRun=false] Enable/Disable shadow running
      */
-    constructor(name, options = Object.create(null)) {
+    constructor(name) {
         super();
         this.on("error", console.error);
         this.name = name;
         this.uid = uuidv4();
         this.isStarted = false;
-        this.isConnected = false;
         this.flags = new Set();
-        this.shadowRunAllowed = options.allowShadowRun || false;
-        this.multipleRunAllowed = options.allowMultipleInstance || false;
 
         /** @type {Map<String, () => Promise<any>>} */
         this.callbacks = new Map();

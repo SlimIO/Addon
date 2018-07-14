@@ -10,7 +10,7 @@ import * as events from "events";
  */
 declare class Addon extends events {
     // Constructor
-    constructor(name: string, options?: Addon.ConstructorOptions);
+    constructor(name: string);
 
     // Properties
     public name: string;
@@ -46,12 +46,6 @@ declare class Addon extends events {
 declare namespace Addon {
 
     export type AsyncHandler = () => Promise<void>;
-
-    // Constructor interface
-    export interface ConstructorOptions {
-        allowMultipleInstance?: boolean;
-        allowShadowRun?: boolean;
-    }
 
     // Message Options
     export interface MessageOptions {
