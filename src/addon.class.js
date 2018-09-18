@@ -139,6 +139,7 @@ class Addon extends Event {
 
     /**
      * @public
+     * @chainable
      * @method registerCallback
      * @desc Register a new callback on the Addon
      * @memberof Addon#
@@ -228,6 +229,7 @@ class Addon extends Event {
 
     /**
      * @public
+     * @chainable
      * @method schedule
      * @desc Schedule the execution of a given callback (not a precision scheduler).
      * @memberof Addon#
