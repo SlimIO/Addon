@@ -16,9 +16,6 @@ declare class Addon extends events {
     public name: string;
     public uid: string;
     public isStarted: boolean;
-    public isConnected: boolean;
-    public shadowRunAllowed: boolean;
-    public multipleRunAllowed: boolean;
     public callbacks: Map<string, () => Promise<any>>;
     public schedules: Map<string, CallbackScheduler>;
     public observers: Map<string, ZenObservable.ObservableLike>;
