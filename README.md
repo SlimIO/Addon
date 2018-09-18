@@ -1,46 +1,50 @@
 # Addon
-Slim.IO Addon
+SlimIO Core Addon container. This module/package provide the foundation to build valid SlimIO Addon that will rely and work with the Core.
 
 ## Getting Started
 
-This package is available in the Node Package Repository and can be easily installed with [npm](https://docs.npmjs.com/getting-started/what-is-npm).
+This package is available in the Node Package Repository and can be easily installed with [npm](https://docs.npmjs.com/getting-started/what-is-npm) or [yarn](https://yarnpkg.com).
 
 ```bash
-$ npm install @slimio/addon
+$ npm i @slimio/addon
+# or
+$ yarn add @slimio/addon
 ```
 
-Usage example:
+## Usage example
+
+A sample cpu addon.
 
 ```js
 const Addon = require("@slimio/addon");
 
 // Create addon
-const myAddon = new Addon("myAddon");
+const CPU = new Addon("cpu");
 
 // Register a callback
-async function sayHello(name) {
+CPU.registerCallback(async function sayHello(name) {
     console.log(`hello ${name}`);
-}
-myAddon.registerCallback(sayHello);
-
-// Catch start event!
-myAddon.on("start", () => {
-    console.log("myAddon started!");
 });
 
-// Export addon for SlimIO Agent
-module.exports = myAddon;
+// Catch start event!
+CPU.on("start", () => {
+    console.log("cpu addon started!");
+    CPU.executeCallback("sayHello", "thomas"); // stdout "hello thomas";
+});
+
+// Export addon for SlimIO Core.
+module.exports = CPU;
 ```
 
 ## API
 
-### constructor(name)
+### constructor(name: string)
 Create a new Addon with a given name !
 ```js
 const myAddon = new Addon("myAddon");
 ```
 
-### registerCallback(name, callback)
+### registerCallback(name: string | AsyncFunction, callback?: AsyncFunction): this
 Register a new Addon callback. The callback should be an Asynchronous Function (Synchronous function will be rejected with a TypeError).
 
 There is two ways to register a callback:
@@ -63,7 +67,7 @@ myAddon.registerCallback(callback_name);
 
 Callback name should be writted by following the snake_case convention [snake_case](https://fr.wikipedia.org/wiki/Snake_case) !
 
-### executeCallback(name, ...args)
+### executeCallback(name: string, ...args?: any[]): any
 Execute a callback (Return a Promise). The method can take many arguments (with be returned as normal arguments of the callback).
 
 ```js
@@ -79,7 +83,7 @@ myAddon.on("start", async function() {
 });
 ```
 
-### schedule(name, scheduler)
+### schedule(name: string | Scheduler, scheduler?: Scheduler)
 Schedule a callback execution interval. The package `@slimio/scheduler` to achieve a scheduler !
 
 ```js
