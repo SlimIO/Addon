@@ -30,10 +30,7 @@ avaTest("Addon default variables values", (test) => {
 
     test.is(is.string(myAddon.uid), true);
     test.is(myAddon.name, "myAddon");
-    test.is(myAddon.multipleRunAllowed, false);
-    test.is(myAddon.shadowRunAllowed, false);
     test.is(myAddon.isStarted, false);
-    test.is(myAddon.isConnected, false);
     test.is(is.map(myAddon.callbacks), true);
     test.is(is.map(myAddon.schedules), true);
     test.is(is.map(myAddon.observers), true);
@@ -186,7 +183,7 @@ avaTest("Addon register & execute a callback", async(test) => {
     test.is(info.uid, myAddon.uid);
     test.is(info.name, myAddon.name);
     test.is(info.started, false);
-    test.deepEqual(info.callbacks, myAddon.callbacks.keys());
+    test.deepEqual(info.callbacks, [...myAddon.callbacks.keys()]);
 });
 
 /**
@@ -229,13 +226,13 @@ avaTest("Addon send a message", async(test) => {
     });
 
     await new Promise((resolve) => {
-        myAddon.sendMessage("any", void 0, false).subscribe((res) => {
+        myAddon.sendMessage("any").subscribe((res) => {
             test.is(res, "hello world!");
             resolve();
         });
 
         // Dont expect return value!
-        const ret = myAddon.sendMessage("any", void 0, true);
+        const ret = myAddon.sendMessage("any", { noReturn: true });
         test.is(is.nullOrUndefined(ret), true);
     });
 });
@@ -248,7 +245,7 @@ avaTest("Addon send a message and timeout", async(test) => {
     myAddon.on("message", () => {});
 
     await new Promise((resolve) => {
-        myAddon.sendMessage("any", { timeout: 500, args: [] }, false).subscribe(
+        myAddon.sendMessage("any", { timeout: 500, args: [] }).subscribe(
             () => {},
             (error) => {
                 test.is(is.string(error), true);
