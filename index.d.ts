@@ -16,19 +16,19 @@ declare class Addon extends events {
     public name: string;
     public uid: string;
     public isStarted: boolean;
-    public callbacks: Map<string, () => Promise<any>>;
+    public callbacks: Map<string, Addon.Callback>;
     public schedules: Map<string, CallbackScheduler>;
     public observers: Map<string, ZenObservable.ObservableLike>;
 
     // Static Properties
-    static ReservedCallbacksName: Set<string>;
-    static messageTimeOutMs: number;
-    static mainIntervalMs: number;
+    static RESERVED_CALLBACK_NAME: Set<string>;
+    static MESSAGE_TIMEOUT_MS: number;
+    static MAIN_INTERVAL_MS: number;
 
     // Methods
-    registerCallback(name: string | Addon.AsyncHandler, callback?: Addon.AsyncHandler): this;
+    registerCallback(name: string | Addon.Callback, callback?: Addon.Callback): this;
     schedule(name: string | CallbackScheduler, scheduler?: CallbackScheduler): this;
-    executeCallback<T>(name: string, ...args): Promise<T>;
+    executeCallback<T>(name: string, ...args: any[]): Promise<T>;
     sendMessage(target: string, options?: Addon.MessageOptions): ZenObservable.ObservableLike;
 
     // Static Methods
@@ -42,7 +42,7 @@ declare class Addon extends events {
  */
 declare namespace Addon {
 
-    export type AsyncHandler = () => Promise<void>;
+    export type Callback = () => Promise<any>;
 
     // Message Options
     export interface MessageOptions {
