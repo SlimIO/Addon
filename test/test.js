@@ -17,9 +17,9 @@ function sleep(ms) {
  * Addon default static variables types
  */
 avaTest("Addon default static variables types", (test) => {
-    test.is(is.number(Addon.mainIntervalMs), true);
-    test.is(is.number(Addon.messageTimeOutMs), true);
-    test.is(is.set(Addon.ReservedCallbacksName), true);
+    test.is(is.number(Addon.MAIN_INTERVAL_MS), true);
+    test.is(is.number(Addon.MESSAGE_TIMEOUT_MS), true);
+    test.is(is.set(Addon.RESERVED_CALLBACKS_NAME), true);
 });
 
 /**
@@ -31,6 +31,7 @@ avaTest("Addon default variables values", (test) => {
     test.is(is.string(myAddon.uid), true);
     test.is(myAddon.name, "myAddon");
     test.is(myAddon.isStarted, false);
+    test.is(is.array(myAddon.asserts), true);
     test.is(is.map(myAddon.callbacks), true);
     test.is(is.map(myAddon.schedules), true);
     test.is(is.map(myAddon.observers), true);

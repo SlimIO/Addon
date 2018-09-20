@@ -356,7 +356,7 @@ class Addon extends Event {
 }
 
 // Register Static Addon variables...
-Addon.RESERVED_CALLBACKS_NAME = new Set(["start", "stop", "get_info"]);
+Addon.RESERVED_CALLBACKS_NAME = new Set(["start", "stop", "get_info", "health_check"]);
 Addon.MESSAGE_TIMEOUT_MS = 5000;
 Addon.MAIN_INTERVAL_MS = 500;
 
