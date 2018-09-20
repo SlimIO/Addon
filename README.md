@@ -98,5 +98,13 @@ myAddon.registerCallback(async function sayHelloEveryOneSecond() {
 myAddon.schedule("sayHelloEveryOneSecond", new Scheduler({ interval: 1 }));
 ```
 
-### sendMessage(target, options)
-Send a message to a given target (addon.callback).
+### sendMessage(target: string, options): Observable
+Send a lazy message to a given target `addon.callback`. The returned value is an Observable.
+
+```js
+const myAddon = new Addon("myAddon");
+
+myAddon.on("start", function() {
+    myAddon.sendMessage("cpu.get_info").subscribe(console.log);
+});
+```
