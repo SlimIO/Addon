@@ -24,9 +24,6 @@ const Interval = Symbol("interval");
  * @property {String} name Addon name
  * @property {String} uid Addon unique id
  * @property {Boolean} isStarted
- * @property {Boolean} isConnected
- * @property {Boolean} shadowRunAllowed
- * @property {Boolean} multipleRunAllowed
  * @property {Set<String>} flags
  * @property {Map<String, AsyncFunction>} callbacks
  * @property {Map<String, CallbackScheduler>} schedules
