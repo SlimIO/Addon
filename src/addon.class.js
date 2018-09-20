@@ -84,7 +84,7 @@ class Addon extends Event {
 
             // Execute all calbacks (Promise) together
             await Promise.all(toExecute);
-        }, Addon.mainIntervalMs);
+        }, Addon.MAIN_INTERVAL_MS);
 
         /**
          * @event Addon#start
@@ -176,7 +176,7 @@ class Addon extends Event {
         if (!is.asyncFunction(callback)) {
             throw new TypeError("Addon.registerCallback->callback should be an AsyncFunction");
         }
-        if (Addon.ReservedCallbacksName.has(name)) {
+        if (Addon.RESERVED_CALLBACKS_NAME.has(name)) {
             throw new Error(`Addon.registerCallback - Callback name '${name}' is a reserved callback name!`);
         }
         if (!isSnakeCase(name)) {
@@ -259,7 +259,7 @@ class Addon extends Event {
      */
     schedule(name, scheduler) {
         if (name instanceof CallbackScheduler) {
-            if (this.callbacks.size <= Addon.ReservedCallbacksName.size) {
+            if (this.callbacks.size <= Addon.RESERVED_CALLBACKS_NAME.size) {
                 throw new Error("Addon.schedule - No custom callback has been registered yet!");
             }
             // eslint-disable-next-line
@@ -333,9 +333,9 @@ class Addon extends Event {
             const timer = setTimeout(() => {
                 this.observers.delete(messageId);
                 observer.error(
-                    `Failed to receive response for message id ${messageId} in a delay of ${Addon.messageTimeOutMs}ms`
+                    `Failed to receive response for message id ${messageId} in a delay of ${Addon.MESSAGE_TIMEOUT_MS}ms`
                 );
-            }, is.number(options.timeout) ? options.timeout : Addon.messageTimeOutMs);
+            }, is.number(options.timeout) ? options.timeout : Addon.MESSAGE_TIMEOUT_MS);
 
             // Setup the observer on the Addon.
             this.observers.set(messageId, observer);
@@ -351,9 +351,9 @@ class Addon extends Event {
 }
 
 // Register Static Addon variables...
-Addon.ReservedCallbacksName = new Set(["start", "stop", "get_info"]);
-Addon.messageTimeOutMs = 5000;
-Addon.mainIntervalMs = 500;
+Addon.RESERVED_CALLBACKS_NAME = new Set(["start", "stop", "get_info"]);
+Addon.MESSAGE_TIMEOUT_MS = 5000;
+Addon.MAIN_INTERVAL_MS = 500;
 
 // Export (default) Addon
 module.exports = Addon;
