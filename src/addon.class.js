@@ -42,6 +42,7 @@ class Addon extends Event {
         this.uid = uuidv4();
         this.isStarted = false;
         this.flags = new Set();
+        this.asserts = [];
 
         /** @type {Map<String, () => Promise<any>>} */
         this.callbacks = new Map();
@@ -56,6 +57,13 @@ class Addon extends Event {
         this.callbacks.set("start", Addon.start.bind(this));
         this.callbacks.set("stop", Addon.stop.bind(this));
         this.callbacks.set("get_info", Addon.getInfo.bind(this));
+        this.callbacks.set("health_check", async() => {
+            if (this.asserts.length > 0) {
+                await Promise.all(this.asserts);
+            }
+
+            return true;
+        });
     }
 
     /**
