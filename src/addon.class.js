@@ -87,13 +87,13 @@ class Addon extends Event {
      * @static
      * @method start
      * @desc Function used to start an addon
-     * @returns {Promise<void>}
+     * @returns {Promise<boolean>}
      *
      * @version 0.1.0
      */
     static start() {
         if (this.isStarted) {
-            return;
+            return false;
         }
         this.isStarted = true;
 
@@ -114,6 +114,8 @@ class Addon extends Event {
          * @type {void}
          */
         this.emit("start");
+
+        return true;
     }
 
     /**
@@ -121,13 +123,13 @@ class Addon extends Event {
      * @static
      * @method stop
      * @desc Function used to stop an addon
-     * @returns {Promise<void>}
+     * @returns {Promise<boolean>}
      *
      * @version 0.1.0
      */
     static stop() {
         if (!this.isStarted) {
-            return;
+            return false;
         }
         this.isStarted = false;
 
@@ -139,6 +141,8 @@ class Addon extends Event {
          * @type {void}
          */
         this.emit("stop");
+
+        return true;
     }
 
     /**
