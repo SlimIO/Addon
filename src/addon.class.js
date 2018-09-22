@@ -14,7 +14,7 @@ const { setDriftlessInterval, clearDriftless } = require("driftless");
 const CallbackScheduler = require("@slimio/scheduler");
 
 // Interval Symbol
-const Interval = Symbol("interval");
+const SYM_INTERVAL = Symbol("interval");
 
 /**
  * @class Addon
@@ -34,9 +34,14 @@ class Addon extends Event {
     /**
      * @constructor
      * @param {!String} name addon name
+     *
+     * @throws {TypeError}
      */
     constructor(name) {
         super();
+        if (typeof name !== "string") {
+            throw new TypeError("constructor name argument should be typeof string");
+        }
         this.on("error", console.error);
         this.name = name;
         this.uid = uuidv4();
@@ -53,11 +58,18 @@ class Addon extends Event {
         /** @type {Map<String, ZenObservable.SubscriptionObserver<any>>} */
         this.observers = new Map();
 
-        // Register Addon default callbacks!
+        // The "start" callback is triggered to start the addon
         this.callbacks.set("start", Addon.start.bind(this));
+
+        // The "stop" callback is triggered to stop the addon
         this.callbacks.set("stop", Addon.stop.bind(this));
+
+        // The "get_info" callback is triggered to retrieve default information about the addon
         this.callbacks.set("get_info", Addon.getInfo.bind(this));
+
+        // the "health_check" callback is triggered to verify the health of the addon!
         this.callbacks.set("health_check", async() => {
+            // Detect if there is any custom assertion addon by the developer
             if (this.asserts.length > 0) {
                 await Promise.all(this.asserts);
             }
@@ -70,7 +82,7 @@ class Addon extends Event {
      * @private
      * @static
      * @method start
-     * @desc start callback
+     * @desc Function used to start an addon
      * @returns {Promise<void>}
      *
      * @version 0.1.0
@@ -81,13 +93,15 @@ class Addon extends Event {
         }
         this.isStarted = true;
 
-        // Setup interval
-        this[Interval] = setDriftlessInterval(async() => {
+        // The interval is used to execute Scheduled callbacks
+        // A Symbol primitive is used to make Interval private
+        this[SYM_INTERVAL] = setDriftlessInterval(async() => {
+            // Retrieve scheduled callback
             const toExecute = [...this.schedules.entries()]
                 .filter(([, scheduler]) => scheduler.walk())
                 .map(([name]) => this.callbacks.get(name)());
 
-            // Execute all calbacks (Promise) together
+            // Execute all calbacks (Promise) in asynchrone
             await Promise.all(toExecute);
         }, Addon.MAIN_INTERVAL_MS);
 
@@ -102,7 +116,7 @@ class Addon extends Event {
      * @private
      * @static
      * @method stop
-     * @desc start callback
+     * @desc Function used to stop an addon
      * @returns {Promise<void>}
      *
      * @version 0.1.0
@@ -113,8 +127,8 @@ class Addon extends Event {
         }
         this.isStarted = false;
 
-        // Clear interval
-        clearDriftless(this[Interval]);
+        // Clear current addon interval
+        clearDriftless(this[SYM_INTERVAL]);
 
         /**
          * @event Addon#stop
@@ -127,7 +141,7 @@ class Addon extends Event {
      * @private
      * @static
      * @method getInfo
-     * @desc get_info callback
+     * @desc Function used to retrieve default options & properties of an addon
      * @returns {Addon.CallbackGetInfo}
      *
      * @version 0.1.0
@@ -169,12 +183,14 @@ class Addon extends Event {
      * });
      */
     registerCallback(name, callback) {
+        // If name is a function, replace name by the function.name
         if (is.function(name) && is.nullOrUndefined(callback)) {
             // eslint-disable-next-line
             callback = name;
             // eslint-disable-next-line
             name = callback.name;
         }
+
         if (!is.string(name)) {
             throw new TypeError("Addon.registerCallback->name should be typeof <string>");
         }
@@ -263,6 +279,7 @@ class Addon extends Event {
      *     }));
      */
     schedule(name, scheduler) {
+        // If name is an instanceo of Scheduler, replace name by the latest callback registered!
         if (name instanceof CallbackScheduler) {
             if (this.callbacks.size <= Addon.RESERVED_CALLBACKS_NAME.size) {
                 throw new Error("Addon.schedule - No custom callback has been registered yet!");
@@ -272,6 +289,7 @@ class Addon extends Event {
             // eslint-disable-next-line
             name = [...this.callbacks.keys()].pop();
         }
+
         if (!is.string(name)) {
             throw new TypeError("Addon.schedule->name should be typeof <string>");
         }
@@ -355,7 +373,7 @@ class Addon extends Event {
 
 }
 
-// Register Static Addon variables...
+// Register Static (CONSTANTS) Addon variables...
 Addon.RESERVED_CALLBACKS_NAME = new Set(["start", "stop", "get_info", "health_check"]);
 Addon.MESSAGE_TIMEOUT_MS = 5000;
 Addon.MAIN_INTERVAL_MS = 500;
