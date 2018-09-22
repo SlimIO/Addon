@@ -42,6 +42,10 @@ class Addon extends Event {
         if (typeof name !== "string") {
             throw new TypeError("constructor name argument should be typeof string");
         }
+        if (name.length <= 2) {
+            throw new Error("constructor name argument length must be greater than 2");
+        }
+
         this.on("error", console.error);
         this.name = name;
         this.uid = uuidv4();
