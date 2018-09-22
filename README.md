@@ -36,12 +36,32 @@ CPU.on("start", () => {
 module.exports = CPU;
 ```
 
+## Events
+The Addon package is extended with a NodeJS EventEmitter. Two kinds of events can be triggered on Addon by the Core:
+- start (When the Addon is asked to start)
+- stop (When the addon is asked to stop)
+
+> **Note** Events are not awaited. For example, this is not recommanded to use "close" to free handle/resource before a SIGINT event.
+
+## Interval & Scheduling
+
+The Addon instanciate is own interval to execute Scheduled callbacks. The default interval is `500` milliseconds.
+
+You can configure the default interval by editing static Addon variables:
+```js
+Addon.MAIN_INTERVAL_MS = 100; // 100ms
+```
+
 ## API
 
 ### constructor(name: string)
-Create a new Addon with a given name !
+Create a new Addon with a given name ! The name of the addon must be more than two characters long.
 ```js
+// VALID
 const myAddon = new Addon("myAddon");
+
+// INVALID
+const de = new Addon("de");
 ```
 
 ### registerCallback(name: string | AsyncFunction, callback?: AsyncFunction): this
@@ -57,7 +77,7 @@ myAddon.registerCallback("callback_name", async function() {
 
 > Please, be sure to avoid Anonymous function as much possible!
 
-Or by passing the callback to name (the function can't be anonymous).
+Or by passing the callback reference to the name (The function can't be anonymous, else it will throw an Error).
 ```js
 async function callback_name() {
     console.log("callbackName has been executed!");
@@ -68,7 +88,7 @@ myAddon.registerCallback(callback_name);
 Callback name should be writted by following the snake_case convention [snake_case](https://fr.wikipedia.org/wiki/Snake_case) !
 
 ### executeCallback(name: string, ...args?: any[]): any
-Execute a callback (Return a Promise). The method can take many arguments (with be returned as normal arguments of the callback).
+Execute a callback (It will return a Promise). The method can take infinity of arguments (with be returned as normal arguments of the callback).
 
 ```js
 const myAddon = new Addon("myAddon");
@@ -78,13 +98,13 @@ myAddon.registerCallback(async function cb_test() {
 });
 
 myAddon.on("start", async function() {
-    const ret = await myAddon.executeCallback("callbackName");
+    const ret = await myAddon.executeCallback("cb_test");
     console.log(ret); // stdout "hello world!"
 });
 ```
 
 ### schedule(name: string | Scheduler, scheduler?: Scheduler)
-Schedule a callback execution interval. The package `@slimio/scheduler` to achieve a scheduler !
+Schedule a callback execution interval. Use the package `@slimio/scheduler` to achieve a scheduler !
 
 ```js
 const Scheduler = require("@slimio/scheduler");
