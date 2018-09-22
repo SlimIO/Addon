@@ -9,43 +9,67 @@ const is = require("@sindresorhus/is");
 const Addon = require("../index");
 const CallbackScheduler = require("@slimio/scheduler");
 
-function sleep(ms) {
+/**
+ * @function sleep
+ * @param {!Number} [ms=0] millisecond to sleep
+ * @returns {Promise<void>}
+ */
+function sleep(ms = 0) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/**
- * Addon default static variables types
- */
-avaTest("Addon default static variables types", (test) => {
+// CONSTANTS
+const DEFAULT_CALLBACKS = ["start", "stop", "get_info", "health_check"];
+
+avaTest("Check Addon static CONSTANTS (type and values)", (test) => {
     test.is(is.number(Addon.MAIN_INTERVAL_MS), true);
     test.is(is.number(Addon.MESSAGE_TIMEOUT_MS), true);
     test.is(is.set(Addon.RESERVED_CALLBACKS_NAME), true);
+    test.is(Addon.MAIN_INTERVAL_MS, 500);
+    test.is(Addon.MESSAGE_TIMEOUT_MS, 5000);
+    test.deepEqual([...Addon.RESERVED_CALLBACKS_NAME], DEFAULT_CALLBACKS);
 });
 
-/**
- * Addon default variables values
- */
-avaTest("Addon default variables values", (test) => {
+avaTest("Addon constructor throw a typeError if name is not a string", (test) => {
+    const error = test.throws(() => {
+        new Addon(void 0);
+    }, TypeError);
+    test.is(error.message, "constructor name argument should be typeof string");
+});
+
+avaTest("Addon constructor throw an Error if name length is less or equal 2", (test) => {
+    const error = test.throws(() => {
+        new Addon("de");
+    }, Error);
+    test.is(error.message, "constructor name argument length must be greater than 2");
+});
+
+avaTest("Verify addon initial properties types and values", (test) => {
     const myAddon = new Addon("myAddon");
 
     test.is(is.string(myAddon.uid), true);
     test.is(myAddon.name, "myAddon");
     test.is(myAddon.isStarted, false);
+    test.is(is.set(myAddon.flags), true);
+    test.is(myAddon.flags.size, 0);
     test.is(is.array(myAddon.asserts), true);
+    test.deepEqual(myAddon.asserts, []);
     test.is(is.map(myAddon.callbacks), true);
+    test.is(myAddon.callbacks.size, DEFAULT_CALLBACKS.length);
     test.is(is.map(myAddon.schedules), true);
+    test.is(myAddon.schedules.size, 0);
     test.is(is.map(myAddon.observers), true);
-
-    // Verify native callbacks
-    test.is(myAddon.callbacks.has("start"), true);
-    test.is(myAddon.callbacks.has("stop"), true);
-    test.is(myAddon.callbacks.has("get_info"), true);
+    test.is(myAddon.observers.size, 0);
 });
 
-/**
- * Addon registerCallback (throw)
- */
-avaTest("Addon registerCallback (throw)", (test) => {
+avaTest("Verify addon initial native callbacks", (test) => {
+    const myAddon = new Addon("myAddon");
+    for (const callbackName of DEFAULT_CALLBACKS) {
+        test.is(myAddon.callbacks.has(callbackName), true);
+    }
+});
+
+avaTest("Addon registerCallback (throw errors)", (test) => {
     const myAddon = new Addon("myAddon");
 
     // Invalid callback name type
@@ -82,10 +106,7 @@ avaTest("Addon registerCallback (throw)", (test) => {
     );
 });
 
-/**
- * Addon executeCallback (throw)
- */
-avaTest("Addon executeCallback (throw)", (test) => {
+avaTest("Addon executeCallback (throw errors)", (test) => {
     const myAddon = new Addon("myAddon");
 
     // Invalid callback name type
@@ -101,10 +122,7 @@ avaTest("Addon executeCallback (throw)", (test) => {
     test.is(unknowCallback.message, "Addon.executeCallback - Unable to found callback with name unknow");
 });
 
-/**
- * Addon schedule (throw)
- */
-avaTest("Addon schedule (throw)", (test) => {
+avaTest("Addon schedule (throw errors)", (test) => {
     const myAddon = new Addon("myAddon");
 
     // Invalid callback name type
@@ -131,10 +149,7 @@ avaTest("Addon schedule (throw)", (test) => {
     );
 });
 
-/**
- * Addon schedule (latest callback registered)
- */
-avaTest("Addon schedule (latest callback registered)", async(test) => {
+avaTest("Addon schedule on latest callback registered (Throw error)", async(test) => {
     const myAddon = new Addon("myAddon");
 
     // Invalid callback name type
@@ -142,29 +157,40 @@ avaTest("Addon schedule (latest callback registered)", async(test) => {
         myAddon.schedule(new CallbackScheduler());
     }, Error);
     test.is(noCallback.message, "Addon.schedule - No custom callback has been registered yet!");
+});
+
+avaTest("Addon schedule on latest callback registered", async(test) => {
+    const myAddon = new Addon("myAddon");
+    const scheduler = new CallbackScheduler({
+        interval: 1,
+        executeOnStart: true
+    });
 
     // Register and Schedule callback
     let executionTime = 0;
     myAddon.registerCallback(async function test() {
+        // Increment 1 at each execution!
         executionTime++;
-    }).schedule(new CallbackScheduler({ interval: 0.5, executeOnStart: true }));
+    }).schedule(scheduler);
 
-    await new Promise((resolve) => {
-        myAddon.on("start", async() => {
-            await sleep(2100);
-            test.is(executionTime, 4);
-            resolve();
-        });
-        myAddon.executeCallback("start");
-    });
+    myAddon.executeCallback("start");
+    await sleep(2100);
+    test.is(executionTime, 2);
     await myAddon.executeCallback("stop");
-    test.pass();
 });
 
-/**
- * Addon register & execute a callback
- */
-avaTest("Addon register & execute a callback", async(test) => {
+avaTest("Addon execute native get_info callback", async(test) => {
+    const myAddon = new Addon("myAddon");
+
+    const info = await myAddon.executeCallback("get_info");
+    test.is(info.uid, myAddon.uid);
+    test.is(info.name, myAddon.name);
+    test.is(info.started, false);
+    test.deepEqual(info.callbacks, DEFAULT_CALLBACKS);
+    test.deepEqual(info.flags, []);
+});
+
+avaTest("Addon register & execute a custom callback", async(test) => {
     const myAddon = new Addon("myAddon");
 
     // Register callback
@@ -178,19 +204,9 @@ avaTest("Addon register & execute a callback", async(test) => {
     const { ok, arg } = await myAddon.executeCallback("test", payload);
     test.is(ok, 1);
     test.deepEqual(arg, payload);
-
-    // Execute get_info callback
-    const info = await myAddon.executeCallback("get_info");
-    test.is(info.uid, myAddon.uid);
-    test.is(info.name, myAddon.name);
-    test.is(info.started, false);
-    test.deepEqual(info.callbacks, [...myAddon.callbacks.keys()]);
 });
 
-/**
- * Addon register & execute a callback
- */
-avaTest("Addon register & execute a callback (direct registering)", async(test) => {
+avaTest("Addon register & execute a custom callback (registered without direct name)", async(test) => {
     const myAddon = new Addon("myAddon");
 
     // Register callback
@@ -204,46 +220,45 @@ avaTest("Addon register & execute a callback (direct registering)", async(test) 
     test.is(ret, "hello world!");
 });
 
-/**
- * Addon send a message
- */
-avaTest("Addon send a message", async(test) => {
+avaTest("Addon send a message with an invalid target name", async(test) => {
     const myAddon = new Addon("myAddon");
 
-    // Invalid callback name type
     const invalidTargetName = test.throws(() => {
         myAddon.sendMessage(5);
     }, TypeError);
     test.is(invalidTargetName.message, "Addon.sendMessage->target should be typeof <string>");
+});
 
-    // Bind a "fake" message receiver that re-send hello world as response!
+avaTest("Addon send a message (Expect no return value)", async(test) => {
+    test.plan(3);
+    const myAddon = new Addon("myAddon");
+
+    // Mock a listener
     myAddon.on("message", (messageId) => {
         if (!myAddon.observers.has(messageId)) {
             return;
         }
         setImmediate(() => {
-            myAddon.observers.get(messageId).next("hello world!");
+            test.pass();
+            myAddon.observers.get(messageId).next();
         });
     });
 
-    await new Promise((resolve) => {
-        myAddon.sendMessage("any").subscribe((res) => {
-            test.is(res, "hello world!");
+    await new Promise((resolve, reject) => {
+        myAddon.sendMessage("any").subscribe(() => {
+            test.pass();
             resolve();
-        });
-
-        // Dont expect return value!
-        const ret = myAddon.sendMessage("any", { noReturn: true });
-        test.is(is.nullOrUndefined(ret), true);
+        }, reject);
     });
+
+    // Dont expect to get a value!
+    const ret = myAddon.sendMessage("any", { noReturn: true });
+    test.is(is.nullOrUndefined(ret), true);
 });
 
-/**
- * Addon send a message and timeout
- */
 avaTest("Addon send a message and timeout", async(test) => {
+    test.plan(2);
     const myAddon = new Addon("myAddon");
-    myAddon.on("message", () => {});
 
     await new Promise((resolve) => {
         myAddon.sendMessage("any", { timeout: 500, args: [] }).subscribe(
@@ -257,40 +272,66 @@ avaTest("Addon send a message and timeout", async(test) => {
     test.is(myAddon.observers.size, 0);
 });
 
-/**
- * Addon start and stop addon
- * TODO: Complete tests
- */
-avaTest("Addon start and stop addon", async(test) => {
+avaTest("Trigger 'start' and 'stop' callbacks", async(test) => {
     const myAddon = new Addon("myAddon");
     test.is(myAddon.isStarted, false);
+    let success;
 
-    await myAddon.executeCallback("start");
+    // Start addon
+    success = await myAddon.executeCallback("start");
     test.is(myAddon.isStarted, true);
-    await myAddon.executeCallback("start");
-    await sleep(2000);
-    await myAddon.executeCallback("stop");
+    test.is(success, true);
+    success = await myAddon.executeCallback("start");
+    test.is(success, false);
+
+    // Sleep for 100ms
+    await sleep(100);
+
+    // Stop addon
+    success = await myAddon.executeCallback("stop");
+    test.is(success, true);
     test.is(myAddon.isStarted, false);
-    await myAddon.executeCallback("stop");
+    success = await myAddon.executeCallback("stop");
+    test.is(success, false);
 });
 
-/**
- * Addon start and schedule callback
- */
-avaTest("Addon start and schedule callback", async(test) => {
+avaTest("Addon schedule a custom callback by his name", async(test) => {
     const myAddon = new Addon("myAddon");
-    test.is(myAddon.isStarted, false);
-
-    // Register and schedule callback
     let executionTime = 0;
+
+    // Register "test" callback
     myAddon.registerCallback("test", async() => {
         executionTime++;
-    }).schedule("test", new CallbackScheduler({ interval: 2 }));
+    });
+
+    // Schedule "test" callback
+    myAddon.schedule("test", new CallbackScheduler({
+        interval: 500,
+        executeOnStart: true,
+        defaultType: CallbackScheduler.Types.Milliseconds
+    }));
 
     // Start / test and stop addon
     await myAddon.executeCallback("start");
-    await sleep(4000);
-    test.is(executionTime, 1);
+    await sleep(2100);
+    test.is(executionTime >= 3, true);
     await myAddon.executeCallback("stop");
-    test.pass();
+});
+
+avaTest("Addon health_check assert (throw)", async(test) => {
+    const myAddon = new Addon("myAddon");
+
+    myAddon.asserts.push(new Promise((resolve, reject) => {
+        reject(new Error("oopps!"));
+    }));
+
+    const error = await test.throws(myAddon.executeCallback("health_check"), Error);
+    test.is(error.message, "oopps!");
+});
+
+avaTest("Addon health_check assert (ok)", async(test) => {
+    const myAddon = new Addon("myAddon");
+
+    const ret = await myAddon.executeCallback("health_check");
+    test.is(ret, true);
 });
