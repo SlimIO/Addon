@@ -4,7 +4,7 @@
 const Event = require("events");
 
 // Require Third-party dependencies
-const is = require("@sindresorhus/is");
+const is = require("@slimio/is");
 const Observable = require("zen-observable");
 const uuidv4 = require("uuid/v4");
 const isSnakeCase = require("is-snake-case");
@@ -46,7 +46,6 @@ class Addon extends Event {
             throw new Error("constructor name argument length must be greater than 2");
         }
 
-        this.on("error", console.error);
         this.name = name;
         this.uid = uuidv4();
         this.isStarted = false;
@@ -89,6 +88,9 @@ class Addon extends Event {
      * @desc Function used to start an addon
      * @returns {Promise<boolean>}
      *
+     * @fires error
+     * @fires start
+     *
      * @version 0.1.0
      */
     static start() {
@@ -106,7 +108,12 @@ class Addon extends Event {
                 .map(([name]) => this.callbacks.get(name)());
 
             // Execute all calbacks (Promise) in asynchrone
-            await Promise.all(toExecute);
+            try {
+                await Promise.all(toExecute);
+            }
+            catch (error) {
+                this.emit("error", error);
+            }
         }, Addon.MAIN_INTERVAL_MS);
 
         /**
@@ -124,6 +131,8 @@ class Addon extends Event {
      * @method stop
      * @desc Function used to stop an addon
      * @returns {Promise<boolean>}
+     *
+     * @fires stop
      *
      * @version 0.1.0
      */
@@ -192,7 +201,7 @@ class Addon extends Event {
      */
     registerCallback(name, callback) {
         // If name is a function, replace name by the function.name
-        if (is.function(name) && is.nullOrUndefined(callback)) {
+        if (is.func(name) && is.nullOrUndefined(callback)) {
             // eslint-disable-next-line
             callback = name;
             // eslint-disable-next-line
@@ -352,8 +361,7 @@ class Addon extends Event {
         });
 
         // Return void 0 if noReturn is true
-        const noReturn = options.noReturn || false;
-        if (noReturn) {
+        if (options.noReturn) {
             return null;
         }
 

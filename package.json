@@ -35,7 +35,7 @@
     "nyc": "^13.0.1"
   },
   "dependencies": {
-    "@sindresorhus/is": "^0.11.0",
+    "@slimio/is": "^1.1.0",
     "@slimio/scheduler": "^0.2.0",
     "driftless": "^2.0.3",
     "is-snake-case": "^0.1.0",
