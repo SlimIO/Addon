@@ -12,6 +12,7 @@ const { setDriftlessInterval, clearDriftless } = require("driftless");
 
 // Require Internal dependencie(s)
 const CallbackScheduler = require("@slimio/scheduler");
+const Stream = require("./stream.class");
 
 // Interval Symbol
 const SYM_INTERVAL = Symbol("interval");
@@ -393,6 +394,7 @@ class Addon extends Event {
 Addon.RESERVED_CALLBACKS_NAME = new Set(["start", "stop", "get_info", "health_check"]);
 Addon.MESSAGE_TIMEOUT_MS = 5000;
 Addon.MAIN_INTERVAL_MS = 500;
+Addon.Stream = Stream;
 
 // Export (default) Addon
 module.exports = Addon;

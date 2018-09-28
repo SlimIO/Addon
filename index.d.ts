@@ -4,6 +4,14 @@
 /// <reference types="@slimio/scheduler" />
 /// <reference types="zen-observable" />
 import * as events from "events";
+import * as stream from "stream";
+
+/**
+ * Addon Streaming Facility!
+ */
+export declare class Stream extends stream.Transform {
+    constructor();
+}
 
 /**
  * Addon class definition
@@ -25,6 +33,7 @@ declare class Addon extends events {
     static RESERVED_CALLBACK_NAME: Set<string>;
     static MESSAGE_TIMEOUT_MS: number;
     static MAIN_INTERVAL_MS: number;
+    static Stream: Stream;
 
     // Methods
     registerCallback(name: string | Addon.Callback, callback?: Addon.Callback): this;
