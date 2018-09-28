@@ -27,6 +27,14 @@
     "url": "https://github.com/SlimIO/Addon/issues"
   },
   "homepage": "https://github.com/SlimIO/Addon#readme",
+  "nyc": {
+    "check-coverage": true,
+    "per-file": true,
+    "lines": 98,
+    "statements": 98,
+    "functions": 98,
+    "branches": 90
+},
   "devDependencies": {
     "@escommunity/minami": "^1.0.0",
     "@slimio/eslint-config": "^1.1.7",

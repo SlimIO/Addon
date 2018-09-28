@@ -335,3 +335,20 @@ avaTest("Addon health_check assert (ok)", async(test) => {
     const ret = await myAddon.executeCallback("health_check");
     test.is(ret, true);
 });
+
+avaTest("Test Addon Streaming Class", async(test) => {
+    test.plan(2);
+    const wS = new Addon.Stream();
+    setTimeout(() => {
+        wS.write("hello");
+    }, 100);
+    setTimeout(() => {
+        wS.write("world!");
+        wS.end();
+    }, 200);
+
+    wS.on("data", () => {
+        test.pass();
+    });
+    await new Promise((resolve) => setTimeout(resolve, 300));
+});

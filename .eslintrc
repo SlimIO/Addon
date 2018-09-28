@@ -1,5 +1,8 @@
 {
     "extends": "@slimio/eslint-config",
+    "parserOptions": {
+        "ecmaVersion": 9
+    },
     "rules": {
         "spaced-comment": "off"
     }

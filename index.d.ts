@@ -33,7 +33,7 @@ declare class Addon extends events {
     static RESERVED_CALLBACK_NAME: Set<string>;
     static MESSAGE_TIMEOUT_MS: number;
     static MAIN_INTERVAL_MS: number;
-    static Stream: Stream;
+    static Stream: typeof Stream;
 
     // Methods
     registerCallback(name: string | Addon.Callback, callback?: Addon.Callback): this;
