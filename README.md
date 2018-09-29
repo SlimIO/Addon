@@ -40,6 +40,8 @@ module.exports = CPU;
 The Addon package is extended with a NodeJS EventEmitter. Two kinds of events can be triggered on Addon by the Core:
 - start (When the Addon is asked to start)
 - stop (When the addon is asked to stop)
+- ready (When the addon is declared ready by the developer itself).
+- addonLoaded (When an external addon has been loaded, useful to know when you can send your messages).
 
 > **Note** Events are not awaited. For example, this is not recommanded to use "close" to free handle/resource before a SIGINT event.
 
