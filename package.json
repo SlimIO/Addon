@@ -4,7 +4,7 @@
   "description": "Slim.IO Addon package",
   "main": "index.js",
   "engines": {
-      "node": ">=10"
+    "node": ">=10"
   },
   "scripts": {
     "test": "npx ava --verbose",
@@ -34,20 +34,20 @@
     "statements": 98,
     "functions": 98,
     "branches": 90
-},
+  },
   "devDependencies": {
     "@escommunity/minami": "^1.0.0",
-    "@slimio/eslint-config": "^1.1.7",
+    "@slimio/eslint-config": "^1.1.8",
     "@types/es6-shim": "^0.31.37",
-    "@types/node": "^10.11.2",
+    "@types/node": "^10.11.3",
     "ava": "^0.25.0",
-    "eslint": "^5.6.0",
+    "eslint": "^5.6.1",
     "jsdoc": "^3.5.5",
     "nyc": "^13.0.1"
   },
   "dependencies": {
     "@slimio/is": "^1.1.0",
-    "@slimio/scheduler": "^0.2.0",
+    "@slimio/scheduler": "^0.3.0",
     "driftless": "^2.0.3",
     "is-snake-case": "^0.1.0",
     "uuid": "^3.3.2",
