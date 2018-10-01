@@ -41,6 +41,7 @@ declare class Addon extends events {
     schedule(name: string | CallbackScheduler, scheduler?: CallbackScheduler): this;
     executeCallback<T>(name: string, ...args: any[]): Promise<T>;
     sendMessage(target: string, options?: Addon.MessageOptions): ZenObservable.ObservableLike;
+    ready(): boolean;
 
     // Static Methods
     static start(): Promise<void>;

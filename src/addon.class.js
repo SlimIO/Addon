@@ -182,19 +182,26 @@ class Addon extends Event {
      * @method ready
      * @desc Set the addon ready for the core!
      * @memberof Addon#
-     * @returns {void}
+     * @returns {Boolean}
      *
      * @version 0.5.0
+     *
+     * @throws {Error}
      */
     ready() {
+        if (!this.isStarted) {
+            throw new Error("Addon should be started before being ready!");
+        }
         if (this.isReady) {
-            return;
+            return false;
         }
         this.isReady = true;
         this.emit("ready");
         this.once("close", () => {
             this.isReady = false;
         });
+
+        return true;
     }
 
     /**
