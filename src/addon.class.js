@@ -25,6 +25,7 @@ const SYM_INTERVAL = Symbol("interval");
  * @property {String} name Addon name
  * @property {String} uid Addon unique id
  * @property {Boolean} isStarted
+ * @property {Boolean} isReady
  * @property {Set<String>} flags
  * @property {Map<String, AsyncFunction>} callbacks
  * @property {Map<String, CallbackScheduler>} schedules
@@ -49,6 +50,7 @@ class Addon extends Event {
 
         this.name = name;
         this.uid = uuidv4();
+        this.isReady = false;
         this.isStarted = false;
         this.flags = new Set();
         this.asserts = [];
@@ -172,6 +174,27 @@ class Addon extends Event {
             callbacks: [...this.callbacks.keys()],
             flags: [...this.flags]
         };
+    }
+
+    /**
+     * @public
+     * @chainable
+     * @method ready
+     * @desc Set the addon ready for the core!
+     * @memberof Addon#
+     * @returns {void}
+     *
+     * @version 0.5.0
+     */
+    ready() {
+        if (this.isReady) {
+            return;
+        }
+        this.isReady = true;
+        this.emit("ready");
+        this.once("close", () => {
+            this.isReady = false;
+        });
     }
 
     /**

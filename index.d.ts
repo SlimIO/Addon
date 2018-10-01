@@ -23,6 +23,7 @@ declare class Addon extends events {
     // Properties
     public name: string;
     public uid: string;
+    public isReady: boolean;
     public isStarted: boolean;
     public asserts: any[];
     public callbacks: Map<string, Addon.Callback>;
