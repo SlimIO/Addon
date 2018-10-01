@@ -336,7 +336,7 @@ avaTest("Addon health_check assert (ok)", async(test) => {
 });
 
 avaTest("Set Addon ready", async(test) => {
-    test.plan(3);
+    test.plan(4);
     const myAddon = new Addon("myAddon");
 
     myAddon.once("ready", () => {
@@ -347,7 +347,10 @@ avaTest("Set Addon ready", async(test) => {
         test.false(myAddon.ready());
     });
     await myAddon.executeCallback("start");
-    await sleep(100);
+    await sleep(50);
+    await myAddon.executeCallback("stop");
+    await sleep(50);
+    test.false(myAddon.isReady);
 });
 
 avaTest("Set Addon ready before Addon was started (should throw an Error)", async(test) => {

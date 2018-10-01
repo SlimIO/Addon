@@ -196,10 +196,10 @@ class Addon extends Event {
             return false;
         }
         this.isReady = true;
-        this.emit("ready");
-        this.once("close", () => {
+        this.once("stop", () => {
             this.isReady = false;
         });
+        this.emit("ready");
 
         return true;
     }
