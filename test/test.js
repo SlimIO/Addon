@@ -335,6 +335,30 @@ avaTest("Addon health_check assert (ok)", async(test) => {
     test.is(ret, true);
 });
 
+avaTest("Set Addon ready", async(test) => {
+    test.plan(3);
+    const myAddon = new Addon("myAddon");
+
+    myAddon.once("ready", () => {
+        test.pass();
+    });
+    myAddon.once("start", () => {
+        test.true(myAddon.ready());
+        test.false(myAddon.ready());
+    });
+    await myAddon.executeCallback("start");
+    await sleep(100);
+});
+
+avaTest("Set Addon ready before Addon was started (should throw an Error)", async(test) => {
+    const myAddon = new Addon("myAddon");
+
+    const error = test.throws(() => {
+        myAddon.ready();
+    }, Error);
+    test.is(error.message, "Addon should be started before being ready!");
+});
+
 avaTest("Test Addon Streaming Class", async(test) => {
     test.plan(2);
     const wS = new Addon.Stream();
