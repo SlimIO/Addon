@@ -38,7 +38,6 @@
   "devDependencies": {
     "@escommunity/minami": "^1.0.0",
     "@slimio/eslint-config": "^1.1.8",
-    "@slimio/scheduler": "^0.4.0",
     "@types/es6-shim": "^0.31.37",
     "@types/node": "^10.11.3",
     "ava": "^0.25.0",
@@ -48,6 +47,7 @@
   },
   "dependencies": {
     "@slimio/is": "^1.1.0",
+    "@slimio/scheduler": "^0.4.0",
     "driftless": "^2.0.3",
     "is-snake-case": "^0.1.0",
     "uuid": "^3.3.2",
