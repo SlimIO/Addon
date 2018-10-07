@@ -2,8 +2,8 @@
 /// <reference types="@types/node" />
 /// <reference types="@types/es6-shim" />
 /// <reference types="@slimio/scheduler" />
+/// <reference types="@slimio/safe-emitter" />
 /// <reference types="zen-observable" />
-import * as events from "events";
 import * as stream from "stream";
 
 /**
@@ -16,7 +16,7 @@ export declare class Stream extends stream.Transform {
 /**
  * Addon class definition
  */
-declare class Addon extends events {
+declare class Addon extends SafeEmitter {
     // Constructor
     constructor(name: string);
 

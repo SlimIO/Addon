@@ -1,17 +1,13 @@
-
-
-// Require Node.JS dependencies
-const Event = require("events");
-
 // Require Third-party dependencies
 const is = require("@slimio/is");
+const SafeEmitter = require("@slimio/safe-emitter");
+const CallbackScheduler = require("@slimio/scheduler");
 const Observable = require("zen-observable");
 const uuidv4 = require("uuid/v4");
 const isSnakeCase = require("is-snake-case");
 const { setDriftlessInterval, clearDriftless } = require("driftless");
 
 // Require Internal dependencie(s)
-const CallbackScheduler = require("@slimio/scheduler");
 const Stream = require("./stream.class");
 
 // Interval Symbol
@@ -31,7 +27,7 @@ const SYM_INTERVAL = Symbol("interval");
  * @property {Map<String, CallbackScheduler>} schedules
  * @property {Map<String, ZenObservable.SubscriptionObserver<any>>} observers
  */
-class Addon extends Event {
+class Addon extends SafeEmitter {
 
     /**
      * @constructor
@@ -196,9 +192,9 @@ class Addon extends Event {
             return false;
         }
         this.isReady = true;
-        this.once("stop", () => {
+        this.once("stop").then(() => {
             this.isReady = false;
-        });
+        }).catch(console.error);
         this.emit("ready");
 
         return true;

@@ -339,10 +339,10 @@ avaTest("Set Addon ready", async(test) => {
     test.plan(4);
     const myAddon = new Addon("myAddon");
 
-    myAddon.once("ready", () => {
+    myAddon.once("ready", 500).then(() => {
         test.pass();
     });
-    myAddon.once("start", () => {
+    myAddon.once("start", 500).then(() => {
         test.true(myAddon.ready());
         test.false(myAddon.ready());
     });
