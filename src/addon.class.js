@@ -314,17 +314,17 @@ class Addon extends SafeEmitter {
         if (!is.string(name)) {
             throw new TypeError("Addon.executeCallback->name should be typeof <string>");
         }
-        let hasFound = true;
-        foundCB: if (!this.callbacks.has(name)) {
-            if (!this.callbacksAlias.has(name)) {
-                hasFound = false;
+        let callbackName = name;
+        foundCB: if (!this.callbacks.has(callbackName)) {
+            if (!this.callbacksAlias.has(callbackName)) {
+                callbackName = null;
                 break foundCB;
             }
-            // eslint-disable-next-line
-            name = this.callbacksAlias.get(name);
+            callbackName = this.callbacksAlias.get(name);
+            process.emitWarning(`Addon Callback Alias ${name} is deprecated. Please use ${callbackName}`);
         }
 
-        if (!hasFound) {
+        if (callbackName === null) {
             throw new Error(`Addon.executeCallback - Unable to found callback with name ${name}`);
         }
 
