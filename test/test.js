@@ -362,6 +362,45 @@ avaTest("Set Addon ready before Addon was started (should throw an Error)", asyn
     test.is(error.message, "Addon should be started before being ready!");
 });
 
+avaTest("setDeprecatedAlias (no callback registered with the name)", (test) => {
+    const myAddon = new Addon("myAddon");
+
+    const error = test.throws(() => {
+        myAddon.setDeprecatedAlias("foo");
+    }, Error);
+    test.is(error.message, "Unknow callback with name foo");
+});
+
+avaTest("setDeprecatedAlias (alias should be instanceof Array)", (test) => {
+    const myAddon = new Addon("myAddon");
+    myAddon.registerCallback("foo", async function foo() {
+        console.log("foo!");
+    });
+
+    const error = test.throws(() => {
+        myAddon.setDeprecatedAlias("foo", 5);
+    }, TypeError);
+    test.is(error.message, "alias argument should be instanceof Array");
+});
+
+avaTest("setDeprecatedAlias (Trigger callback with an alias!)", async(test) => {
+    test.plan(2);
+    const myAddon = new Addon("myAddon");
+    myAddon.registerCallback("foo", async function foo() {
+        return 10;
+    });
+    process.on("warning", (warn) => {
+        if (warn.message === "Addon Callback Alias foo_old is deprecated. Please use foo") {
+            test.pass();
+        }
+    });
+
+    myAddon.setDeprecatedAlias("foo", ["foo_old"]);
+    const ret = await myAddon.executeCallback("foo_old");
+    test.is(ret, 10);
+    await new Promise((resolve) => setImmediate(resolve));
+});
+
 avaTest("Test Addon Streaming Class", async(test) => {
     test.plan(2);
     const wS = new Addon.Stream();
