@@ -39,7 +39,7 @@
     "@escommunity/minami": "^1.0.0",
     "@slimio/eslint-config": "^1.1.8",
     "@types/es6-shim": "^0.31.37",
-    "@types/node": "^10.11.3",
+    "@types/node": "^10.11.6",
     "ava": "^0.25.0",
     "eslint": "^5.6.1",
     "jsdoc": "^3.5.5",
@@ -47,7 +47,7 @@
   },
   "dependencies": {
     "@slimio/is": "^1.1.0",
-    "@slimio/safe-emitter": "^1.0.0",
+    "@slimio/safe-emitter": "^1.0.1",
     "@slimio/scheduler": "^0.4.0",
     "driftless": "^2.0.3",
     "is-snake-case": "^0.1.0",
