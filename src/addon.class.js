@@ -54,6 +54,9 @@ class Addon extends SafeEmitter {
         /** @type {Map<String, () => Promise<any>>} */
         this.callbacks = new Map();
 
+        /** @type {Map<String, String>} */
+        this.callbacksAlias = new Map();
+
         /** @type {Map<String, CallbackScheduler>} */
         this.schedules = new Map();
 
@@ -256,6 +259,33 @@ class Addon extends SafeEmitter {
 
     /**
      * @public
+     * @method setDeprecatedAlias
+     * @desc Register One or Many deprecated Alias for a callback!
+     * @memberof Addon#
+     * @param {!String} callbackName Callback name
+     * @param {Array<String>} alias Callback Deprecated Alias
+     * @returns {void}
+     *
+     * @throws {TypeError}
+     * @throws {Error}
+     *
+     * @version 0.7.0
+     */
+    setDeprecatedAlias(callbackName, alias) {
+        if (!this.callbacks.has(callbackName)) {
+            throw new Error(`Unknow callback with name ${callbackName}`);
+        }
+        if (!is.array(alias)) {
+            throw new TypeError("alias argument should be instanceof Array");
+        }
+
+        for (const cbAlias of alias) {
+            this.callbacksAlias.set(cbAlias, callbackName);
+        }
+    }
+
+    /**
+     * @public
      * @template T
      * @method executeCallback
      * @desc Execute a callback of the addon
@@ -284,7 +314,17 @@ class Addon extends SafeEmitter {
         if (!is.string(name)) {
             throw new TypeError("Addon.executeCallback->name should be typeof <string>");
         }
-        if (!this.callbacks.has(name)) {
+        let hasFound = true;
+        foundCB: if (!this.callbacks.has(name)) {
+            if (!this.callbacksAlias.has(name)) {
+                hasFound = false;
+                break foundCB;
+            }
+            // eslint-disable-next-line
+            name = this.callbacksAlias.get(name);
+        }
+
+        if (!hasFound) {
             throw new Error(`Addon.executeCallback - Unable to found callback with name ${name}`);
         }
 
