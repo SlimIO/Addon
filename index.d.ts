@@ -40,6 +40,7 @@ declare class Addon extends SafeEmitter {
     registerCallback(name: string | Addon.Callback, callback?: Addon.Callback): this;
     schedule(name: string | CallbackScheduler, scheduler?: CallbackScheduler): this;
     executeCallback<T>(name: string, ...args: any[]): Promise<T>;
+    setDeprecatedAlias(callbackName: string, alias: string[]): void;
     sendMessage(target: string, options?: Addon.MessageOptions): ZenObservable.ObservableLike;
     ready(): boolean;
 

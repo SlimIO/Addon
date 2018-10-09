@@ -329,7 +329,7 @@ class Addon extends SafeEmitter {
         }
 
         // Return callback execution!
-        return this.callbacks.get(name)(...args);
+        return this.callbacks.get(callbackName)(...args);
     }
 
     /**
