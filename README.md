@@ -1,5 +1,5 @@
 # Addon
-SlimIO Core Addon container. This module/package provide the foundation to build valid SlimIO Addon that will rely and work with the Core.
+This package provide the foundation to build Addon container that will rely and work with the Core.
 
 ## Getting Started
 
@@ -57,7 +57,7 @@ Addon.MAIN_INTERVAL_MS = 100; // 100ms
 ## API
 
 ### constructor(name: string)
-Create a new Addon with a given name ! The name of the addon must be more than two characters long.
+Create a new Addon with a given name ! The name length of the addon must be more than two characters long.
 ```js
 // VALID
 const myAddon = new Addon("myAddon");
@@ -119,6 +119,9 @@ myAddon.registerCallback(async function sayHelloEveryOneSecond() {
 });
 myAddon.schedule("sayHelloEveryOneSecond", new Scheduler({ interval: 1 }));
 ```
+
+### setDeprecatedAlias(callbackName: string, alias: string[]): void
+Setup a list of deprecated alias for a given callbackName.
 
 ### sendMessage(target: string, options): Observable
 Send a lazy message to a given target `addon.callback`. The returned value is an Observable.
