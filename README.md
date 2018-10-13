@@ -57,7 +57,7 @@ Addon.MAIN_INTERVAL_MS = 100; // 100ms
 ## API
 
 ### constructor(name: string)
-Create a new Addon with a given name ! The name length of the addon must be more than two characters long.
+Create a new Addon with a given name ! The name length must be more than two characters long.
 ```js
 // VALID
 const myAddon = new Addon("myAddon");
@@ -79,7 +79,7 @@ myAddon.registerCallback("callback_name", async function() {
 
 > Please, be sure to avoid Anonymous function as much possible!
 
-Or by passing the callback reference to the name (The function can't be anonymous, else it will throw an Error).
+Or by passing the callback reference as the name (The function can't be anonymous, else it will throw an Error).
 ```js
 async function callback_name() {
     console.log("callbackName has been executed!");
@@ -90,7 +90,7 @@ myAddon.registerCallback(callback_name);
 Callback name should be writted by following the snake_case convention [snake_case](https://fr.wikipedia.org/wiki/Snake_case) !
 
 ### executeCallback(name: string, ...args?: any[]): any
-Execute a callback (It will return a Promise). The method can take infinity of arguments (with be returned as normal arguments of the callback).
+Execute a callback (It will return a Promise). The method can take infinity of arguments (they will be returned as normal arguments of the callback).
 
 ```js
 const myAddon = new Addon("myAddon");
@@ -124,12 +124,23 @@ myAddon.schedule("sayHelloEveryOneSecond", new Scheduler({ interval: 1 }));
 Setup a list of deprecated alias for a given callbackName.
 
 ### sendMessage(target: string, options): Observable
-Send a lazy message to a given target `addon.callback`. The returned value is an Observable.
+Send a lazy message to a given target formatted as following: `addon.callback`. The returned value is an Observable (package **zen-observable**).
 
 ```js
 const myAddon = new Addon("myAddon");
 
 myAddon.on("start", function() {
-    myAddon.sendMessage("cpu.get_info").subscribe(console.log);
+    myAddon
+        .sendMessage("cpu.get_info")
+        .subscribe(console.log);
+    myAddon.ready();
 });
 ```
+
+Available options are:
+
+| name | default value | description |
+| --- | --- | --- |
+| args | Empty Array | Arguments du message |
+| noReturn | false | Si `vraie`, la méthode retourne void 0 |
+| timeout | 5000 | Message timeout |
