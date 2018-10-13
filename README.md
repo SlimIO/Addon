@@ -1,5 +1,5 @@
 # Addon
-This package provide the foundation to build Addon container that will rely and work with the Core.
+This package provide the foundation to build Addons that will rely and work with the Core. Addon is just a container that will help you as a developer.
 
 ## Getting Started
 
@@ -22,14 +22,16 @@ const Addon = require("@slimio/addon");
 const CPU = new Addon("cpu");
 
 // Register a callback
-CPU.registerCallback(async function sayHello(name) {
+CPU.registerCallback(async function say_hello(name) {
     console.log(`hello ${name}`);
 });
 
 // Catch start event!
 CPU.on("start", () => {
     console.log("cpu addon started!");
-    CPU.executeCallback("sayHello", "thomas"); // stdout "hello thomas";
+
+    // Execute local callback
+    CPU.executeCallback("say_hello", "thomas"); // stdout "hello thomas";
 });
 
 // Export addon for SlimIO Core.
@@ -37,22 +39,27 @@ module.exports = CPU;
 ```
 
 ## Events
-The Addon package is extended with a NodeJS EventEmitter. Two kinds of events can be triggered on Addon by the Core:
-- start (When the Addon is asked to start)
-- stop (When the addon is asked to stop)
-- ready (When the addon is declared ready by the developer itself).
-- addonLoaded (When an external addon has been loaded, useful to know when you can send your messages).
+Addon is extended with a SlimIO Safe EventEmitter. Four kinds of events can be triggered:
+
+| event | description |
+| --- | --- |
+| start | When the core ask the addon to start |
+| stop | When the core ask the addon to stop |
+| ready | When the developer trigger ready() method to tell the Core that the addon is Ready for events |
+| addonLoaded | When an external addon has been loaded |
 
 > **Note** Events are not awaited. For example, this is not recommanded to use "close" to free handle/resource before a SIGINT event.
 
 ## Interval & Scheduling
 
-The Addon instanciate is own interval to execute Scheduled callbacks. The default interval is `500` milliseconds.
+The Addon instanciate is own interval to execute Scheduled callbacks. The default interval time is setup at `500` milliseconds.
 
 You can configure the default interval by editing static Addon variables:
 ```js
 Addon.MAIN_INTERVAL_MS = 100; // 100ms
 ```
+
+> Please be sure to update the variable at runtime only
 
 ## API
 
