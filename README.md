@@ -27,11 +27,14 @@ CPU.registerCallback(async function say_hello(name) {
 });
 
 // Catch start event!
-CPU.on("start", () => {
+CPU.on("start", async() => {
     console.log("cpu addon started!");
 
     // Execute local callback
-    CPU.executeCallback("say_hello", "thomas"); // stdout "hello thomas";
+    await CPU.executeCallback("say_hello", "thomas"); // stdout "hello thomas";
+
+    // Tell the core that your addon is ready!
+    CPU.ready();
 });
 
 // Export addon for SlimIO Core.
@@ -148,6 +151,6 @@ Available options are:
 
 | name | default value | description |
 | --- | --- | --- |
-| args | Empty Array | Arguments du message |
-| noReturn | false | Si `vraie`, la méthode retourne void 0 |
-| timeout | 5000 | Message timeout |
+| args | Empty Array | Callback arguments |
+| noReturn | false | If `true`, the method will return void 0 instead of a new Observable |
+| timeout | 5000 | Timeout delay (before the hook expire) |
