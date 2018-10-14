@@ -1,6 +1,10 @@
 # Addon
 This package provide the foundation to build Addons that will rely and work with the Core. Addon is just a container that will help you as a developer.
 
+<p align="center">
+    <img src="https://i.imgur.com/chhYLun.png" alt="slimio">
+</p>
+
 ## Getting Started
 
 This package is available in the Node Package Repository and can be easily installed with [npm](https://docs.npmjs.com/getting-started/what-is-npm) or [yarn](https://yarnpkg.com).
