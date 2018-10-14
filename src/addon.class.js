@@ -380,7 +380,7 @@ class Addon extends SafeEmitter {
         if (!this.callbacks.has(name)) {
             throw new Error(`Addon.schedule - Unable to found callback with name ${name}`);
         }
-        if (scheduler instanceof CallbackScheduler === false) {
+        if (!(scheduler instanceof CallbackScheduler)) {
             throw new TypeError("Addon.schedule->scheduler should be an instance of CallbackScheduler");
         }
 
