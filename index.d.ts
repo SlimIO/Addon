@@ -3,15 +3,14 @@
 /// <reference types="@types/es6-shim" />
 /// <reference types="@slimio/scheduler" />
 /// <reference types="@slimio/safe-emitter" />
-/// <reference types="zen-observable" />
+/// <reference types="@types/zen-observable" />
+
 import * as stream from "stream";
 
 /**
  * Addon Streaming Facility!
  */
-export declare class Stream extends stream.Transform {
-    constructor();
-}
+declare class Stream extends stream.Transform {}
 
 /**
  * Addon class definition
