@@ -6,6 +6,7 @@
 /// <reference types="@types/zen-observable" />
 
 import * as stream from "stream";
+import * as SafeEmitter from "@slimio/safe-emitter";
 
 /**
  * Addon Streaming Facility!
@@ -27,7 +28,7 @@ declare class Addon extends SafeEmitter {
     public asserts: any[];
     public callbacks: Map<string, Addon.Callback>;
     public schedules: Map<string, CallbackScheduler>;
-    public observers: Map<string, ZenObservable.ObservableLike>;
+    public observers: Map<string, ZenObservable.ObservableLike<any>>;
 
     // Static Properties
     static RESERVED_CALLBACK_NAME: Set<string>;
@@ -40,7 +41,7 @@ declare class Addon extends SafeEmitter {
     schedule(name: string | CallbackScheduler, scheduler?: CallbackScheduler): this;
     executeCallback<T>(name: string, ...args: any[]): Promise<T>;
     setDeprecatedAlias(callbackName: string, alias: string[]): void;
-    sendMessage(target: string, options?: Addon.MessageOptions): ZenObservable.ObservableLike;
+    sendMessage(target: string, options?: Addon.MessageOptions): ZenObservable.ObservableLike<any>;
     ready(): boolean;
 
     // Static Methods
