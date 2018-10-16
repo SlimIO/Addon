@@ -1,5 +1,6 @@
 // Require NodeJS Dependencies
-const { AsyncResource } = require("async_hooks");
+const asyncHooks = require("async_hooks");
+const { performance, PerformanceObserver } = require("perf_hooks");
 
 /**
  * @class Callback
@@ -7,7 +8,7 @@ const { AsyncResource } = require("async_hooks");
  *
  * @property {Function} callback
  */
-class Callback extends AsyncResource {
+class Callback extends asyncHooks.AsyncResource {
 
     /**
      * @constructor
@@ -35,7 +36,7 @@ class Callback extends AsyncResource {
      *
      * @throws {Error}
      */
-    async execute(args) {
+    async execute(args = []) {
         const ret = await this.runInAsyncScope(this.callback, null, ...args);
         this.emitDestroy();
 
@@ -43,5 +44,56 @@ class Callback extends AsyncResource {
     }
 
 }
+
+/**
+ * @static
+ * @method createHook
+ * @return {AsyncHook}
+ */
+Callback.createHook = function createHook() {
+    const map = new Map();
+
+    return asyncHooks.createHook({
+        init(id, type) {
+            if (type.startsWith("Callback-")) {
+                performance.mark(`${type}-${id}-Init`);
+                map.set(id, type);
+            }
+        },
+        destroy(id) {
+            if (map.has(id)) {
+                const type = map.get(id);
+                map.delete(id);
+                performance.mark(`${type}-${id}-Destroy`);
+                performance.measure(`${type}-${id}`, `${type}-${id}-Init`, `${type}-${id}-Destroy`);
+            }
+        }
+    });
+};
+
+/**
+ * @static
+ * @method observePerformance
+ * @param {!Function} perfTrigger perfTrigger
+ * @returns {PerformanceObserver}
+ */
+Callback.observePerformance = function observe(perfTrigger) {
+    if (typeof perfTrigger !== "function") {
+        throw new TypeError("perfTrigger should be typeof function!");
+    }
+    const obs = new PerformanceObserver((list) => {
+        for (const perfEntry of list.getEntries()) {
+            if (!/^Callback/.test(perfEntry.name)) {
+                continue;
+            }
+            perfTrigger(perfEntry);
+            // console.log(`${perfEntry.name} has been executed in ${perfEntry.duration}ms`);
+            performance.clearMarks(perfEntry.name);
+        }
+    });
+    obs.observe({ entryTypes: ["measure"], buffered: true });
+
+    return obs;
+};
 
 module.exports = Callback;
