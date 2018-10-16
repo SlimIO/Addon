@@ -9,6 +9,7 @@ const { setDriftlessInterval, clearDriftless } = require("driftless");
 
 // Require Internal dependencie(s)
 const Stream = require("./stream.class");
+const Callback = require("./callback.class");
 
 // Interval Symbol
 const SYM_INTERVAL = Symbol("interval");
@@ -329,7 +330,9 @@ class Addon extends SafeEmitter {
         }
 
         // Return callback execution!
-        return this.callbacks.get(callbackName)(...args);
+        const handler = this.callbacks.get(callbackName);
+
+        return (new Callback(`${this.name}-${callbackName}`, handler)).execute(args);
     }
 
     /**
