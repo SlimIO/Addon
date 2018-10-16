@@ -30,12 +30,13 @@ class Callback extends AsyncResource {
 
     /**
      * @method execute
+     * @param {any[]} args handler arguments
      * @returns {Promise<any>}
      *
      * @throws {Error}
      */
-    async execute() {
-        const ret = await this.runInAsyncScope(this.callback, null);
+    async execute(args) {
+        const ret = await this.runInAsyncScope(this.callback, null, ...args);
         this.emitDestroy();
 
         return ret;
