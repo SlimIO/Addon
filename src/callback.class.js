@@ -72,9 +72,14 @@ Callback.createHook = function createHook() {
 };
 
 /**
+ * @callback perfTrigger
+ * @param {PerformanceEntry} perfEntry
+ */
+
+/**
  * @static
  * @method observePerformance
- * @param {!Function} perfTrigger perfTrigger
+ * @param {perfTrigger} perfTrigger perfTrigger
  * @returns {PerformanceObserver}
  */
 Callback.observePerformance = function observe(perfTrigger) {
