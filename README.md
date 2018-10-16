@@ -55,20 +55,20 @@ Addon is extended with a SlimIO Safe EventEmitter. Four kinds of events can be t
 | start | When the core ask the addon to start |
 | stop | When the core ask the addon to stop |
 | ready | When the developer trigger ready() method to tell the Core that the addon is Ready for events |
-| addonLoaded | When an external addon has been loaded |
-
-> **Note** Events are not awaited. For example, this is not recommanded to use "close" to free handle/resource before a SIGINT event.
+| addonLoaded | When an external addon has been loaded, return the addon name as first argument! |
 
 ## Interval & Scheduling
 
-The Addon instanciate is own interval to execute Scheduled callbacks. The default interval time is setup at `500` milliseconds.
+The Addon instanciate is own interval to execute Scheduled callbacks. The default interval time is setup at `500` milliseconds. To know how work the `walk()` method of Scheduler, please look at this [documentation](https://github.com/SlimIO/Scheduler).
 
-You can configure the default interval by editing static Addon variables:
+<p align="center">
+    <img src="https://i.imgur.com/iEeA0ql.png" alt="slimio">
+</p>
+
+You can configure the default interval by editing static Addon variables (**this is not recommanded**):
 ```js
 Addon.MAIN_INTERVAL_MS = 100; // 100ms
 ```
-
-> Please be sure to update the variable at runtime only
 
 ## API
 
