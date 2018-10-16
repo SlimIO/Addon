@@ -47,23 +47,28 @@ class Callback extends asyncHooks.AsyncResource {
 
 /**
  * @static
+ * @const ActiveCallback
+ * @type {Map<Number, String>}
+ */
+Callback.ActiveCallback = new Map();
+
+/**
+ * @static
  * @method createHook
  * @return {AsyncHook}
  */
 Callback.createHook = function createHook() {
-    const map = new Map();
-
     return asyncHooks.createHook({
         init(id, type) {
             if (type.startsWith("Callback-")) {
                 performance.mark(`${type}-${id}-Init`);
-                map.set(id, type);
+                Callback.ActiveCallback.set(id, type);
             }
         },
         destroy(id) {
-            if (map.has(id)) {
-                const type = map.get(id);
-                map.delete(id);
+            if (Callback.ActiveCallback.has(id)) {
+                const type = Callback.ActiveCallback.get(id);
+                Callback.ActiveCallback.delete(id);
                 performance.mark(`${type}-${id}-Destroy`);
                 performance.measure(`${type}-${id}`, `${type}-${id}-Init`, `${type}-${id}-Destroy`);
             }
