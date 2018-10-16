@@ -4,58 +4,43 @@ const { AsyncResource } = require("async_hooks");
 /**
  * @class Callback
  * @extends AsyncResource
+ *
+ * @property {Function} callback
  */
 class Callback extends AsyncResource {
 
     /**
      * @constructor
-     * @param {any} callback callbackHandler
-     * @param {any} options Callback Options
-     * @param {Number=} options.executionLimit Callback execution limit
+     * @param {!String} name callback name
+     * @param {!Function} callback callbackHandler
+     *
+     * @throws {TypeError}
      */
-    constructor(callback, options = Object.create(null)) {
-        super("Callback");
+    constructor(name, callback) {
+        if (typeof name !== "string") {
+            throw new TypeError("name should be typeof string!");
+        }
+        if (typeof callback !== "function") {
+            throw new TypeError("callback should be typeof function!");
+        }
 
+        super(`Callback-${name}`);
         this.callback = callback;
-        this.executionLimit = options.executionLimit || Callback.DEFAULT_LIMIT;
-
-        this.closed = false;
-        this.currExecutedCount = 0;
     }
 
     /**
      * @method execute
-     * @param {any[]} args callback arguments
      * @returns {Promise<any>}
      *
      * @throws {Error}
      */
-    async execute(args = []) {
-        if (this.closed) {
-            throw new Error("Unable to execute closed Callback!");
-        }
-        if (this.currExecutedCount + 1 >= this.executionLimit) {
-            throw new Error("Callback execution limit has been reach!");
-        }
-
-        this.currExecutedCount++;
-        const ret = await this.runInAsyncScope(this.callback, null, ...args);
-        this.currExecutedCount--;
+    async execute() {
+        const ret = await this.runInAsyncScope(this.callback, null);
+        this.emitDestroy();
 
         return ret;
     }
 
-    /**
-     * @method close
-     * @returns {void}
-     */
-    close() {
-        this.closed = true;
-        this.emitDestroy();
-    }
-
 }
-
-Callback.DEFAULT_LIMIT = 100;
 
 module.exports = Callback;
