@@ -96,7 +96,7 @@ class Addon extends SafeEmitter {
      *
      * @version 0.1.0
      */
-    static start() {
+    static async start() {
         if (this.isStarted) {
             return false;
         }
@@ -123,7 +123,7 @@ class Addon extends SafeEmitter {
          * @event Addon#start
          * @type {void}
          */
-        this.emit("start");
+        await this.emitAndWait("start");
 
         return true;
     }
@@ -139,7 +139,7 @@ class Addon extends SafeEmitter {
      *
      * @version 0.1.0
      */
-    static stop() {
+    static async stop() {
         if (!this.isStarted) {
             return false;
         }
@@ -152,7 +152,7 @@ class Addon extends SafeEmitter {
          * @event Addon#stop
          * @type {void}
          */
-        this.emit("stop");
+        await this.emitAndWait("stop");
 
         return true;
     }
