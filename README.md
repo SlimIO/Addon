@@ -5,6 +5,8 @@ This package provide the foundation to build Addons that will rely and work with
     <img src="https://i.imgur.com/chhYLun.png" alt="slimio">
 </p>
 
+> Scheduler is a external SlimIO Package. If you want to know more about it, follow [this link](https://github.com/SlimIO/Scheduler).
+
 ## Getting Started
 
 This package is available in the Node Package Repository and can be easily installed with [npm](https://docs.npmjs.com/getting-started/what-is-npm) or [yarn](https://yarnpkg.com).
@@ -135,7 +137,16 @@ myAddon.schedule("sayHelloEveryOneSecond", new Scheduler({ interval: 1 }));
 ```
 
 ### setDeprecatedAlias(callbackName: string, alias: string[]): void
-Setup a list of deprecated alias for a given callbackName.
+Setup a list of deprecated alias for a given callbackName. A NodeJS Warning will be throw if these alias are used (to warn developer/integrator to upgrade addon version).
+
+```js
+const myAddon = new Addon("myAddon");
+
+myAddon.registerCallback(async function new_test() {
+    console.log("hello world!");
+});
+myAddon.setDeprecatedAlias("new_test", ["old_test"]);
+```
 
 ### sendMessage(target: string, options): Observable
 Send a lazy message to a given target formatted as following: `addon.callback`. The returned value is an Observable (package **zen-observable**).
@@ -158,3 +169,44 @@ Available options are:
 | args | Empty Array | Callback arguments |
 | noReturn | false | If `true`, the method will return void 0 instead of a new Observable |
 | timeout | 5000 | Timeout delay (before the hook expire) |
+
+## Streaming Communication
+
+SlimIO Callback support NodeJS Write Streams. Take the following example:
+
+```js
+const streamAddon = new Addon("streamAddon");
+
+streamAddon.registerCallback(async function stream_com() {
+    const WStream = new Addon.Stream();
+    setTimeout(() => {
+        WStream.write("msg1");
+    }, 100);
+    setTimeout(() => {
+        WStream.write("msg2");
+        WStream.end();
+    }, 200);
+    return WStream;
+});
+
+module.exports = streamAddon;
+```
+
+And now if we call this callback from an another Addon:
+
+```js
+const myAddon = new Addon("myAddon");
+
+myAddon.on("start", () => {
+    myAddon.ready();
+});
+
+myAddon.on("addonLoaded", (addonName) => {
+    if (addonName === "streamAddon") {
+        myAddon.sendMessage("streamAddon.stream_com").subscribe(
+            (message) => console.log(message),
+            () => console.log("Stream completed!")
+        )
+    }
+});
+```
