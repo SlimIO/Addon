@@ -1,6 +1,9 @@
 /* eslint require-await: off */
 /* eslint no-empty-function: off */
 
+// Require NodeJS Dependencies
+const { join } = require("path");
+
 // Require Third-party Dependencies
 const avaTest = require("ava");
 const is = require("@slimio/is");
@@ -399,6 +402,34 @@ avaTest("setDeprecatedAlias (Trigger callback with an alias!)", async(test) => {
     const ret = await myAddon.executeCallback("foo_old");
     test.is(ret, 10);
     await new Promise((resolve) => setImmediate(resolve));
+});
+
+avaTest("setCallbacksDescriptor (path should be typeof string)", async(test) => {
+    const myAddon = new Addon("myAddon");
+    const { message } = test.throws(() => {
+        myAddon.setCallbacksDescriptorFile(null);
+    }, TypeError);
+    test.is(message, "path should be typeof string!");
+});
+
+avaTest("setCallbacksDescriptor (path should be a .prototype file)", async(test) => {
+    const myAddon = new Addon("myAddon");
+    const { message } = test.throws(() => {
+        myAddon.setCallbacksDescriptorFile(join(__dirname, "yo"));
+    }, Error);
+    test.is(message, "path should be a .prototype file");
+});
+
+avaTest("setCallbacksDescriptor", async(test) => {
+    const myAddon = new Addon("myAddon");
+    {
+        const { callbacksDescriptor } = await myAddon.executeCallback("get_info");
+        test.is(callbacksDescriptor, null);
+    }
+    const path = join(__dirname, "callbacks.proto");
+    myAddon.setCallbacksDescriptorFile(path);
+    const { callbacksDescriptor } = await myAddon.executeCallback("get_info");
+    test.is(callbacksDescriptor, path);
 });
 
 avaTest("Test Addon Streaming Class", async(test) => {
