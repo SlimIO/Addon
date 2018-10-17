@@ -1,3 +1,6 @@
+// Require NodeJS Dependencies
+const { extname } = require("path");
+
 // Require Third-party dependencies
 const is = require("@slimio/is");
 const SafeEmitter = require("@slimio/safe-emitter");
@@ -50,6 +53,7 @@ class Addon extends SafeEmitter {
         this.isReady = false;
         this.isStarted = false;
         this.flags = new Set();
+        this.callbacksDescriptor = null;
         this.asserts = [];
 
         /** @type {Map<String, () => Promise<any>>} */
@@ -171,6 +175,7 @@ class Addon extends SafeEmitter {
             uid: this.uid,
             name: this.name,
             started: this.isStarted,
+            callbacksDescriptor: this.callbacksDescriptor,
             callbacks: [...this.callbacks.keys()],
             flags: [...this.flags]
         };
@@ -202,6 +207,30 @@ class Addon extends SafeEmitter {
         this.emit("ready");
 
         return true;
+    }
+
+    /**
+     * @public
+     * @method setCallbacksDescriptorFile
+     * @desc Set a new callbacks descriptor file (.prototype)
+     * @memberof Addon#
+     * @param {!String} path Callback name
+     * @returns {void}
+     *
+     * @throws {TypeError}
+     * @throws {Error}
+     *
+     * @version 0.9.0
+     */
+    setCallbacksDescriptorFile(path) {
+        if (typeof path !== "string") {
+            throw new TypeError("path should be typeof string!");
+        }
+        if (extname(path) !== ".proto") {
+            throw new Error("path should be a .prototype file");
+        }
+
+        this.callbacksDescriptor = path;
     }
 
     /**

@@ -27,6 +27,7 @@ declare class Addon extends SafeEmitter {
     public isStarted: boolean;
     public asserts: any[];
     public flags: Set<string>;
+    public callbacksDescriptor: string;
     public callbacks: Map<string, Addon.Callback>;
     public schedules: Map<string, CallbackScheduler>;
     public observers: Map<string, ZenObservable.ObservableLike<any>>;
@@ -43,6 +44,7 @@ declare class Addon extends SafeEmitter {
     executeCallback<T>(name: string, ...args: any[]): Promise<T>;
     setDeprecatedAlias(callbackName: string, alias: string[]): void;
     sendMessage(target: string, options?: Addon.MessageOptions): ZenObservable.ObservableLike<any>;
+    setCallbacksDescriptorFile(path: string): void;
     ready(): boolean;
 
     // Static Methods
@@ -69,6 +71,7 @@ declare namespace Addon {
         uid: string;
         name: string;
         started: boolean;
+        callbacksDescriptor: string;
         callbacks: string[];
         flags: string[];
     }
