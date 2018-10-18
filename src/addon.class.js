@@ -492,7 +492,10 @@ class Addon extends SafeEmitter {
 Addon.RESERVED_CALLBACKS_NAME = new Set(["start", "stop", "get_info", "health_check"]);
 Addon.MESSAGE_TIMEOUT_MS = 5000;
 Addon.MAIN_INTERVAL_MS = 500;
+
+// Register Sub classes
 Addon.Stream = Stream;
+Addon.Callback = Callback;
 
 // Export (default) Addon
 module.exports = Addon;
