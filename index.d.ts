@@ -6,12 +6,21 @@
 /// <reference types="@types/zen-observable" />
 
 import * as stream from "stream";
+import * as async_hooks from "async_hooks";
 import * as SafeEmitter from "@slimio/safe-emitter";
 
 /**
  * Addon Streaming Facility!
  */
 declare class Stream extends stream.Transform {}
+
+/**
+ * Callback AsyncResource
+ */
+declare class Callback extends async_hooks.AsyncResource {
+    constructor(name: string, callback: Addon.Callback);
+    execute(args: any[]): Promise<any>;
+}
 
 /**
  * Addon class definition
@@ -37,6 +46,7 @@ declare class Addon extends SafeEmitter {
     static MESSAGE_TIMEOUT_MS: number;
     static MAIN_INTERVAL_MS: number;
     static Stream: typeof Stream;
+    static Callback: typeof Callback;
 
     // Methods
     registerCallback(name: string | Addon.Callback, callback?: Addon.Callback): this;
