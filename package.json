@@ -56,7 +56,7 @@
     "nyc": "^13.1.0"
   },
   "dependencies": {
-    "@slimio/is": "^1.1.0",
+    "@slimio/is": "^1.2.0",
     "@slimio/safe-emitter": "^1.0.1",
     "@slimio/scheduler": "^0.4.0",
     "driftless": "^2.0.3",
