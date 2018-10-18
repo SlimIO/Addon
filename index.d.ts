@@ -7,6 +7,7 @@
 
 import * as stream from "stream";
 import * as async_hooks from "async_hooks";
+import * as perf_hooks from "perf_hooks";
 import * as SafeEmitter from "@slimio/safe-emitter";
 
 /**
@@ -20,6 +21,9 @@ declare class Stream extends stream.Transform {}
 declare class Callback extends async_hooks.AsyncResource {
     constructor(name: string, callback: Addon.Callback);
     execute(args: any[]): Promise<any>;
+
+    static createHook(): async_hooks.AsyncHook;
+    static observePerformance(perfTrigger: (perfEntry: perf_hooks.PerformanceEntry) => void): perf_hooks.PerformanceObserver;
 }
 
 /**
