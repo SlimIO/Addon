@@ -62,6 +62,6 @@
     "driftless": "^2.0.3",
     "is-snake-case": "^0.1.0",
     "uuid": "^3.3.2",
-    "zen-observable": "^0.8.9"
+    "zen-observable": "^0.8.10"
   }
 }
