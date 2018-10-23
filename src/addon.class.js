@@ -36,19 +36,25 @@ class Addon extends SafeEmitter {
     /**
      * @constructor
      * @param {!String} name addon name
+     * @param {String=} [version=1.0.0] addon version
      *
      * @throws {TypeError}
+     * @throws {Error}
      */
-    constructor(name) {
+    constructor(name, version = "1.0.0") {
         super();
         if (typeof name !== "string") {
             throw new TypeError("constructor name argument should be typeof string");
+        }
+        if (typeof version !== "string") {
+            throw new TypeError("version argument should be typeof string");
         }
         if (name.length <= 2) {
             throw new Error("constructor name argument length must be greater than 2");
         }
 
         this.name = name;
+        this.version = version;
         this.uid = uuidv4();
         this.isReady = false;
         this.isStarted = false;
@@ -174,6 +180,8 @@ class Addon extends SafeEmitter {
         return {
             uid: this.uid,
             name: this.name,
+            version: "1.0.0",
+            containerVersion: "0.10.0",
             started: this.isStarted,
             callbacksDescriptor: this.callbacksDescriptor,
             callbacks: [...this.callbacks.keys()],
