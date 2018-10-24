@@ -3,6 +3,7 @@
 
 // Require NodeJS Dependencies
 const { join } = require("path");
+const { readFile } = require("fs").promises;
 
 // Require Third-party Dependencies
 const avaTest = require("ava");
@@ -45,6 +46,16 @@ avaTest("Addon constructor throw an Error if name length is less or equal 2", (t
         new Addon("de");
     }, Error);
     test.is(error.message, "constructor name argument length must be greater than 2");
+});
+
+avaTest("Verify addonContainer version", async(test) => {
+    const myAddon = new Addon("myAddon");
+
+    const buf = await readFile(join(__dirname, "..", "package.json"));
+    const { version } = JSON.parse(buf.toString());
+
+    const info = await myAddon.executeCallback("get_info");
+    test.is(version, info.containerVersion);
 });
 
 avaTest("Verify addon initial properties types and values", (test) => {
@@ -181,12 +192,22 @@ avaTest("Addon schedule on latest callback registered", async(test) => {
     await myAddon.executeCallback("stop");
 });
 
+avaTest("Create Addon with given version", async(test) => {
+    const myAddon = new Addon("myAddon", "2.0.0");
+
+    const info = await myAddon.executeCallback("get_info");
+    test.is(info.version, "2.0.0");
+});
+
 avaTest("Addon execute native get_info callback", async(test) => {
     const myAddon = new Addon("myAddon");
 
     const info = await myAddon.executeCallback("get_info");
     test.is(info.uid, myAddon.uid);
     test.is(info.name, myAddon.name);
+    test.true(is.string(info.version));
+    test.is(info.version, "1.0.0");
+    test.is(info.version, myAddon.version);
     test.false(info.started);
     test.deepEqual(info.callbacks, DEFAULT_CALLBACKS);
     test.deepEqual(info.flags, []);
