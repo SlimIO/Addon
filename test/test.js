@@ -336,7 +336,7 @@ avaTest("Addon schedule a custom callback by his name", async(test) => {
 
     // Start / test and stop addon
     await myAddon.executeCallback("start");
-    await sleep(2100);
+    await sleep(2200);
     test.true(executionTime >= 3);
     await myAddon.executeCallback("stop");
 });
