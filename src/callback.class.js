@@ -31,13 +31,14 @@ class Callback extends asyncHooks.AsyncResource {
 
     /**
      * @method execute
+     * @param {Object} header callback header
      * @param {any[]} args handler arguments
      * @returns {Promise<any>}
      *
      * @throws {Error}
      */
-    async execute(args = []) {
-        const ret = await this.runInAsyncScope(this.callback, null, ...args);
+    async execute(header, args = []) {
+        const ret = await this.runInAsyncScope(this.callback, null, header, ...args);
         this.emitDestroy();
 
         return ret;

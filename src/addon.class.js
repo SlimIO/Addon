@@ -329,6 +329,9 @@ class Addon extends SafeEmitter {
      * @desc Execute a callback of the addon
      * @memberof Addon#
      * @param {!String} name Callback name
+     * @param {Object=} header callback header
+     * @param {String} header.id Message ID
+     * @param {String} header.from Who sent the message
      * @param {any[]} args Callback arguments
      * @returns {Promise<T>} Return the callback response (or void)
      *
@@ -348,7 +351,7 @@ class Addon extends SafeEmitter {
      *    assert.equal(ret, "hello world");
      * });
      */
-    executeCallback(name, ...args) {
+    executeCallback(name, header = Addon.DEFAULT_HEADER, ...args) {
         if (!is.string(name)) {
             throw new TypeError("Addon.executeCallback->name should be typeof <string>");
         }
@@ -369,7 +372,7 @@ class Addon extends SafeEmitter {
         // Return callback execution!
         const handler = this.callbacks.get(callbackName);
 
-        return (new Callback(`${this.name}-${callbackName}`, handler)).execute(args);
+        return (new Callback(`${this.name}-${callbackName}`, handler)).execute(header, args);
     }
 
     /**
@@ -500,6 +503,7 @@ class Addon extends SafeEmitter {
 Addon.RESERVED_CALLBACKS_NAME = new Set(["start", "stop", "get_info", "health_check"]);
 Addon.MESSAGE_TIMEOUT_MS = 5000;
 Addon.MAIN_INTERVAL_MS = 500;
+Addon.DEFAULT_HEADER = { from: "self" };
 
 // Register Sub classes
 Addon.Stream = Stream;

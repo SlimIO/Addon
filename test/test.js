@@ -217,14 +217,14 @@ avaTest("Addon register & execute a custom callback", async(test) => {
     const myAddon = new Addon("myAddon");
 
     // Register callback
-    myAddon.registerCallback("test", async(arg1) => {
+    myAddon.registerCallback("test", async(header, arg1) => {
         return { ok: 1, arg: arg1 };
     });
     test.true(myAddon.callbacks.has("test"));
 
     // Execute callback
     const payload = [1, 2, 3];
-    const { ok, arg } = await myAddon.executeCallback("test", payload);
+    const { ok, arg } = await myAddon.executeCallback("test", void 0, payload);
     test.is(ok, 1);
     test.deepEqual(arg, payload);
 });

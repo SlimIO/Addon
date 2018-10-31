@@ -37,7 +37,7 @@ CPU.on("start", async() => {
     console.log("cpu addon started!");
 
     // Execute local callback
-    await CPU.executeCallback("say_hello", "thomas"); // stdout "hello thomas";
+    await CPU.executeCallback("say_hello", void 0, "thomas"); // stdout "hello thomas";
 
     // Tell the core that your addon is ready!
     CPU.ready();
