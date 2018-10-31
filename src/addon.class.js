@@ -8,7 +8,7 @@ const CallbackScheduler = require("@slimio/scheduler");
 const Observable = require("zen-observable");
 const uuidv4 = require("uuid/v4");
 const isSnakeCase = require("is-snake-case");
-const { setDriftlessInterval, clearDriftless } = require("driftless");
+const timer = require("@slimio/timer");
 
 // Require Internal dependencie(s)
 const Stream = require("./stream.class");
@@ -114,7 +114,7 @@ class Addon extends SafeEmitter {
 
         // The interval is used to execute Scheduled callbacks
         // A Symbol primitive is used to make Interval private
-        this[SYM_INTERVAL] = setDriftlessInterval(async() => {
+        this[SYM_INTERVAL] = timer.setInterval(async() => {
             // Retrieve scheduled callback
             const toExecute = [...this.schedules.entries()]
                 .filter(([, scheduler]) => scheduler.walk())
@@ -156,7 +156,7 @@ class Addon extends SafeEmitter {
         this.isStarted = false;
 
         // Clear current addon interval
-        clearDriftless(this[SYM_INTERVAL]);
+        timer.clearInterval(this[SYM_INTERVAL]);
 
         /**
          * @event Addon#stop

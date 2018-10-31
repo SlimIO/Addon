@@ -59,7 +59,7 @@
     "@slimio/is": "^1.2.0",
     "@slimio/safe-emitter": "^1.0.1",
     "@slimio/scheduler": "^0.5.0",
-    "driftless": "^2.0.3",
+    "@slimio/timer": "^1.0.0",
     "is-snake-case": "^0.1.0",
     "uuid": "^3.3.2",
     "zen-observable": "^0.8.10"
