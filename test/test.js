@@ -23,7 +23,7 @@ function sleep(ms = 0) {
 }
 
 // CONSTANTS
-const DEFAULT_CALLBACKS = ["start", "stop", "get_info", "health_check"];
+const DEFAULT_CALLBACKS = [...Addon.RESERVED_CALLBACKS_NAME];
 
 avaTest("Check Addon static CONSTANTS (type and values)", (test) => {
     test.true(is.number(Addon.MAIN_INTERVAL_MS));
