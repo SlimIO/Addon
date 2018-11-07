@@ -463,10 +463,12 @@ avaTest("Addon Callback Header", async(test) => {
     test.plan(2);
     const myAddon = new Addon("myAddon");
 
+    // eslint-disable-next-line
     myAddon.registerCallback(async function cb_test(header) {
         test.is(header.from, "self");
     });
 
+    // eslint-disable-next-line
     myAddon.registerCallback(async function cb_custom(header) {
         test.is(header.from, "custom");
     });
