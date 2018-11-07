@@ -18,6 +18,17 @@ const Callback = require("./callback.class");
 const SYM_INTERVAL = Symbol("interval");
 
 /**
+ * @callback Callback
+ * @returns {Promise<any>}
+ */
+
+/**
+ * @typedef {Object} CallbackHeader
+ * @property {String} from The addon who made the request
+ * @property {String} id Message ID
+ */
+
+/**
  * @class Addon
  * @classdesc Slim.IO Addon container
  * @extends Event
@@ -62,7 +73,10 @@ class Addon extends SafeEmitter {
         this.callbacksDescriptor = null;
         this.asserts = [];
 
-        /** @type {Map<String, () => Promise<any>>} */
+        /** @type {Map<String, any[]>} */
+        this.subscribers = new Map();
+
+        /** @type {Map<String, Callback>} */
         this.callbacks = new Map();
 
         /** @type {Map<String, String>} */
@@ -245,10 +259,10 @@ class Addon extends SafeEmitter {
      * @public
      * @chainable
      * @method registerCallback
-     * @desc Register a new callback on the Addon
+     * @desc Register a new callback on the Addon. The callback name should be formatted in snake_case
      * @memberof Addon#
-     * @param {!String | Function} name Callback name
-     * @param {!AsyncFunction} callback Asynchronous function to execute when required
+     * @param {!(String | Function)} name Callback name
+     * @param {!Callback} callback Async Callback to execute when the callback is triggered by the core or the addon itself
      * @returns {this}
      *
      * @throws {TypeError}
@@ -298,10 +312,10 @@ class Addon extends SafeEmitter {
     /**
      * @public
      * @method setDeprecatedAlias
-     * @desc Register One or Many deprecated Alias for a callback!
+     * @desc Register One or Many deprecated Alias for a given callback
      * @memberof Addon#
      * @param {!String} callbackName Callback name
-     * @param {Array<String>} alias Callback Deprecated Alias
+     * @param {String[]} alias List of alias to set for the given callback name (they will throw deprecated warning)
      * @returns {void}
      *
      * @throws {TypeError}
@@ -329,9 +343,7 @@ class Addon extends SafeEmitter {
      * @desc Execute a callback of the addon
      * @memberof Addon#
      * @param {!String} name Callback name
-     * @param {Object=} header callback header
-     * @param {String} header.id Message ID
-     * @param {String} header.from Who sent the message
+     * @param {CallbackHeader=} header callback header
      * @param {any[]} args Callback arguments
      * @returns {Promise<T>} Return the callback response (or void)
      *
@@ -440,15 +452,25 @@ class Addon extends SafeEmitter {
      * @memberof Addon#
      * @param {!String} target Target path to the callback
      * @param {Object=} [options={}] Message options
-     * @param {Array<any>=} [options.args=[]] Callback arguments
-     * @param {number=} options.timeout Custom timeout
-     * @param {Boolean=} options.noReturn Dont expect a response!
+     * @param {any[]} [options.args=[]] Callback arguments
+     * @param {number} [options.timeout=5000] Custom timeout
+     * @param {Boolean} [options.noReturn=false] Dont expect a response!
      * @returns {Observable<any>}
      *
      * @throws {TypeError}
      * @fires Addon#message
      *
      * @version 0.0.0
+     *
+     * @example
+     * const myAddon = new Addon("myAddon");
+     *
+     * myAddon.on("start", function() {
+     *     myAddon
+     *         .sendMessage("cpu.get_info")
+     *         .subscribe(console.log);
+     *     myAddon.ready();
+     * });
      */
     sendMessage(target, options = { noReturn: false }) {
         if (!is.string(target)) {
