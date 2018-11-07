@@ -459,6 +459,36 @@ avaTest("setCallbacksDescriptor", async(test) => {
     test.is(callbacksDescriptor, path);
 });
 
+avaTest("Addon of(subject) should be a string", async(test) => {
+    const myAddon = new Addon("myAddon");
+
+    const { message } = test.throws(() => {
+        myAddon.of(10);
+    }, TypeError);
+    test.is(message, "subject should be typeof string");
+});
+
+
+avaTest("Addon Native Event", async(test) => {
+    test.plan(2);
+    const myAddon = new Addon("myAddon");
+
+    myAddon.of("any").subscribe(() => {
+        test.pass();
+    });
+    myAddon.of("any").subscribe(() => {
+        test.pass();
+    });
+
+    await myAddon.executeCallback("start");
+
+    await myAddon.executeCallback("event", void 0, "any");
+    await myAddon.executeCallback("event", void 0, "unknown");
+
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    await myAddon.executeCallback("stop");
+});
+
 avaTest("Addon Callback Header", async(test) => {
     test.plan(2);
     const myAddon = new Addon("myAddon");
