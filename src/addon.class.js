@@ -276,6 +276,7 @@ class Addon extends SafeEmitter {
         this.once("stop").then(() => {
             this.isReady = false;
         }).catch(console.error);
+        this.emit("ready");
         this.sendMessage("events.publish", {
             noReturn: true,
             args: ["Addon", "ready", this.name]
