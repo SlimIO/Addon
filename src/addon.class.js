@@ -94,6 +94,18 @@ class Addon extends SafeEmitter {
         // The "stop" callback is triggered to stop the addon
         this.callbacks.set("stop", Addon.stop.bind(this));
 
+        // The "event" callback is triggered by external addons
+        // eslint-disable-next-line
+        this.callbacks.set("event", async(header, name, data) => {
+            if (!this.subscribers.has(name)) {
+                return;
+            }
+
+            for (const observer of this.subscribers.get(name)) {
+                observer.next(data);
+            }
+        });
+
         // The "get_info" callback is triggered to retrieve default information about the addon
         this.callbacks.set("get_info", Addon.getInfo.bind(this));
 
@@ -172,6 +184,14 @@ class Addon extends SafeEmitter {
         // Clear current addon interval
         timer.clearInterval(this[SYM_INTERVAL]);
 
+        // Complete subscribers
+        for (const [subject, observers] of this.subscribers.entries()) {
+            for (const observer of observers) {
+                observer.complete();
+            }
+            this.subscribers.delete(subject);
+        }
+
         /**
          * @event Addon#stop
          * @type {void}
@@ -205,7 +225,37 @@ class Addon extends SafeEmitter {
 
     /**
      * @public
-     * @chainable
+     * @method of
+     * @desc Subscribe to an event
+     * @param {!String} subject subject
+     * @memberof Addon#
+     * @returns {Boolean}
+     *
+     * @version 0.12.0
+     */
+    of(subject) {
+        if (typeof subject !== "string") {
+            throw new TypeError("subject should be typeof string");
+        }
+        if (!this.subscribers.has(subject)) {
+            this.subscribers.set(subject, []);
+        }
+        this.sendMessage("events.subscribe", {
+            args: [subject],
+            noReturn: true
+        });
+
+        return new Observable((observer) => {
+            const index = this.subscribers.get(subject).push(observer);
+
+            return () => {
+                this.subscribers.get(subject).splice(index, 1);
+            };
+        });
+    }
+
+    /**
+     * @public
      * @method ready
      * @desc Set the addon ready for the core!
      * @memberof Addon#
@@ -522,7 +572,7 @@ class Addon extends SafeEmitter {
 }
 
 // Register Static (CONSTANTS) Addon variables...
-Addon.RESERVED_CALLBACKS_NAME = new Set(["start", "stop", "get_info", "health_check"]);
+Addon.RESERVED_CALLBACKS_NAME = new Set(["start", "stop", "event", "get_info", "health_check"]);
 Addon.MESSAGE_TIMEOUT_MS = 5000;
 Addon.MAIN_INTERVAL_MS = 500;
 Addon.DEFAULT_HEADER = { from: "self" };
