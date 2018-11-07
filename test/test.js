@@ -468,6 +468,28 @@ avaTest("Addon of(subject) should be a string", async(test) => {
     test.is(message, "subject should be typeof string");
 });
 
+avaTest("Scheduled callback to throw Error!", async(test) => {
+    test.plan(1);
+    const myAddon = new Addon("myAddon");
+    myAddon.on("error", (error) => {
+        test.is(error.message, "oops!");
+    });
+
+    myAddon.registerCallback("test", async() => {
+        throw new Error("oops!");
+    });
+
+    // Schedule "test" callback
+    myAddon.schedule("test", new CallbackScheduler({
+        interval: 1000,
+        executeOnStart: true,
+        intervalUnitType: CallbackScheduler.Types.Milliseconds
+    }));
+
+    await myAddon.executeCallback("start");
+    await sleep(1100);
+    await myAddon.executeCallback("stop");
+});
 
 avaTest("Addon Native Event", async(test) => {
     test.plan(2);
