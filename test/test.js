@@ -41,6 +41,13 @@ avaTest("Addon constructor throw a typeError if name is not a string", (test) =>
     test.is(error.message, "constructor name argument should be typeof string");
 });
 
+avaTest("Addon constructor throw a typeError if version is not a string", (test) => {
+    const error = test.throws(() => {
+        new Addon("cpu", 10);
+    }, TypeError);
+    test.is(error.message, "version argument should be typeof string");
+});
+
 avaTest("Addon constructor throw an Error if name length is less or equal 2", (test) => {
     const error = test.throws(() => {
         new Addon("de");
