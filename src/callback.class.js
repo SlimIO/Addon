@@ -94,6 +94,7 @@ Callback.observePerformance = function observe(perfTrigger) {
     }
     const obs = new PerformanceObserver((list) => {
         for (const perfEntry of list.getEntries()) {
+            /* istanbul ignore next */
             if (!/^Callback/.test(perfEntry.name)) {
                 continue;
             }
