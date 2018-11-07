@@ -240,12 +240,23 @@ class Addon extends SafeEmitter {
         if (!this.subscribers.has(subject)) {
             this.subscribers.set(subject, []);
         }
-        this.sendMessage("events.subscribe", {
-            args: [subject],
-            noReturn: true
-        });
+
+        const publishMsg = (observer) => {
+            this.sendMessage("events.subscribe", { args: [subject] }).subscribe({
+                error: (err) => observer.error(err)
+            });
+        };
 
         return new Observable((observer) => {
+            if (this.isStarted) {
+                publishMsg(observer);
+            }
+            else {
+                this.once("start", 5000).then(() => {
+                    publishMsg(observer);
+                }).catch(console.error);
+            }
+
             const index = this.subscribers.get(subject).push(observer);
 
             return () => {
