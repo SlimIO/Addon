@@ -215,7 +215,7 @@ class Addon extends SafeEmitter {
             uid: this.uid,
             name: this.name,
             version: this.version,
-            containerVersion: "0.13.0",
+            containerVersion: "0.13.1",
             started: this.isStarted,
             callbacksDescriptor: this.callbacksDescriptor,
             callbacks: [...this.callbacks.keys()],
