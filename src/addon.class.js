@@ -577,6 +577,17 @@ Addon.MESSAGE_TIMEOUT_MS = 5000;
 Addon.MAIN_INTERVAL_MS = 500;
 Addon.DEFAULT_HEADER = { from: "self" };
 
+// Subjects
+Addon.Subjects = Object.freeze({
+    Addon: Object.freeze({
+        ready: "Addon.ready"
+    }),
+    Alarm: Object.freeze({
+        Open: "Alarm.open",
+        Close: "Alarm.close"
+    })
+});
+
 // Register Sub classes
 Addon.Stream = Stream;
 Addon.Callback = Callback;
