@@ -1,6 +1,6 @@
 {
   "name": "@slimio/addon",
-  "version": "0.13.1",
+  "version": "0.13.2",
   "description": "Slim.IO Addon package",
   "main": "index.js",
   "engines": {
