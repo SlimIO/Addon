@@ -75,7 +75,7 @@ declare class Addon extends SafeEmitter {
  */
 declare namespace Addon {
 
-    export type Callback = () => Promise<any>;
+    export type Callback<T> = () => Promise<T>;
 
     // Message Options
     export interface MessageOptions {
