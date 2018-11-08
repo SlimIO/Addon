@@ -53,6 +53,7 @@ declare class Addon extends SafeEmitter {
     static MAIN_INTERVAL_MS: number;
     static Stream: typeof Stream;
     static Callback: typeof Callback;
+    static Subjects: Addon.Subjects;
 
     // Methods
     registerCallback(name: string | Addon.Callback, callback?: Addon.Callback): this;
@@ -81,6 +82,16 @@ declare namespace Addon {
     export interface MessageOptions {
         timeout?: number;
         args?: any[];
+    }
+
+    export interface Subjects {
+        Addon: {
+            readonly Ready: string;
+        };
+        Alarm: {
+            readonly Open: string;
+            readonly Close: string;
+        }
     }
 
     export interface CallbackHeader {

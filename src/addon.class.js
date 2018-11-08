@@ -593,15 +593,15 @@ Addon.MAIN_INTERVAL_MS = 500;
 Addon.DEFAULT_HEADER = { from: "self" };
 
 // Subjects
-Addon.Subjects = Object.freeze({
+Addon.Subjects = {
     Addon: Object.freeze({
-        ready: "Addon.ready"
+        Ready: "Addon.ready"
     }),
     Alarm: Object.freeze({
         Open: "Alarm.open",
         Close: "Alarm.close"
     })
-});
+};
 
 // Register Sub classes
 Addon.Stream = Stream;
