@@ -123,7 +123,7 @@ avaTest("Addon.registerCallback->name typo should be formated in snake_case", (t
     const error = test.throws(() => {
         myAddon.registerCallback("snakeCase", async() => {});
     }, Error);
-    test.is(error.message, "Addon.registerCallback->name typo should be formated in snake_case");
+    test.is(error.message, "Addon.registerCallback - Callback name 'snakeCase' should be formated in snake_case");
 });
 
 avaTest("Addon executeCallback (throw errors)", (test) => {
