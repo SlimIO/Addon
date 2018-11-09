@@ -365,7 +365,7 @@ class Addon extends SafeEmitter {
             throw new Error(`Addon.registerCallback - Callback name '${name}' is a reserved callback name!`);
         }
         if (!isSnakeCase(name)) {
-            throw new Error("Addon.registerCallback->name typo should be formated in snake_case");
+            throw new Error(`Addon.registerCallback - Callback name '${name}' should be formated in snake_case`);
         }
 
         // Register callback on Addon
