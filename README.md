@@ -72,7 +72,7 @@ Addon.MAIN_INTERVAL_MS = 100; // 100ms
 
 ## API
 
-### constructor(name: string)
+### constructor(name: string, version?: string)
 Create a new Addon with a given name ! The name length must be more than two characters long.
 ```js
 // VALID
