@@ -138,22 +138,25 @@ class Addon extends SafeEmitter {
         }
         this.isStarted = true;
 
-        // The interval is used to execute Scheduled callbacks
-        // A Symbol primitive is used to make Interval private
-        this[SYM_INTERVAL] = timer.setInterval(async() => {
-            // Retrieve scheduled callback
-            const toExecute = [...this.schedules.entries()]
-                .filter(([, scheduler]) => scheduler.walk())
-                .map(([name]) => this.callbacks.get(name)());
+        // Create Interval only is there is scheduled callbacks!
+        if (this.schedules.size > 0) {
+            // The interval is used to execute Scheduled callbacks
+            // A Symbol primitive is used to make Interval private
+            this[SYM_INTERVAL] = timer.setInterval(async() => {
+                // Retrieve scheduled callback
+                const toExecute = [...this.schedules.entries()]
+                    .filter(([, scheduler]) => scheduler.walk())
+                    .map(([name]) => this.callbacks.get(name)());
 
-            // Execute all calbacks (Promise) in asynchrone
-            try {
-                await Promise.all(toExecute);
-            }
-            catch (error) {
-                this.emit("error", error);
-            }
-        }, Addon.MAIN_INTERVAL_MS);
+                // Execute all calbacks (Promise) in asynchrone
+                try {
+                    await Promise.all(toExecute);
+                }
+                catch (error) {
+                    this.emit("error", error);
+                }
+            }, Addon.MAIN_INTERVAL_MS);
+        }
 
         /**
          * @event Addon#start
@@ -182,7 +185,9 @@ class Addon extends SafeEmitter {
         this.isStarted = false;
 
         // Clear current addon interval
-        timer.clearInterval(this[SYM_INTERVAL]);
+        if (typeof this[SYM_INTERVAL] === "number") {
+            timer.clearInterval(this[SYM_INTERVAL]);
+        }
 
         // Complete subscribers
         for (const [subject, observers] of this.subscribers.entries()) {
