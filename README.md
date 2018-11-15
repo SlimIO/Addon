@@ -55,7 +55,6 @@ Addon is extended with a SlimIO Safe EventEmitter. Four kinds of events can be t
 | start | When the core ask the addon to start |
 | stop | When the core ask the addon to stop |
 | ready | When the developer trigger ready() method to tell the Core that the addon is Ready for events |
-| addonLoaded | When an external addon has been loaded, return the addon name as first argument! |
 
 ## Interval & Scheduling
 
@@ -146,6 +145,29 @@ myAddon.registerCallback(async function new_test() {
     console.log("hello world!");
 });
 myAddon.setDeprecatedAlias("new_test", ["old_test"]);
+```
+
+### of<T>(subject: string): ZenObservable.ObservableLike<T>
+
+Subscribe to a given subject. Available "core" Subjects are:
+```ts
+export interface Subjects {
+    Addon: {
+        readonly Ready: string;
+    };
+    Alarm: {
+        readonly Open: string;
+        readonly Close: string;
+    }
+}
+```
+
+```js
+const myAddon = new Addon("myAddon");
+
+myAddon.of(Addon.Subjects.Addon.Ready).subscribe((addonName) => {
+    console.log(`Addon with name ${addonName} is Ready !`);
+});
 ```
 
 ### sendMessage(target: string, options): Observable
