@@ -495,14 +495,17 @@ avaTest("Addon Native Event", async(test) => {
     test.plan(2);
     const myAddon = new Addon("myAddon");
 
-    myAddon.of("any").subscribe(() => {
-        test.pass();
-    });
+    // Subscribe before start
     myAddon.of("any").subscribe(() => {
         test.pass();
     });
 
     await myAddon.executeCallback("start");
+
+    // Subscribe after start
+    myAddon.of("any").subscribe(() => {
+        test.pass();
+    });
 
     await myAddon.executeCallback("event", void 0, "any");
     await myAddon.executeCallback("event", void 0, "unknown");
