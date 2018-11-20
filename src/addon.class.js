@@ -259,7 +259,7 @@ class Addon extends SafeEmitter {
             else {
                 this.once("start", 5000).then(() => {
                     publishMsg(observer);
-                }).catch(console.error);
+                }).catch(observer.error);
             }
 
             const index = this.subscribers.get(subject).push(observer);
