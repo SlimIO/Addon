@@ -1,6 +1,5 @@
 // Require Third-party Dependencies
 const avaTest = require("ava");
-const is = require("@slimio/is");
 
 // Require Internal Depedencies
 const Addon = require("../index");

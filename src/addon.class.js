@@ -43,7 +43,6 @@ const SYM_INTERVAL = Symbol("interval");
  * @property {Map<String, ZenObservable.SubscriptionObserver<any>>} observers
  */
 class Addon extends SafeEmitter {
-
     /**
      * @constructor
      * @param {!String} name addon name
@@ -551,7 +550,6 @@ class Addon extends SafeEmitter {
 
         // Send a message (on the next event loop iteration).
         setImmediate(() => {
-
             /**
              * @event Addon#message
              * @param {String} messageId
@@ -568,7 +566,6 @@ class Addon extends SafeEmitter {
 
         // Return an Observable that stream response
         return new Observable((observer) => {
-
             // Setup a timeOut for our message
             const timer = setTimeout(() => {
                 this.observers.delete(messageId);
@@ -588,7 +585,6 @@ class Addon extends SafeEmitter {
             };
         });
     }
-
 }
 
 // Register Static (CONSTANTS) Addon variables...

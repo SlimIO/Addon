@@ -9,7 +9,6 @@ const { performance, PerformanceObserver } = require("perf_hooks");
  * @property {Function} callback
  */
 class Callback extends asyncHooks.AsyncResource {
-
     /**
      * @constructor
      * @param {!String} name callback name
@@ -43,7 +42,6 @@ class Callback extends asyncHooks.AsyncResource {
 
         return ret;
     }
-
 }
 
 /**

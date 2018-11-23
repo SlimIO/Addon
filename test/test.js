@@ -161,7 +161,7 @@ avaTest("Addon schedule (throw errors)", (test) => {
         return { ok: 1 };
     });
     const invalidScheduler = test.throws(() => {
-        myAddon.schedule("test", new String());
+        myAddon.schedule("test", "");
     }, TypeError);
     test.is(
         invalidScheduler.message,

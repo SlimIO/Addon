@@ -9,7 +9,6 @@ const { Transform } = require("stream");
  * @extends Transform
  */
 class Stream extends Transform {
-
     /**
      * @method _read
      * @returns {void}
@@ -29,7 +28,6 @@ class Stream extends Transform {
         this.push(chunk);
         next();
     }
-
 }
 
 module.exports = Stream;
