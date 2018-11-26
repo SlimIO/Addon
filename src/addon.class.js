@@ -220,7 +220,7 @@ class Addon extends SafeEmitter {
             uid: this.uid,
             name: this.name,
             version: this.version,
-            containerVersion: "0.14.2",
+            containerVersion: "0.14.3",
             started: this.isStarted,
             callbacksDescriptor: this.callbacksDescriptor,
             callbacks: [...this.callbacks.keys()],
@@ -294,9 +294,8 @@ class Addon extends SafeEmitter {
         }).catch(console.error);
         this.emit("ready");
         this.sendMessage("events.publish", {
-            noReturn: true,
-            args: ["Addon", "ready", this.name]
-        });
+            args: [["Addon", "ready", this.name]]
+        }).subscribe({ error: console.error });
 
         return true;
     }
@@ -604,7 +603,11 @@ Addon.Subjects = {
     }),
     Alarm: Object.freeze({
         Open: "Alarm.open",
+        Update: "Alarm.update",
         Close: "Alarm.close"
+    }),
+    Metric: Object.freeze({
+        Update: "Metric.update"
     })
 };
 
