@@ -345,25 +345,27 @@ avaTest("Trigger 'start' and 'stop' callbacks", async(test) => {
 });
 
 avaTest("Addon schedule a custom callback by his name", async(test) => {
-    test.plan(3);
     const myAddon = new Addon("myAddon");
+    let count = 0;
 
     // Register "test" callback
     myAddon.registerCallback("test", async() => {
-        test.pass();
+        count++;
     });
 
     // Schedule "test" callback
     myAddon.schedule("test", new CallbackScheduler({
-        interval: 1000,
+        interval: 500,
         executeOnStart: true,
         intervalUnitType: CallbackScheduler.Types.Milliseconds
     }));
 
     // Start / test and stop addon
     await myAddon.executeCallback("start");
-    await sleep(3100);
+    await sleep(2050);
     await myAddon.executeCallback("stop");
+
+    test.true(count >= 3);
 });
 
 avaTest("Addon health_check assert (throw)", async(test) => {
