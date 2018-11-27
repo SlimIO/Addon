@@ -50,6 +50,22 @@ avaTest("Addon constructor throw a typeError if version is not a string", (test)
     test.is(error.message, "version argument should be typeof string");
 });
 
+avaTest("Addon constructor throw a typeError if verbose is not a boolean", (test) => {
+    const error = test.throws(() => {
+        new Addon("cpu", {
+            verbose: 10
+        });
+    }, TypeError);
+    test.is(error.message, "verbose argument should be typeof boolean");
+});
+
+avaTest("Addon constructor throw a typeError if options is not a plain Object", (test) => {
+    const error = test.throws(() => {
+        new Addon("cpu", Symbol("hello"));
+    }, TypeError);
+    test.is(error.message, "options should be a plainObject");
+});
+
 avaTest("Addon constructor throw an Error if name length is less or equal 2", (test) => {
     const error = test.throws(() => {
         new Addon("de");

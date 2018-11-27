@@ -66,6 +66,10 @@ class Addon extends SafeEmitter {
         if (typeof version !== "string") {
             throw new TypeError("version argument should be typeof string");
         }
+        if (typeof verbose !== "boolean") {
+            throw new TypeError("verbose argument should be typeof boolean");
+        }
+
         if (name.length <= 2) {
             throw new Error("constructor name argument length must be greater than 2");
         }
