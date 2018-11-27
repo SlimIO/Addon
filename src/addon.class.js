@@ -80,7 +80,6 @@ class Addon extends SafeEmitter {
         this.uid = uuidv4();
         this.isReady = false;
         this.isStarted = false;
-        this.flags = new Set();
         this.callbacksDescriptor = null;
         this.asserts = [];
 
@@ -237,8 +236,7 @@ class Addon extends SafeEmitter {
             containerVersion: "0.14.4",
             started: this.isStarted,
             callbacksDescriptor: this.callbacksDescriptor,
-            callbacks: [...this.callbacks.keys()],
-            flags: [...this.flags]
+            callbacks: [...this.callbacks.keys()]
         };
     }
 

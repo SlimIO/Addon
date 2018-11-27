@@ -41,7 +41,6 @@ declare class Addon extends SafeEmitter {
     public isReady: boolean;
     public isStarted: boolean;
     public asserts: any[];
-    public flags: Set<string>;
     public subscribers: Map<string, ZenObservable.Observer<any>[]>;
     public callbacksDescriptor: string;
     public callbacks: Map<string, Addon.Callback>;
@@ -114,7 +113,6 @@ declare namespace Addon {
         started: boolean;
         callbacksDescriptor: string;
         callbacks: string[];
-        flags: string[];
     }
 
 }

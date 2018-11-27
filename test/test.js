@@ -91,8 +91,6 @@ avaTest("Verify addon initial properties types and values", (test) => {
     test.false(myAddon.verbose);
     test.is(myAddon.version, "1.0.0");
     test.false(myAddon.isStarted);
-    test.true(is.set(myAddon.flags));
-    test.true(myAddon.flags.size === 0);
     test.true(is.array(myAddon.asserts));
     test.deepEqual(myAddon.asserts, []);
     test.true(is.map(myAddon.callbacks));
@@ -239,7 +237,6 @@ avaTest("Addon execute native get_info callback", async(test) => {
     test.is(info.version, myAddon.version);
     test.false(info.started);
     test.deepEqual(info.callbacks, DEFAULT_CALLBACKS);
-    test.deepEqual(info.flags, []);
 });
 
 avaTest("Addon register & execute a custom callback", async(test) => {
