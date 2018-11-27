@@ -571,3 +571,19 @@ avaTest("Test Addon Streaming Class", async(test) => {
     });
     await new Promise((resolve) => setTimeout(resolve, 300));
 });
+
+avaTest("Run a verbose test", async(test) => {
+    test.plan(1);
+    const myAddon = new Addon("myAddon", {
+        verbose: true
+    });
+
+    // eslint-disable-next-line
+    myAddon.registerCallback(async function cb_test(header) {
+        test.pass();
+    });
+
+    await myAddon.executeCallback("start");
+    await myAddon.executeCallback("cb_test", void 0);
+    await myAddon.executeCallback("stop");
+});

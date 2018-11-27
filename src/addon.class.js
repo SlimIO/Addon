@@ -464,6 +464,9 @@ class Addon extends SafeEmitter {
 
         // Return callback execution!
         const handler = this.callbacks.get(callbackName);
+        if (this.verbose) {
+            console.log(`[${this.name}] Execute callback ${callbackName}`);
+        }
 
         return (new Callback(`${this.name}-${callbackName}`, handler)).execute(header, args);
     }
