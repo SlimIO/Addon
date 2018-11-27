@@ -46,16 +46,23 @@ class Addon extends SafeEmitter {
     /**
      * @constructor
      * @param {!String} name addon name
-     * @param {String=} [version=1.0.0] addon version
+     * @param {Object=} options options
+     * @param {Boolean} [options.verbose=false] Enable verbose mode
+     * @param {String} [options.version=1.0.0] addon version
      *
      * @throws {TypeError}
      * @throws {Error}
      */
-    constructor(name, version = "1.0.0") {
+    constructor(name, options = Object.create(null)) {
         super();
         if (typeof name !== "string") {
             throw new TypeError("constructor name argument should be typeof string");
         }
+        if (!is.plainObject(options)) {
+            throw new TypeError("options should be a plainObject");
+        }
+
+        const { version = "1.0.0", verbose = false } = options;
         if (typeof version !== "string") {
             throw new TypeError("version argument should be typeof string");
         }
@@ -65,6 +72,7 @@ class Addon extends SafeEmitter {
 
         this.name = name;
         this.version = version;
+        this.verbose = verbose;
         this.uid = uuidv4();
         this.isReady = false;
         this.isStarted = false;
@@ -162,6 +170,9 @@ class Addon extends SafeEmitter {
          * @type {void}
          */
         await this.emitAndWait("start");
+        if (this.verbose) {
+            console.log(`[${this.name}] Addon start event triggered!`);
+        }
 
         return true;
     }

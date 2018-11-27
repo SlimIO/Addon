@@ -31,12 +31,13 @@ declare class Callback extends async_hooks.AsyncResource {
  */
 declare class Addon extends SafeEmitter {
     // Constructor
-    constructor(name: string, version?: string);
+    constructor(name: string, options?: Addon.ConstructorOptions);
 
     // Properties
     public name: string;
     public uid: string;
     public version: string;
+    public verbose: boolean;
     public isReady: boolean;
     public isStarted: boolean;
     public asserts: any[];
@@ -77,6 +78,11 @@ declare class Addon extends SafeEmitter {
 declare namespace Addon {
 
     export type Callback<T> = () => Promise<T>;
+
+    export interface ConstructorOptions {
+        version?: string;
+        verbose?: boolean;
+    }
 
     // Message Options
     export interface MessageOptions {

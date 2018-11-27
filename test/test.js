@@ -43,7 +43,9 @@ avaTest("Addon constructor throw a typeError if name is not a string", (test) =>
 
 avaTest("Addon constructor throw a typeError if version is not a string", (test) => {
     const error = test.throws(() => {
-        new Addon("cpu", 10);
+        new Addon("cpu", {
+            version: 10
+        });
     }, TypeError);
     test.is(error.message, "version argument should be typeof string");
 });
@@ -70,6 +72,8 @@ avaTest("Verify addon initial properties types and values", (test) => {
 
     test.true(is.string(myAddon.uid));
     test.is(myAddon.name, "myAddon");
+    test.false(myAddon.verbose);
+    test.is(myAddon.version, "1.0.0");
     test.false(myAddon.isStarted);
     test.true(is.set(myAddon.flags));
     test.true(myAddon.flags.size === 0);
@@ -200,7 +204,9 @@ avaTest("Addon schedule on latest callback registered", async(test) => {
 });
 
 avaTest("Create Addon with given version", async(test) => {
-    const myAddon = new Addon("myAddon", "2.0.0");
+    const myAddon = new Addon("myAddon", {
+        version: "2.0.0"
+    });
 
     const info = await myAddon.executeCallback("get_info");
     test.is(info.version, "2.0.0");
