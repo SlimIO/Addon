@@ -71,14 +71,19 @@ Addon.MAIN_INTERVAL_MS = 100; // 100ms
 
 ## API
 
-### constructor(name: string, version?: string)
+### constructor(name: string, options?: Object)
 Create a new Addon with a given name ! The name length must be more than two characters long.
-```js
-// VALID
-const myAddon = new Addon("myAddon");
+Available options are:
+| name | defaultValue | description |
+| --- | --- | --- |
+| version | 1.0.0 | Addon version |
+| verbose | false | Enable addon verbose mode |
 
-// INVALID
-const de = new Addon("de");
+```js
+const myAddon = new Addon("myAddon", {
+    version: "0.1.0",
+    verbose: true
+});
 ```
 
 ### registerCallback(name: string | AsyncFunction, callback?: AsyncFunction): this
