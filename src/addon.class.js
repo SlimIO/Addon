@@ -80,6 +80,7 @@ class Addon extends SafeEmitter {
         this.uid = uuidv4();
         this.isReady = false;
         this.isStarted = false;
+        this.isLocked = false;
         this.callbacksDescriptor = null;
         this.asserts = [];
 
@@ -97,6 +98,9 @@ class Addon extends SafeEmitter {
 
         /** @type {Map<String, ZenObservable.SubscriptionObserver<any>>} */
         this.observers = new Map();
+
+        /** @type {Map<String, any>} */
+        this.locks = new Map();
 
         // The "start" callback is triggered to start the addon
         this.callbacks.set("start", Addon.start.bind(this));
@@ -146,6 +150,29 @@ class Addon extends SafeEmitter {
         if (this.isStarted) {
             return false;
         }
+
+        // eslint-disable-next-line
+        const getInfo = (addonName) => {
+            return new Promise((resolve, reject) => {
+                this.sendMessage(`${addonName}.get_info`).subscribe(resolve, reject);
+            });
+        };
+
+        // Check locks
+        for (const [addonName, rules] of this.locks.entries()) {
+            for (;;) {
+                try {
+                    const res = await getInfo(addonName);
+                    if (typeof res === "undefined") {
+                        continue;
+                    }
+                }
+                catch (err) {
+                    // do nothing
+                }
+            }
+        }
+
         this.isStarted = true;
 
         // Create Interval only is there is scheduled callbacks!
@@ -235,9 +262,37 @@ class Addon extends SafeEmitter {
             version: this.version,
             containerVersion: "0.15.0",
             started: this.isStarted,
+            locked: this.isLocked,
             callbacksDescriptor: this.callbacksDescriptor,
             callbacks: [...this.callbacks.keys()]
         };
+    }
+
+    /**
+     * @public
+     * @method lockOn
+     * @desc Create a new lock rules
+     * @param {!String} addonName addonName
+     * @param {*} [rules] lock rules
+     * @memberof Addon#
+     * @returns {void}
+     *
+     * @throws {TypeError}
+     *
+     * @version 0.15.0
+     */
+    lockOn(addonName, rules = Object.create(null)) {
+        const { startAfter = true, lockCallback = false } = rules;
+        if (typeof startAfter !== "boolean") {
+            throw new TypeError("rules.startAfter must be a boolean");
+        }
+        if (typeof lockCallback !== "boolean") {
+            throw new TypeError("rules.lockCallback must be a boolean");
+        }
+
+        this.locks.set(addonName, {
+            startAfter, lockCallback
+        });
     }
 
     /**
