@@ -90,6 +90,7 @@ avaTest("Verify addon initial properties types and values", (test) => {
     test.is(myAddon.name, "myAddon");
     test.false(myAddon.verbose);
     test.is(myAddon.version, "1.0.0");
+    test.false(myAddon.isAwake);
     test.false(myAddon.isStarted);
     test.true(is.array(myAddon.asserts));
     test.deepEqual(myAddon.asserts, []);

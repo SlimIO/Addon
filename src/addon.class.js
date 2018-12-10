@@ -168,6 +168,7 @@ class Addon extends SafeEmitter {
         if (this.isStarted) {
             return false;
         }
+        this.isStarted = true;
 
         /**
          * @event Addon#start
@@ -177,7 +178,6 @@ class Addon extends SafeEmitter {
         if (this.verbose) {
             console.log(`[${this.name}] Addon start event triggered!`);
         }
-        this.isStarted = true;
 
         // Check locks
         for (const [addonName, rules] of this.locks.entries()) {
