@@ -45,7 +45,7 @@ declare class Addon extends SafeEmitter {
     public callbacksDescriptor: string;
     public callbacks: Map<string, Addon.Callback>;
     public schedules: Map<string, CallbackScheduler>;
-    public observers: Map<string, ZenObservable.ObservableLike<any>>;
+    public observers: Map<string, ZenObservable.SubscriptionObserver<any>>;
 
     // Static Properties
     static RESERVED_CALLBACK_NAME: Set<string>;
