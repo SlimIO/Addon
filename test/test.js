@@ -587,3 +587,31 @@ avaTest("Run a verbose test", async(test) => {
     await myAddon.executeCallback("cb_test", void 0);
     await myAddon.executeCallback("stop");
 });
+
+avaTest("lockOn: addonName must be typeof String", async(test) => {
+    const myAddon = new Addon("myAddon");
+    const { message } = test.throws(() => {
+        myAddon.lockOn(10);
+    }, TypeError);
+    test.is(message, "addonName must be a string");
+});
+
+avaTest("lockOn: rules.startAfter must be a boolean", async(test) => {
+    const myAddon = new Addon("myAddon");
+    const { message } = test.throws(() => {
+        myAddon.lockOn("zbla", {
+            startAfter: 10
+        });
+    }, TypeError);
+    test.is(message, "rules.startAfter must be a boolean");
+});
+
+avaTest("lockOn: rules.lockCallback must be a boolean", async(test) => {
+    const myAddon = new Addon("myAddon");
+    const { message } = test.throws(() => {
+        myAddon.lockOn("zbla", {
+            lockCallback: 10
+        });
+    }, TypeError);
+    test.is(message, "rules.lockCallback must be a boolean");
+});

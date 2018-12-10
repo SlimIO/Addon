@@ -295,7 +295,7 @@ class Addon extends SafeEmitter {
      */
     lockOn(addonName, rules = Object.create(null)) {
         if (typeof addonName !== "string") {
-            throw new TypeError("addonName must be a boolean");
+            throw new TypeError("addonName must be a string");
         }
 
         const { startAfter = true, lockCallback = false } = rules;
