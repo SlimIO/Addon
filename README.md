@@ -54,6 +54,7 @@ Addon is extended with a SlimIO Safe EventEmitter. Four kinds of events can be t
 | --- | --- |
 | start | When the core ask the addon to start |
 | stop | When the core ask the addon to stop |
+| awake | When the addon is ready to awake (all locks are ok) |
 | ready | When the developer trigger ready() method to tell the Core that the addon is Ready for events |
 
 ## Interval & Scheduling
