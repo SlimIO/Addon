@@ -64,6 +64,7 @@ declare class Addon extends SafeEmitter {
     setCallbacksDescriptorFile(path: string): void;
     of<T>(subject: string): ZenObservable.ObservableLike<T>;
     ready(): boolean;
+    lockOn(addonName: string, rules?: Addon.Rules): void;
 
     // Static Methods
     static start(): Promise<void>;
@@ -83,7 +84,11 @@ declare namespace Addon {
         verbose?: boolean;
     }
 
-    // Message Options
+    export interface Rules {
+        startAfter?: boolean;
+        lockCallback?: boolean;
+    }
+
     export interface MessageOptions {
         timeout?: number;
         args?: any[];
@@ -104,7 +109,6 @@ declare namespace Addon {
         from: string;
     }
 
-    // Addon default info
     export interface CallbackGetInfo {
         uid: string;
         name: string;
