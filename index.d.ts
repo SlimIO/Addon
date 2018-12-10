@@ -111,6 +111,8 @@ declare namespace Addon {
         version: string;
         containerVersion: string;
         started: boolean;
+        ready: boolean;
+        locked: boolean;
         callbacksDescriptor: string;
         callbacks: string[];
     }

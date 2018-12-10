@@ -14,8 +14,19 @@ const timer = require("@slimio/timer");
 const Stream = require("./stream.class");
 const Callback = require("./callback.class");
 
-// Interval Symbol
+// CONSTANTS
 const SYM_INTERVAL = Symbol("interval");
+const SLEEP_LOCK_MS = 25;
+
+/**
+ * @func sleep
+ * @desc Sleep async context for a given time in milliseconds
+ * @param {!Number} [durationMs=1000] sleep duration in milliseconds
+ * @returns {Promise<void>}
+ */
+function sleep(durationMs = 1000) {
+    return new Promise((resolve) => setTimeout(resolve, durationMs));
+}
 
 /**
  * @callback Callback
@@ -29,6 +40,12 @@ const SYM_INTERVAL = Symbol("interval");
  */
 
 /**
+ * @typedef {Object} LockRule
+ * @property {Boolean} startAfter
+ * @property {Boolean} lockCallback
+ */
+
+/**
  * @class Addon
  * @classdesc Slim.IO Addon container
  * @extends Event
@@ -36,6 +53,7 @@ const SYM_INTERVAL = Symbol("interval");
  * @property {String} name Addon name
  * @property {String} uid Addon unique id
  * @property {Boolean} isStarted
+ * @property {Boolean} isLocked
  * @property {Boolean} isReady
  * @property {Set<String>} flags
  * @property {Map<String, AsyncFunction>} callbacks
@@ -99,7 +117,7 @@ class Addon extends SafeEmitter {
         /** @type {Map<String, ZenObservable.SubscriptionObserver<any>>} */
         this.observers = new Map();
 
-        /** @type {Map<String, any>} */
+        /** @type {Map<String, LockRule>} */
         this.locks = new Map();
 
         // The "start" callback is triggered to start the addon
@@ -151,26 +169,19 @@ class Addon extends SafeEmitter {
             return false;
         }
 
-        // eslint-disable-next-line
-        const getInfo = (addonName) => {
-            return new Promise((resolve, reject) => {
-                this.sendMessage(`${addonName}.get_info`).subscribe(resolve, reject);
-            });
-        };
-
         // Check locks
         for (const [addonName, rules] of this.locks.entries()) {
-            for (;;) {
-                try {
-                    const res = await getInfo(addonName);
-                    if (typeof res === "undefined") {
-                        continue;
-                    }
-                }
-                catch (err) {
-                    // do nothing
-                }
+            if (!rules.startAfter) {
+                continue;
             }
+
+            let res;
+            do {
+                res = await new Promise((resolve) => {
+                    this.sendMessage(`${addonName}.get_info`).subscribe(resolve, resolve);
+                });
+                await sleep(SLEEP_LOCK_MS);
+            } while (typeof res === "undefined" || !res.ready);
         }
 
         this.isStarted = true;
@@ -261,6 +272,7 @@ class Addon extends SafeEmitter {
             name: this.name,
             version: this.version,
             containerVersion: "0.15.0",
+            ready: this.isReady,
             started: this.isStarted,
             locked: this.isLocked,
             callbacksDescriptor: this.callbacksDescriptor,
@@ -273,7 +285,7 @@ class Addon extends SafeEmitter {
      * @method lockOn
      * @desc Create a new lock rules
      * @param {!String} addonName addonName
-     * @param {*} [rules] lock rules
+     * @param {LockRule} [rules] lock rules
      * @memberof Addon#
      * @returns {void}
      *
