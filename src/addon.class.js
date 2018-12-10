@@ -53,7 +53,7 @@ function sleep(durationMs) {
  * @property {String} name Addon name
  * @property {String} uid Addon unique id
  * @property {Boolean} isStarted
- * @property {Boolean} isLocked
+ * @property {Boolean} isAwake
  * @property {Boolean} isReady
  * @property {Set<String>} flags
  * @property {Map<String, AsyncFunction>} callbacks
@@ -98,7 +98,7 @@ class Addon extends SafeEmitter {
         this.uid = uuidv4();
         this.isReady = false;
         this.isStarted = false;
-        this.isLocked = false;
+        this.isAwake = false;
         this.callbacksDescriptor = null;
         this.asserts = [];
 
@@ -169,6 +169,16 @@ class Addon extends SafeEmitter {
             return false;
         }
 
+        /**
+         * @event Addon#start
+         * @type {void}
+         */
+        await this.emitAndWait("start");
+        if (this.verbose) {
+            console.log(`[${this.name}] Addon start event triggered!`);
+        }
+        this.isStarted = true;
+
         // Check locks
         for (const [addonName, rules] of this.locks.entries()) {
             if (!rules.startAfter) {
@@ -183,8 +193,6 @@ class Addon extends SafeEmitter {
                 await sleep(SLEEP_LOCK_MS);
             } while (typeof res === "undefined" || !res.ready);
         }
-
-        this.isStarted = true;
 
         // Create Interval only is there is scheduled callbacks!
         if (this.schedules.size > 0) {
@@ -207,13 +215,11 @@ class Addon extends SafeEmitter {
         }
 
         /**
-         * @event Addon#start
+         * @event Addon#awake
          * @type {void}
          */
-        await this.emitAndWait("start");
-        if (this.verbose) {
-            console.log(`[${this.name}] Addon start event triggered!`);
-        }
+        await this.emitAndWait("awake");
+        this.isAwake = true;
 
         return true;
     }
@@ -274,7 +280,7 @@ class Addon extends SafeEmitter {
             containerVersion: "0.15.1",
             ready: this.isReady,
             started: this.isStarted,
-            locked: this.isLocked,
+            awake: this.isAwake,
             callbacksDescriptor: this.callbacksDescriptor,
             callbacks: [...this.callbacks.keys()]
         };
