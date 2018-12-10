@@ -21,10 +21,10 @@ const SLEEP_LOCK_MS = 25;
 /**
  * @func sleep
  * @desc Sleep async context for a given time in milliseconds
- * @param {!Number} [durationMs=1000] sleep duration in milliseconds
+ * @param {!Number} durationMs sleep duration in milliseconds
  * @returns {Promise<void>}
  */
-function sleep(durationMs = 1000) {
+function sleep(durationMs) {
     return new Promise((resolve) => setTimeout(resolve, durationMs));
 }
 
