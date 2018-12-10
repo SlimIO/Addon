@@ -657,7 +657,9 @@ class Addon extends SafeEmitter {
         return new Observable((observer) => {
             // Setup a timeOut for our message
             const timer = setTimeout(() => {
-                this.observers.delete(messageId);
+                if (observer.closed) {
+                    return;
+                }
                 observer.error(
                     // eslint-disable-next-line
                     `Failed to receive response for message id ${messageId} (from: ${this.name}, to: ${target}) in a delay of ${Addon.MESSAGE_TIMEOUT_MS}ms`
