@@ -615,3 +615,29 @@ avaTest("lockOn: rules.lockCallback must be a boolean", async(test) => {
     }, TypeError);
     test.is(message, "rules.lockCallback must be a boolean");
 });
+
+avaTest("lockOn: emulate fack lock", async(test) => {
+    let tick = 0;
+    test.plan(2);
+    const emulateLock = new Addon("emulateLock");
+    emulateLock.on("message", (id, target) => {
+        if (target === "test.get_info") {
+            test.pass();
+            const observer = emulateLock.observers.get(id);
+            if (tick === 0) {
+                observer.next(undefined);
+                observer.complete();
+                tick++;
+            }
+            else {
+                observer.next({ ready: true });
+                observer.complete();
+            }
+        }
+    });
+    emulateLock.lockOn("zblouh", { startAfter: false });
+    emulateLock.lockOn("test");
+
+    await emulateLock.executeCallback("start");
+    await emulateLock.executeCallback("stop");
+});
