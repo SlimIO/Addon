@@ -287,7 +287,7 @@ class Addon extends SafeEmitter {
      * @param {!String} addonName addonName
      * @param {LockRule} [rules] lock rules
      * @memberof Addon#
-     * @returns {void}
+     * @returns {Addon}
      *
      * @throws {TypeError}
      *
@@ -309,6 +309,8 @@ class Addon extends SafeEmitter {
         this.locks.set(addonName, {
             startAfter, lockCallback
         });
+
+        return this;
     }
 
     /**
