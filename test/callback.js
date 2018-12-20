@@ -5,24 +5,21 @@ const avaTest = require("ava");
 const Addon = require("../index");
 
 avaTest("Callback name should be typeof string", (assert) => {
-    const { message } = assert.throws(() => {
+    assert.throws(() => {
         new Addon.Callback(10);
-    }, TypeError);
-    assert.is(message, "name should be typeof string!");
+    }, { instanceOf: TypeError, message: "name should be typeof string!" });
 });
 
 avaTest("Callback callback should be typeof Function", (assert) => {
-    const { message } = assert.throws(() => {
+    assert.throws(() => {
         new Addon.Callback("handler", void 0);
-    }, TypeError);
-    assert.is(message, "callback should be typeof function!");
+    }, { instanceOf: TypeError, message: "callback should be typeof function!" });
 });
 
 avaTest("Callback perfTrigger should be typeof function", (assert) => {
-    const { message } = assert.throws(() => {
+    assert.throws(() => {
         Addon.Callback.observePerformance(void 0);
-    }, TypeError);
-    assert.is(message, "perfTrigger should be typeof function!");
+    }, { instanceOf: TypeError, message: "perfTrigger should be typeof function!" });
 });
 
 avaTest("Callback hooks", async(assert) => {
