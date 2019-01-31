@@ -72,9 +72,10 @@ Addon.MAIN_INTERVAL_MS = 100; // 100ms
 
 ## API
 
-### constructor(name: string, options?: Object)
+<details><summary>constructor(name: string, options?: Object)</summary>
 Create a new Addon with a given name ! The name length must be more than two characters long.
 Available options are:
+
 | name | defaultValue | description |
 | --- | --- | --- |
 | version | 1.0.0 | Addon version |
@@ -86,8 +87,9 @@ const myAddon = new Addon("myAddon", {
     verbose: true
 });
 ```
+</details>
 
-### registerCallback(name: string | AsyncFunction, callback?: AsyncFunction): this
+<details><summary>registerCallback(name: string | AsyncFunction, callback?: AsyncFunction): this</summary>
 Register a new Addon callback. The callback should be an Asynchronous Function (Synchronous function will be rejected with a TypeError).
 
 There is two ways to register a callback:
@@ -109,8 +111,9 @@ myAddon.registerCallback(callback_name);
 ```
 
 Callback name should be writted by following the snake_case convention [snake_case](https://fr.wikipedia.org/wiki/Snake_case) !
+</details>
 
-### executeCallback(name: string, ...args?: any[]): any
+<details><summary>executeCallback(name: string, ...args?: any[]): any</summary>
 Execute a callback (It will return a Promise). The method can take infinity of arguments (they will be returned as normal arguments of the callback).
 
 ```js
@@ -125,8 +128,9 @@ myAddon.on("start", async function() {
     console.log(ret); // stdout "hello world!"
 });
 ```
+</details>
 
-### schedule(name: string | Scheduler, scheduler?: Scheduler)
+<details><summary>schedule(name: string | Scheduler, scheduler?: Scheduler): this</summary>
 Schedule a callback execution interval. Use the package `@slimio/scheduler` to achieve a scheduler !
 
 ```js
@@ -140,8 +144,9 @@ myAddon.registerCallback(async function sayHelloEveryOneSecond() {
 });
 myAddon.schedule("sayHelloEveryOneSecond", new Scheduler({ interval: 1 }));
 ```
+</details>
 
-### setDeprecatedAlias(callbackName: string, alias: string[]): void
+<details><summary>setDeprecatedAlias(callbackName: string, alias: string[]): void</summary>
 Setup a list of deprecated alias for a given callbackName. A NodeJS Warning will be throw if these alias are used (to warn developer/integrator to upgrade addon version).
 
 ```js
@@ -152,9 +157,9 @@ myAddon.registerCallback(async function new_test() {
 });
 myAddon.setDeprecatedAlias("new_test", ["old_test"]);
 ```
+</details>
 
-### of<T>(subject: string): ZenObservable.ObservableLike<T>
-
+<details><summary>of< T >(subject: string): ZenObservable.ObservableLike< T ></summary>
 Subscribe to a given subject. Available "core" Subjects are:
 ```ts
 export interface Subjects {
@@ -175,8 +180,9 @@ myAddon.of(Addon.Subjects.Addon.Ready).subscribe((addonName) => {
     console.log(`Addon with name ${addonName} is Ready !`);
 });
 ```
+</details>
 
-### sendMessage(target: string, options): Observable
+<details><summary>sendMessage(target: string, options): Observable</summary>
 Send a lazy message to a given target formatted as following: `addon.callback`. The returned value is an Observable (package **zen-observable**).
 
 ```js
@@ -197,9 +203,9 @@ Available options are:
 | args | Empty Array | Callback arguments |
 | noReturn | false | If `true`, the method will return void 0 instead of a new Observable |
 | timeout | 5000 | Timeout delay (before the hook expire) |
+</details>
 
 ## Streaming Communication
-
 SlimIO Callback support NodeJS Write Streams. Take the following example:
 
 ```js
@@ -238,3 +244,6 @@ myAddon.on("addonLoaded", (addonName) => {
     }
 });
 ```
+
+## Licence
+MIT
