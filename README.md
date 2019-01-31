@@ -74,6 +74,7 @@ Addon.MAIN_INTERVAL_MS = 100; // 100ms
 
 <details><summary>constructor (name: string, options?: Object)</summary>
 <br />
+
 Create a new Addon with a given name ! The name length must be more than two characters long.
 Available options are:
 
@@ -92,6 +93,7 @@ const myAddon = new Addon("myAddon", {
 
 <details><summary>registerCallback (name: string | AsyncFunction, callback?: AsyncFunction): this</summary>
 <br />
+
 Register a new Addon callback. The callback should be an Asynchronous Function (Synchronous function will be rejected with a TypeError).
 
 There is two ways to register a callback:
@@ -117,6 +119,7 @@ Callback name should be writted by following the snake_case convention [snake_ca
 
 <details><summary>executeCallback (name: string, ...args?: any[]): any</summary>
 <br />
+
 Execute a callback (It will return a Promise). The method can take infinity of arguments (they will be returned as normal arguments of the callback).
 
 ```js
@@ -135,6 +138,7 @@ myAddon.on("start", async function() {
 
 <details><summary>schedule (name: string | Scheduler, scheduler?: Scheduler): this</summary>
 <br />
+
 Schedule a callback execution interval. Use the package `@slimio/scheduler` to achieve a scheduler !
 
 ```js
@@ -152,6 +156,7 @@ myAddon.schedule("sayHelloEveryOneSecond", new Scheduler({ interval: 1 }));
 
 <details><summary>setDeprecatedAlias(callbackName: string, alias: string[]): void</summary>
 <br />
+
 Setup a list of deprecated alias for a given callbackName. A NodeJS Warning will be throw if these alias are used (to warn developer/integrator to upgrade addon version).
 
 ```js
@@ -166,6 +171,7 @@ myAddon.setDeprecatedAlias("new_test", ["old_test"]);
 
 <details><summary>of< T >(subject: string): ZenObservable.ObservableLike< T ></summary>
 <br />
+
 Subscribe to a given subject. Available "core" Subjects are:
 ```ts
 export interface Subjects {
@@ -178,6 +184,7 @@ export interface Subjects {
     }
 }
 ```
+<br />
 
 ```js
 const myAddon = new Addon("myAddon");
@@ -188,10 +195,10 @@ myAddon.of(Addon.Subjects.Addon.Ready).subscribe((addonName) => {
 ```
 </details>
 
-<details><summary>sendMessage(target: string, options): Observable</summary>
+<details><summary>sendMessage (target: string, options): Observable</summary>
 <br />
-Send a lazy message to a given target formatted as following: `addon.callback`. The returned value is an Observable (package **zen-observable**).
 
+Send a lazy message to a given target formatted as following: `addon.callback`. The returned value is an Observable (package **zen-observable**).
 ```js
 const myAddon = new Addon("myAddon");
 
@@ -210,6 +217,7 @@ Available options are:
 | args | Empty Array | Callback arguments |
 | noReturn | false | If `true`, the method will return void 0 instead of a new Observable |
 | timeout | 5000 | Timeout delay (before the hook expire) |
+
 </details>
 
 ## Streaming Communication
