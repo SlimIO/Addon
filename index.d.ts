@@ -19,7 +19,7 @@ declare class Stream extends stream.Transform {}
  * Callback AsyncResource
  */
 declare class Callback extends async_hooks.AsyncResource {
-    constructor(name: string, callback: Addon.Callback);
+    constructor(name: string, callback: Addon.Callback<any>);
     execute(args: any[]): Promise<any>;
 
     static createHook(): async_hooks.AsyncHook;
@@ -44,7 +44,7 @@ declare class Addon extends SafeEmitter {
     public asserts: any[];
     public subscribers: Map<string, ZenObservable.Observer<any>[]>;
     public callbacksDescriptor: string;
-    public callbacks: Map<string, Addon.Callback>;
+    public callbacks: Map<string, Addon.Callback<any>>;
     public schedules: Map<string, CallbackScheduler>;
     public observers: Map<string, ZenObservable.SubscriptionObserver<any>>;
 
@@ -57,7 +57,7 @@ declare class Addon extends SafeEmitter {
     static Subjects: Addon.Subjects;
 
     // Methods
-    registerCallback(name: string | Addon.Callback, callback?: Addon.Callback): this;
+    registerCallback(name: string | Addon.Callback<any>, callback?: Addon.Callback<any>): this;
     schedule(name: string | CallbackScheduler, scheduler?: CallbackScheduler): this;
     executeCallback<T>(name: string, header?: Addon.CallbackHeader, ...args: any[]): Promise<T>;
     setDeprecatedAlias(callbackName: string, alias: string[]): void;
