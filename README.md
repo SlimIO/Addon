@@ -7,6 +7,9 @@ This package provide the foundation to build Addons that will rely and work with
 
 > Scheduler is a external SlimIO Package. If you want to know more about it, follow [this link](https://github.com/SlimIO/Scheduler).
 
+## Requirements
+- Node.js v10 or higher
+
 ## Getting Started
 
 This package is available in the Node Package Repository and can be easily installed with [npm](https://docs.npmjs.com/getting-started/what-is-npm) or [yarn](https://yarnpkg.com).
@@ -166,6 +169,31 @@ myAddon.registerCallback(async function new_test() {
     console.log("hello world!");
 });
 myAddon.setDeprecatedAlias("new_test", ["old_test"]);
+```
+</details>
+
+<details><summary>lockOn(addonName: string, rules?: Addon.Rules): this</summary>
+<br />
+
+Wait for an addon to be declared "ready" to handle events! Rules is an Object described as follow:
+```ts
+export interface Rules {
+    startAfter?: boolean;
+    lockCallback?: boolean;
+}
+```
+
+Default rule value is defined as: `{ startAfter = true, lockCallback = false }`
+- startAfter: ask our addon to start after the given addonName !
+- lockCallback: lock callback execution when then the addon is wakened.
+
+```js
+const myAddon = new Addon("myAddon").lockOn("events");
+
+myAddon.on("awake", () => {
+    console.log("events is ready!");
+    myAddon.Ready();
+});
 ```
 </details>
 
