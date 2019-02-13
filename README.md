@@ -202,13 +202,17 @@ myAddon.on("awake", () => {
 
 Subscribe to a given subject. Available "core" Subjects are:
 ```ts
-export interface Subjects {
+interface Subjects {
     Addon: {
         readonly Ready: string;
     };
     Alarm: {
         readonly Open: string;
+        readonly Update: string;
         readonly Close: string;
+    };
+    Metrics: {
+        readonly Update: string;
     }
 }
 ```
