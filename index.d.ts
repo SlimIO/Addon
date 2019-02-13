@@ -101,7 +101,11 @@ declare namespace Addon {
         };
         Alarm: {
             readonly Open: string;
+            readonly Update: string;
             readonly Close: string;
+        };
+        Metrics: {
+            readonly Update: string;
         }
     }
 
