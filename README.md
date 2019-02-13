@@ -260,5 +260,5 @@ myAddon.on("addonLoaded", (addonName) => {
 });
 ```
 
-## Licence
+## License
 MIT
