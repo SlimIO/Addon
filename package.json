@@ -61,7 +61,7 @@
   },
   "dependencies": {
     "@slimio/is": "^1.4.0",
-    "@slimio/safe-emitter": "^1.0.3",
+    "@slimio/safe-emitter": "^1.0.6",
     "@slimio/scheduler": "^0.6.0",
     "@slimio/timer": "^1.0.0",
     "is-snake-case": "^0.1.0",
