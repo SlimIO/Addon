@@ -32,6 +32,12 @@ avaTest("Check Addon static CONSTANTS (type and values)", (test) => {
     test.is(Addon.MAIN_INTERVAL_MS, 500);
     test.is(Addon.MESSAGE_TIMEOUT_MS, 5000);
     test.deepEqual([...Addon.RESERVED_CALLBACKS_NAME], DEFAULT_CALLBACKS);
+
+    test.true(is.plainObject(Addon.Subjects));
+    test.deepEqual(Object.keys(Addon.Subjects), ["Addon", "Alarm", "Metric"]);
+    test.true(Object.isFrozen(Addon.Subjects.Addon));
+    test.true(Object.isFrozen(Addon.Subjects.Alarm));
+    test.true(Object.isFrozen(Addon.Subjects.Metric));
 });
 
 avaTest("Addon constructor throw a typeError if name is not a string", (test) => {
