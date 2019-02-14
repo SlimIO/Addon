@@ -175,7 +175,7 @@ myAddon.setDeprecatedAlias("new_test", ["old_test"]);
 <details><summary>lockOn(addonName: string, rules?: Addon.Rules): this</summary>
 <br />
 
-Wait for an addon to be declared "ready" to handle events! Rules is an Object described as follow:
+Wait for an addon to be declared "ready" to awake local Addon. Rules argument is an Object described as follow:
 ```ts
 export interface Rules {
     startAfter?: boolean;
@@ -183,16 +183,16 @@ export interface Rules {
 }
 ```
 
-Default rule value is defined as: `{ startAfter = true, lockCallback = false }`
-- startAfter: ask our addon to start after the given addonName !
-- lockCallback: lock callback execution when then the addon is wakened.
+The default rule values are defined as: `{ startAfter = true, lockCallback = false }`
+- startAfter: Ask our local addon to start after the given addonName.
+- lockCallback: Lock callback execution when our local addon is not awake.
 
 ```js
 const myAddon = new Addon("myAddon").lockOn("events");
 
 myAddon.on("awake", () => {
     console.log("events is ready!");
-    myAddon.Ready();
+    myAddon.ready();
 });
 ```
 </details>
