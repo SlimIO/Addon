@@ -78,6 +78,7 @@ avaTest("Verify addonContainer version", async(test) => {
 
     const info = await myAddon.executeCallback("get_info");
     test.is(version, info.containerVersion);
+    test.is(version, Addon.VERSION);
 });
 
 avaTest("Verify addon initial properties types and values", (test) => {

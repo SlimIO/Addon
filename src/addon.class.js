@@ -277,7 +277,7 @@ class Addon extends SafeEmitter {
             uid: this.uid,
             name: this.name,
             version: this.version,
-            containerVersion: "0.15.3",
+            containerVersion: Addon.VERSION,
             ready: this.isReady,
             started: this.isStarted,
             awake: this.isAwake,
@@ -689,6 +689,7 @@ Addon.RESERVED_CALLBACKS_NAME = new Set(["start", "stop", "event", "get_info", "
 Addon.MESSAGE_TIMEOUT_MS = 5000;
 Addon.MAIN_INTERVAL_MS = 500;
 Addon.DEFAULT_HEADER = { from: "self" };
+Addon.VERSION = "0.15.3";
 
 // Subjects
 Addon.Subjects = {

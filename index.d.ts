@@ -53,6 +53,7 @@ declare class Addon extends SafeEmitter {
     static RESERVED_CALLBACK_NAME: Set<string>;
     static MESSAGE_TIMEOUT_MS: number;
     static MAIN_INTERVAL_MS: number;
+    static VERSION: string;
     static Stream: typeof Stream;
     static Callback: typeof Callback;
     static Subjects: Addon.Subjects;
