@@ -214,12 +214,12 @@ class Addon extends SafeEmitter {
             }, Addon.MAIN_INTERVAL_MS);
         }
 
+        this.isAwake = true;
         /**
          * @event Addon#awake
          * @type {void}
          */
         await this.emitAndWait("awake");
-        this.isAwake = true;
 
         return true;
     }
