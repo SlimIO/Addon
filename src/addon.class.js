@@ -1,5 +1,6 @@
 // Require NodeJS Dependencies
 const { extname } = require("path");
+const { randomBytes } = require("crypto");
 
 // Require Third-party dependencies
 const is = require("@slimio/is");
@@ -641,7 +642,7 @@ class Addon extends SafeEmitter {
         }
 
         // Generate unique id for our message!
-        const messageId = uuidv4();
+        const messageId = randomBytes(16).toString();
 
         // Send a message (on the next event loop iteration).
         setImmediate(() => {
