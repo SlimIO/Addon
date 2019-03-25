@@ -7,7 +7,7 @@ const is = require("@slimio/is");
 const SafeEmitter = require("@slimio/safe-emitter");
 const CallbackScheduler = require("@slimio/scheduler");
 const Observable = require("zen-observable");
-const uuidv4 = require("uuid/v4");
+const hyperid = require("hyperid");
 const isSnakeCase = require("is-snake-case");
 const timer = require("@slimio/timer");
 
@@ -96,7 +96,7 @@ class Addon extends SafeEmitter {
         this.name = name;
         this.version = version;
         this.verbose = verbose;
-        this.uid = uuidv4();
+        this.uid = hyperid()();
         this.isReady = false;
         this.isStarted = false;
         this.isAwake = false;
