@@ -66,6 +66,6 @@
     "@slimio/timer": "^1.0.0",
     "hyperid": "^2.0.2",
     "is-snake-case": "^0.1.0",
-    "zen-observable": "^0.8.13"
+    "zen-observable": "^0.8.14"
   }
 }
