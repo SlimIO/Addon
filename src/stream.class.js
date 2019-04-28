@@ -1,4 +1,4 @@
-/*eslint class-methods-use-this: 0 */
+/* eslint class-methods-use-this: 0 */
 
 // Require NodeJS Dependencies
 const { Transform } = require("stream");
