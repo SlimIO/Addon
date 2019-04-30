@@ -47,6 +47,13 @@ function sleep(durationMs) {
  */
 
 /**
+ * @typedef {Object} MessageOptions
+ * @property {any[]} args Callback arguments
+ * @property {number} timeout Custom timeout
+ * @property {Boolean} noReturn Dont expect a response!
+ */
+
+/**
  * @class Addon
  * @classdesc Slim.IO Addon container
  * @extends Event
@@ -615,10 +622,7 @@ class Addon extends SafeEmitter {
      * @desc Send a message to the Core
      * @memberof Addon#
      * @param {!String} target Target path to the callback
-     * @param {Object=} [options={}] Message options
-     * @param {any[]} [options.args=[]] Callback arguments
-     * @param {number} [options.timeout=5000] Custom timeout
-     * @param {Boolean} [options.noReturn=false] Dont expect a response!
+     * @param {MessageOptions=} [options={}] Message options
      * @returns {Observable<any>}
      *
      * @throws {TypeError}
@@ -681,6 +685,32 @@ class Addon extends SafeEmitter {
                 clearTimeout(timer);
                 this.observers.delete(messageId);
             };
+        });
+    }
+
+    /**
+     * @public
+     * @method sendOne
+     * @desc Send "one" message to the Core (Return a Promise)
+     * @memberof Addon#
+     * @param {!String} target Target path to the callback
+     * @param {MessageOptions|Array<any>} [options] Message options a response!
+     * @returns {Promise<any>}
+     *
+     * @version 0.17.0
+     */
+    sendOne(target, options) {
+        return new Promise((resolve, reject) => {
+            if (!is.string(target)) {
+                throw new TypeError("Addon.sendOne->target must be typeof <string>");
+            }
+
+            const args = is.array(options) ? { args: options } : options;
+            if (!is.nullOrUndefined(args) && !is.plainObject(args)) {
+                throw new TypeError("Addon.sendOne->options must be a plain Object");
+            }
+
+            this.sendMessage(target, args).subscribe(resolve, reject);
         });
     }
 }

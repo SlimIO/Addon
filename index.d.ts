@@ -64,6 +64,7 @@ declare class Addon extends SafeEmitter {
     executeCallback<T>(name: string, header?: Addon.CallbackHeader, ...args: any[]): Promise<T>;
     setDeprecatedAlias(callbackName: string, alias: string[]): void;
     sendMessage<T>(target: string, options?: Addon.MessageOptions): ZenObservable.ObservableLike<T>;
+    sendOne<T>(target: string, options?: Addon.MessageOptions | any[]): Promise<T>;
     setCallbacksDescriptorFile(path: string): void;
     of<T>(subject: string): ZenObservable.ObservableLike<T>;
     ready(): boolean;
@@ -95,6 +96,7 @@ declare namespace Addon {
     export interface MessageOptions {
         timeout?: number;
         args?: any[];
+        noReturn?: boolean;
     }
 
     export interface Subjects {

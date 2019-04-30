@@ -615,3 +615,59 @@ avaTest("lockOn: emulate fack lock", async(test) => {
     await emulateLock.executeCallback("start");
     await emulateLock.executeCallback("stop");
 });
+
+avaTest("sendOne (target must be a string)", async(test) => {
+    const myAddon = new Addon("myAddon");
+
+    await test.throwsAsync(myAddon.sendOne(10), {
+        message: "Addon.sendOne->target must be typeof <string>",
+        instanceOf: TypeError
+    });
+});
+
+avaTest("sendOne (options must be a plain Object)", async(test) => {
+    const myAddon = new Addon("myAddon");
+
+    await test.throwsAsync(myAddon.sendOne("any", 10), {
+        message: "Addon.sendOne->options must be a plain Object",
+        instanceOf: TypeError
+    });
+});
+
+avaTest("sendOne (catch message)", async(test) => {
+    test.plan(2);
+    const myAddon = new Addon("myAddon");
+
+    myAddon.on("message", (messageId) => {
+        if (!myAddon.observers.has(messageId)) {
+            return;
+        }
+        setImmediate(() => {
+            test.pass();
+            myAddon.observers.get(messageId).next("hello");
+        });
+    });
+
+    const result = await myAddon.sendOne("any");
+    test.is(result, "hello");
+});
+
+avaTest("sendOne (catch error)", async(test) => {
+    test.plan(2);
+    const myAddon = new Addon("myAddon");
+
+    myAddon.on("message", (messageId) => {
+        if (!myAddon.observers.has(messageId)) {
+            return;
+        }
+        setImmediate(() => {
+            test.pass();
+            myAddon.observers.get(messageId).error(new Error("oh no!"));
+        });
+    });
+
+    await test.throwsAsync(myAddon.sendOne("any"), {
+        message: "oh no!",
+        instanceOf: Error
+    });
+});
