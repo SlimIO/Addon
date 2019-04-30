@@ -227,7 +227,7 @@ myAddon.of(Addon.Subjects.Addon.Ready).subscribe((addonName) => {
 ```
 </details>
 
-<details><summary>sendMessage (target: string, options): Observable</summary>
+<details><summary>sendMessage< T >(target: string, options?: MessageOptions): ZenObservable.ObservableLike< T ></summary>
 <br />
 
 Send a lazy message to a given target formatted as following: `addon.callback`. The returned value is an Observable (package **zen-observable**).
@@ -249,6 +249,28 @@ Available options are:
 | args | Empty Array | Callback arguments |
 | noReturn | false | If `true`, the method will return void 0 instead of a new Observable |
 | timeout | 5000 | Timeout delay (before the hook expire) |
+
+</details>
+
+<details><summary>sendOne< T >(target: string, options?: MessageOptions | any[]): Promise< T ></summary>
+<br />
+
+Send **one** lazy message to a given target formatted as following: `addon.callback`. The returned value is a Promise (Use sendMessage under the hood).
+```js
+const myAddon = new Addon("myAddon");
+
+myAddon.on("start", async function() {
+    const addons = await myAddon.sendOne("gate.list_addons");
+    console.log(addons);
+
+    myAddon.ready();
+});
+```
+
+Available options are the same as **sendMessage()**. If options is an Array, the message options will be constructed as follow
+```
+{ args: [] }
+```
 
 </details>
 
