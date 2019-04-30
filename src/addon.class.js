@@ -720,7 +720,7 @@ Addon.RESERVED_CALLBACKS_NAME = new Set(["start", "stop", "event", "get_info", "
 Addon.MESSAGE_TIMEOUT_MS = 5000;
 Addon.MAIN_INTERVAL_MS = 500;
 Addon.DEFAULT_HEADER = { from: "self" };
-Addon.VERSION = "0.16.0";
+Addon.VERSION = "0.17.0";
 
 // Subjects
 Addon.Subjects = {
