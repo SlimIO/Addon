@@ -81,11 +81,13 @@ avaTest("Verify addonContainer version", async(test) => {
     test.is(version, Addon.VERSION);
 });
 
-avaTest("Verify addon initial properties types and values", (test) => {
+avaTest("Verify addon initial properties types and values", async(test) => {
     const myAddon = new Addon("myAddon");
 
     test.true(is.string(myAddon.uid));
     test.is(myAddon.name, "myAddon");
+    test.is(myAddon.lastStart, null);
+    test.is(myAddon.lastStop, null);
     test.false(myAddon.verbose);
     test.is(myAddon.version, "1.0.0");
     test.false(myAddon.isAwake);
@@ -98,6 +100,12 @@ avaTest("Verify addon initial properties types and values", (test) => {
     test.true(myAddon.schedules.size === 0);
     test.true(is.map(myAddon.observers));
     test.true(myAddon.observers.size === 0);
+
+    await myAddon.executeCallback("start");
+    test.true(is.number(myAddon.lastStart));
+    test.is(myAddon.lastStop, null);
+    await myAddon.executeCallback("stop");
+    test.true(is.number(myAddon.lastStop));
 });
 
 avaTest("Verify addon initial native callbacks", (test) => {
@@ -216,13 +224,21 @@ avaTest("Addon execute native get_info callback", async(test) => {
     const myAddon = new Addon("myAddon");
 
     const info = await myAddon.executeCallback("get_info");
+    test.deepEqual(Object.keys(info), [
+        "uid", "name", "version", "containerVersion",
+        "ready", "started", "awake", "lastStart", "lastStop",
+        "callbacksDescriptor", "callbacks"
+    ]);
     test.is(info.uid, myAddon.uid);
     test.is(info.name, myAddon.name);
     test.true(is.string(info.version));
     test.is(info.version, "1.0.0");
     test.is(info.version, myAddon.version);
+    test.is(info.containerVersion, Addon.VERSION);
     test.false(info.started);
     test.deepEqual(info.callbacks, DEFAULT_CALLBACKS);
+    test.is(info.lastStart, null);
+    test.is(info.lastStop, null);
 });
 
 avaTest("Addon register & execute a custom callback", async(test) => {

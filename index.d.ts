@@ -42,6 +42,8 @@ declare class Addon extends SafeEmitter {
     public isStarted: boolean;
     public isAwake: boolean;
     public asserts: any[];
+    public lastStart: number;
+    public lastStop: number;
     public subscribers: Map<string, ZenObservable.Observer<any>[]>;
     public locks: Map<string, Addon.Rules>;
     public callbacksDescriptor: string;

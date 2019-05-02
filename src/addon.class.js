@@ -63,6 +63,8 @@ function sleep(durationMs) {
  * @property {Boolean} isStarted
  * @property {Boolean} isAwake
  * @property {Boolean} isReady
+ * @property {Number} lastStart
+ * @property {Number} lastStop
  * @property {Set<String>} flags
  * @property {Map<String, AsyncFunction>} callbacks
  * @property {Map<String, CallbackScheduler>} schedules
@@ -107,6 +109,8 @@ class Addon extends SafeEmitter {
         this.isReady = false;
         this.isStarted = false;
         this.isAwake = false;
+        this.lastStart = null;
+        this.lastStop = null;
         this.callbacksDescriptor = null;
         this.asserts = [];
 
@@ -177,6 +181,7 @@ class Addon extends SafeEmitter {
             return false;
         }
         this.isStarted = true;
+        this.lastStart = Date.now();
 
         /**
          * @event Addon#start
@@ -248,6 +253,7 @@ class Addon extends SafeEmitter {
             return false;
         }
         this.isStarted = false;
+        this.lastStop = Date.now();
 
         // Clear current addon interval
         if (typeof this[SYM_INTERVAL] === "number") {
@@ -289,6 +295,8 @@ class Addon extends SafeEmitter {
             ready: this.isReady,
             started: this.isStarted,
             awake: this.isAwake,
+            lastStart: this.lastStart,
+            lastStop: this.lastStop,
             callbacksDescriptor: this.callbacksDescriptor,
             callbacks: [...this.callbacks.keys()]
         };
