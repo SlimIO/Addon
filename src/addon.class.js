@@ -1,4 +1,4 @@
-// Require NodeJS Dependencies
+// Require Node.js Dependencies
 const { extname } = require("path");
 const { randomBytes } = require("crypto");
 

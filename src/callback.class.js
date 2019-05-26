@@ -1,4 +1,4 @@
-// Require NodeJS Dependencies
+// Require Node.js Dependencies
 const asyncHooks = require("async_hooks");
 const { performance, PerformanceObserver } = require("perf_hooks");
 
