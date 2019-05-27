@@ -73,6 +73,7 @@ function sleep(durationMs) {
 class Addon extends SafeEmitter {
     /**
      * @constructor
+     * @memberof Addon#
      * @param {!String} name addon name
      * @param {Object=} options options
      * @param {Boolean} [options.verbose=false] Enable verbose mode
@@ -168,6 +169,7 @@ class Addon extends SafeEmitter {
      * @private
      * @static
      * @method start
+     * @memberof Addon#
      * @desc Function used to start an addon
      * @returns {Promise<boolean>}
      *
@@ -241,6 +243,7 @@ class Addon extends SafeEmitter {
      * @private
      * @static
      * @method stop
+     * @memberof Addon#
      * @desc Function used to stop an addon
      * @returns {Promise<boolean>}
      *
@@ -281,6 +284,7 @@ class Addon extends SafeEmitter {
      * @private
      * @static
      * @method getInfo
+     * @memberof Addon#
      * @desc Function used to retrieve default options & properties of an addon
      * @returns {Addon.CallbackGetInfo}
      *
@@ -305,10 +309,10 @@ class Addon extends SafeEmitter {
     /**
      * @public
      * @method lockOn
+     * @memberof Addon#
      * @desc Create a new lock rules
      * @param {!String} addonName addonName
      * @param {LockRule} [rules] lock rules
-     * @memberof Addon#
      * @returns {Addon}
      *
      * @throws {TypeError}
@@ -338,9 +342,9 @@ class Addon extends SafeEmitter {
     /**
      * @public
      * @method of
+     * @memberof Addon#
      * @desc Subscribe to an event
      * @param {!String} subject subject
-     * @memberof Addon#
      * @returns {Boolean}
      *
      * @version 0.12.0
@@ -380,8 +384,8 @@ class Addon extends SafeEmitter {
     /**
      * @public
      * @method ready
-     * @desc Set the addon ready for the core!
      * @memberof Addon#
+     * @desc Set the addon ready for the core!
      * @returns {Boolean}
      *
      * @version 0.5.0
@@ -410,8 +414,8 @@ class Addon extends SafeEmitter {
     /**
      * @public
      * @method setCallbacksDescriptorFile
-     * @desc Set a new callbacks descriptor file (.prototype)
      * @memberof Addon#
+     * @desc Set a new callbacks descriptor file (.prototype)
      * @param {!String} path Callback name
      * @returns {void}
      *
@@ -435,8 +439,8 @@ class Addon extends SafeEmitter {
      * @public
      * @chainable
      * @method registerCallback
-     * @desc Register a new callback on the Addon. The callback name should be formatted in snake_case
      * @memberof Addon#
+     * @desc Register a new callback on the Addon. The callback name should be formatted in snake_case
      * @param {!(String | Function)} name Callback name
      * @param {!Callback} callback Async Callback to execute when the callback is triggered by the core or the addon itself
      * @returns {this}
@@ -488,8 +492,8 @@ class Addon extends SafeEmitter {
     /**
      * @public
      * @method setDeprecatedAlias
-     * @desc Register One or Many deprecated Alias for a given callback
      * @memberof Addon#
+     * @desc Register One or Many deprecated Alias for a given callback
      * @param {!String} callbackName Callback name
      * @param {String[]} alias List of alias to set for the given callback name (they will throw deprecated warning)
      * @returns {void}
@@ -516,8 +520,8 @@ class Addon extends SafeEmitter {
      * @public
      * @template T
      * @method executeCallback
-     * @desc Execute a callback of the addon
      * @memberof Addon#
+     * @desc Execute a callback of the addon
      * @param {!String} name Callback name
      * @param {CallbackHeader=} header callback header
      * @param {any[]} args Callback arguments
@@ -570,8 +574,8 @@ class Addon extends SafeEmitter {
      * @public
      * @chainable
      * @method schedule
-     * @desc Schedule the execution of a given callback (not a precision scheduler).
      * @memberof Addon#
+     * @desc Schedule the execution of a given callback (not a precision scheduler).
      * @param {!String} name Callback name
      * @param {!CallbackScheduler} scheduler CallbackScheduler settings!
      * @returns {this}
@@ -627,8 +631,8 @@ class Addon extends SafeEmitter {
     /**
      * @public
      * @method sendMessage
-     * @desc Send a message to the Core
      * @memberof Addon#
+     * @desc Send a message to the Core
      * @param {!String} target Target path to the callback
      * @param {MessageOptions=} [options={}] Message options
      * @returns {Observable<any>}
@@ -699,8 +703,8 @@ class Addon extends SafeEmitter {
     /**
      * @public
      * @method sendOne
-     * @desc Send "one" message to the Core (Return a Promise)
      * @memberof Addon#
+     * @desc Send "one" message to the Core (Return a Promise)
      * @param {!String} target Target path to the callback
      * @param {MessageOptions|Array<any>} [options] Message options a response!
      * @returns {Promise<any>}

@@ -11,6 +11,7 @@ const { Transform } = require("stream");
 class Stream extends Transform {
     /**
      * @method _read
+     * @memberof Callback#
      * @returns {void}
      */
     _read() {
@@ -19,6 +20,7 @@ class Stream extends Transform {
 
     /**
      * @method _write
+     * @memberof Stream#
      * @param {!Buffer} chunk buffer chunk!
      * @param {*} enc encoding
      * @param {*} next next

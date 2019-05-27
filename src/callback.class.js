@@ -11,6 +11,7 @@ const { performance, PerformanceObserver } = require("perf_hooks");
 class Callback extends asyncHooks.AsyncResource {
     /**
      * @constructor
+     * @memberof Callback#
      * @param {!String} name callback name
      * @param {!Function} callback callbackHandler
      *
@@ -30,6 +31,7 @@ class Callback extends asyncHooks.AsyncResource {
 
     /**
      * @method execute
+     * @memberof Callback#
      * @param {Object} header callback header
      * @param {any[]} args handler arguments
      * @returns {Promise<any>}
@@ -54,6 +56,7 @@ Callback.ActiveCallback = new Map();
 /**
  * @static
  * @method createHook
+ * @memberof Callback#
  * @return {AsyncHook}
  */
 Callback.createHook = function createHook() {
@@ -83,6 +86,7 @@ Callback.createHook = function createHook() {
 /**
  * @static
  * @method observePerformance
+ * @memberof Callback#
  * @param {perfTrigger} perfTrigger perfTrigger
  * @returns {PerformanceObserver}
  */
