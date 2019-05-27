@@ -56,7 +56,6 @@ Callback.ActiveCallback = new Map();
 /**
  * @static
  * @method createHook
- * @memberof Callback#
  * @return {AsyncHook}
  */
 Callback.createHook = function createHook() {
@@ -86,7 +85,6 @@ Callback.createHook = function createHook() {
 /**
  * @static
  * @method observePerformance
- * @memberof Callback#
  * @param {perfTrigger} perfTrigger perfTrigger
  * @returns {PerformanceObserver}
  */

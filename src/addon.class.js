@@ -59,16 +59,22 @@ function sleep(durationMs) {
  * @extends Event
  *
  * @property {String} name Addon name
+ * @property {String} version
+ * @property {Boolean} verbose
  * @property {String} uid Addon unique id
  * @property {Boolean} isStarted
  * @property {Boolean} isAwake
  * @property {Boolean} isReady
  * @property {Number} lastStart
  * @property {Number} lastStop
+ * @property {Array} asserts
  * @property {Set<String>} flags
- * @property {Map<String, AsyncFunction>} callbacks
+ * @property {Map<String, Callback>} callbacks
  * @property {Map<String, CallbackScheduler>} schedules
  * @property {Map<String, ZenObservable.SubscriptionObserver<any>>} observers
+ * @property {Map<String, any[]>} subscribers
+ * @property {Map<String, String>} callbacksAlias
+ * @property {Map<String, LockRule>} locks
  */
 class Addon extends SafeEmitter {
     /**
