@@ -314,5 +314,17 @@ myAddon.on("addonLoaded", (addonName) => {
 });
 ```
 
+## Dependencies
+
+|Name|Refactoring|Security Risk|Usage|
+|---|---|---|---|
+|[@slimio/is](https://github.com/SlimIO/is#readme)|Minor|Low|Type checker|
+|[@slimio/safe-emitter](https://github.com/SlimIO/safeEmitter#readme)|Minor|Medium|Safe emitter|
+|[@slimio/scheduler](https://github.com/SlimIO/Scheduler#readme)|⚠️Major|Low|Addon Scheduler|
+|[@slimio/timer](https://github.com/SlimIO/Timer#readme)|Minor|Low|Driftless Interval Timer|
+|[hyperid](https://github.com/mcollina/hyperid#readme)|⚠️Major|High|Unique ID generator|
+|[is-snake-case](https://github.com/sunitJindal/is-snake-case#readme)|Minor|Low|Snake case checker|
+|[zen-observable](https://github.com/zenparsing/zen-observable)|Minor|Low|Observable Implementation|
+
 ## License
 MIT
