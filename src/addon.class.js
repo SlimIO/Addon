@@ -316,9 +316,9 @@ class Addon extends SafeEmitter {
      * @public
      * @method lockOn
      * @memberof Addon#
-     * @desc Create a new lock rules
+     * @desc Create a new lock rule (wait for a given addon to be started).
      * @param {!String} addonName addonName
-     * @param {LockRule} [rules] lock rules
+     * @param {LockRule} [rules={}] lock rules
      * @returns {Addon}
      *
      * @throws {TypeError}
@@ -349,11 +349,18 @@ class Addon extends SafeEmitter {
      * @public
      * @method of
      * @memberof Addon#
-     * @desc Subscribe to an event
+     * @desc Subscribe to a given SlimIO kind of events (these events are managed by the built-in addon "events")
      * @param {!String} subject subject
-     * @returns {Boolean}
+     * @returns {ZenObservable.ObservableLike<any>}
      *
      * @version 0.12.0
+     *
+     * @example
+     * const myAddon = new Addon("myAddon");
+     *
+     * myAddon.of(Addon.Subjects.Addon.Ready).subscribe((addonName) => {
+     *     console.log(`Addon with name ${addonName} is Ready !`);
+     * });
      */
     of(subject) {
         if (typeof subject !== "string") {
@@ -391,12 +398,20 @@ class Addon extends SafeEmitter {
      * @public
      * @method ready
      * @memberof Addon#
-     * @desc Set the addon ready for the core!
+     * @desc Set/flag the current addon as Ready (will trigger "unlock" for other addons).
      * @returns {Boolean}
      *
      * @version 0.5.0
      *
      * @throws {Error}
+     *
+     * @example
+     * const test = new Addon("test");
+     *
+     * // can be triggered on "start" or "awake".
+     * test.on("start", () => {
+     *      test.ready();
+     * });
      */
     ready() {
         if (!this.isStarted) {
@@ -405,6 +420,7 @@ class Addon extends SafeEmitter {
         if (this.isReady) {
             return false;
         }
+
         this.isReady = true;
         this.once("stop").then(() => {
             this.isReady = false;
@@ -508,6 +524,16 @@ class Addon extends SafeEmitter {
      * @throws {Error}
      *
      * @version 0.7.0
+     *
+     * @example
+     * const test = new Addon("test");
+     *
+     * test.registerCallback("say_hello", function (head) {
+     *     console.log("hello world!");
+     * });
+     *
+     * // A warning will be throw if "log_hello" is used!
+     * test.setDeprecatedAlias("say_hello", ["log_hello"]);
      */
     setDeprecatedAlias(callbackName, alias) {
         if (!this.callbacks.has(callbackName)) {
@@ -710,14 +736,14 @@ class Addon extends SafeEmitter {
      * @public
      * @method sendOne
      * @memberof Addon#
-     * @desc Send "one" message to the Core (Return a Promise)
+     * @desc Send "one" message to the Core (Promise version of sendMessage)
      * @param {!String} target Target path to the callback
-     * @param {MessageOptions|Array<any>} [options] Message options a response!
+     * @param {MessageOptions|Array<any>} [options=[]] Message options a response!
      * @returns {Promise<any>}
      *
      * @version 0.17.0
      */
-    sendOne(target, options) {
+    sendOne(target, options = []) {
         return new Promise((resolve, reject) => {
             if (!is.string(target)) {
                 throw new TypeError("Addon.sendOne->target must be typeof <string>");
