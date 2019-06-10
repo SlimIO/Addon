@@ -130,6 +130,9 @@ declare namespace Addon {
         awake: boolean;
         callbacksDescriptor: string;
         callbacks: string[];
+        callbacksAlias: {
+            [callbackName: string]: string[];
+        }
     }
 
 }

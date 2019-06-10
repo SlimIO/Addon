@@ -297,6 +297,16 @@ class Addon extends SafeEmitter {
      * @version 0.1.0
      */
     static getInfo() {
+        const callbacksAlias = {};
+        for (const [alias, callbackName] of this.callbacksAlias.entries()) {
+            if (Reflect.has(callbacksAlias, callbackName)) {
+                callbacksAlias[callbackName].push(alias);
+            }
+            else {
+                callbacksAlias[callbackName] = [alias];
+            }
+        }
+
         return {
             uid: this.uid,
             name: this.name,
@@ -308,7 +318,8 @@ class Addon extends SafeEmitter {
             lastStart: this.lastStart,
             lastStop: this.lastStop,
             callbacksDescriptor: this.callbacksDescriptor,
-            callbacks: [...this.callbacks.keys()]
+            callbacks: [...this.callbacks.keys()],
+            callbacksAlias
         };
     }
 

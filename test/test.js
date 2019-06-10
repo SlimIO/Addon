@@ -227,7 +227,7 @@ avaTest("Addon execute native get_info callback", async(test) => {
     test.deepEqual(Object.keys(info), [
         "uid", "name", "version", "containerVersion",
         "ready", "started", "awake", "lastStart", "lastStop",
-        "callbacksDescriptor", "callbacks"
+        "callbacksDescriptor", "callbacks", "callbacksAlias"
     ]);
     test.is(info.uid, myAddon.uid);
     test.is(info.name, myAddon.name);
@@ -239,6 +239,7 @@ avaTest("Addon execute native get_info callback", async(test) => {
     test.deepEqual(info.callbacks, DEFAULT_CALLBACKS);
     test.is(info.lastStart, null);
     test.is(info.lastStop, null);
+    test.true(is.plainObject(info.callbacksAlias));
 });
 
 avaTest("Addon register & execute a custom callback", async(test) => {
@@ -432,7 +433,7 @@ avaTest("setDeprecatedAlias (alias should be instanceof Array)", (test) => {
 });
 
 avaTest("setDeprecatedAlias (Trigger callback with an alias!)", async(test) => {
-    test.plan(2);
+    test.plan(4);
     const myAddon = new Addon("myAddon");
     myAddon.registerCallback("foo", async function foo() {
         return 10;
@@ -447,6 +448,10 @@ avaTest("setDeprecatedAlias (Trigger callback with an alias!)", async(test) => {
     const ret = await myAddon.executeCallback("foo_old");
     test.is(ret, 10);
     await new Promise((resolve) => setImmediate(resolve));
+
+    const info = await myAddon.executeCallback("get_info");
+    test.true(Reflect.has(info.callbacksAlias, "foo"));
+    test.deepEqual(info.callbacksAlias.foo, ["foo_old"]);
 });
 
 avaTest("setCallbacksDescriptor (path should be typeof string)", async(test) => {
