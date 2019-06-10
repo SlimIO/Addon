@@ -208,9 +208,7 @@ class Addon extends SafeEmitter {
 
             let res;
             do {
-                res = await new Promise((resolve) => {
-                    this.sendMessage(`${addonName}.get_info`).subscribe(resolve, resolve);
-                });
+                res = await this.sendOne(`${addonName}.get_info`);
                 await sleep(SLEEP_LOCK_MS);
             } while (typeof res === "undefined" || !res.ready);
         }
