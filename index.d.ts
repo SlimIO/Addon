@@ -29,7 +29,7 @@ declare class Callback extends async_hooks.AsyncResource {
 /**
  * Addon class definition
  */
-declare class Addon extends SafeEmitter {
+declare class Addon<T extends { [key: string]: any } = Addon.NativeCallbacks> extends SafeEmitter<Addon.Events> {
     // Constructor
     constructor(name: string, options?: Addon.ConstructorOptions);
 
@@ -63,7 +63,7 @@ declare class Addon extends SafeEmitter {
     // Methods
     registerCallback(name: string | Addon.Callback<any>, callback?: Addon.Callback<any>): this;
     schedule(name: string | CallbackScheduler, scheduler?: CallbackScheduler): this;
-    executeCallback(name: string, header?: Addon.CallbackHeader, ...args: any[]): Promise<any>;
+    executeCallback<K extends keyof T>(name: K, header?: Addon.CallbackHeader, ...args: any[]): Promise<T[K]>;
     setDeprecatedAlias(callbackName: string, alias: string[]): void;
     sendMessage(target: string, options?: Addon.MessageOptions): ZenObservable.ObservableLike<any>;
     sendOne(target: string, options?: Addon.MessageOptions | any[]): Promise<any>;
@@ -82,6 +82,20 @@ declare class Addon extends SafeEmitter {
  * CallbackScheduler namespace
  */
 declare namespace Addon {
+    export interface NativeCallbacks {
+        "get_info": CallbackGetInfo;
+        "start": boolean;
+        "stop": boolean;
+        "health_check": boolean;
+        "event": void;
+    }
+
+    export interface Events {
+        start: any;
+        stop: any;
+        error: any;
+        message: [string, string];
+    }
 
     export type Callback<T> = () => Promise<T>;
 
