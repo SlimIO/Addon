@@ -406,11 +406,12 @@ class Addon extends SafeEmitter {
     }
 
     /**
+     * @async
      * @public
      * @method ready
      * @memberof Addon#
      * @desc Set/flag the current addon as Ready (will trigger "unlock" for other addons).
-     * @returns {Boolean}
+     * @returns {Promise<Boolean>}
      *
      * @version 0.5.0
      *
@@ -424,7 +425,7 @@ class Addon extends SafeEmitter {
      *      test.ready();
      * });
      */
-    ready() {
+    async ready() {
         if (!this.isStarted) {
             throw new Error("Addon should be started before being ready!");
         }
@@ -437,9 +438,8 @@ class Addon extends SafeEmitter {
             this.isReady = false;
         }).catch(console.error);
         this.emit("ready");
-        this.sendMessage("events.publish", {
-            args: [["Addon", "ready", this.name]]
-        }).subscribe({ error: console.error });
+
+        await this.sendOne("events.publish", [["Addon", "ready", this.name]]);
 
         return true;
     }

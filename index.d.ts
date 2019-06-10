@@ -69,7 +69,7 @@ declare class Addon extends SafeEmitter {
     sendOne(target: string, options?: Addon.MessageOptions | any[]): Promise<any>;
     setCallbacksDescriptorFile(path: string): void;
     of(subject: string): ZenObservable.ObservableLike<any>;
-    ready(): boolean;
+    ready(): Promise<boolean>;
     lockOn(addonName: string, rules?: Addon.Rules): this;
 
     // Static Methods

@@ -391,25 +391,36 @@ avaTest("Set Addon ready", async(test) => {
     test.plan(4);
     const myAddon = new Addon("myAddon");
 
+    myAddon.on("message", (msgId) => {
+        const obs = myAddon.observers.get(msgId);
+
+        obs.next();
+        obs.complete();
+    });
+
     myAddon.once("ready", 500).then(() => {
         test.pass();
     });
-    myAddon.once("start", 500).then(() => {
-        test.true(myAddon.ready());
-        test.false(myAddon.ready());
+
+    myAddon.once("start", 500).then(async() => {
+        const ret = await myAddon.ready();
+        test.true(ret);
+        const ret2 = await myAddon.ready();
+        test.false(ret2);
     });
+
     await myAddon.executeCallback("start");
     await sleep(50);
     await myAddon.executeCallback("stop");
-    await sleep(50);
+    await sleep(500);
     test.false(myAddon.isReady);
 });
 
 avaTest("Set Addon ready before Addon was started (should throw an Error)", async(test) => {
     const myAddon = new Addon("myAddon");
 
-    test.throws(() => {
-        myAddon.ready();
+    await test.throwsAsync(async() => {
+        await myAddon.ready();
     }, { instanceOf: Error, message: "Addon should be started before being ready!" });
 });
 
