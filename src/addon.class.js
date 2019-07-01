@@ -1,13 +1,12 @@
 // Require Node.js Dependencies
 const { extname } = require("path");
-const { randomBytes } = require("crypto");
 
 // Require Third-party dependencies
 const is = require("@slimio/is");
 const SafeEmitter = require("@slimio/safe-emitter");
 const CallbackScheduler = require("@slimio/scheduler");
 const Observable = require("zen-observable");
-const hyperid = require("hyperid");
+const uuid = require("uuid/v4");
 const isSnakeCase = require("is-snake-case");
 const timer = require("@slimio/timer");
 
@@ -112,7 +111,7 @@ class Addon extends SafeEmitter {
         this.name = name;
         this.version = version;
         this.verbose = verbose;
-        this.uid = hyperid()();
+        this.uid = uuid();
         this.isReady = false;
         this.isStarted = false;
         this.isAwake = false;
@@ -699,7 +698,7 @@ class Addon extends SafeEmitter {
         }
 
         // Generate unique id for our message!
-        const messageId = randomBytes(16).toString();
+        const messageId = uuid();
 
         // Send a message (on the next event loop iteration).
         setImmediate(() => {
@@ -770,7 +769,7 @@ class Addon extends SafeEmitter {
 
 // Register Static (CONSTANTS) Addon variables...
 Addon.RESERVED_CALLBACKS_NAME = new Set(["start", "stop", "event", "get_info", "health_check"]);
-Addon.MESSAGE_TIMEOUT_MS = 5000;
+Addon.MESSAGE_TIMEOUT_MS = 2000;
 Addon.MAIN_INTERVAL_MS = 500;
 Addon.DEFAULT_HEADER = { from: "self" };
 Addon.VERSION = "0.17.1";

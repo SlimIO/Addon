@@ -63,8 +63,8 @@
     "@slimio/safe-emitter": "^1.0.6",
     "@slimio/scheduler": "^0.6.0",
     "@slimio/timer": "^1.0.0",
-    "hyperid": "^2.0.2",
     "is-snake-case": "^0.1.0",
+    "uuid": "^3.3.2",
     "zen-observable": "^0.8.14"
   }
 }
