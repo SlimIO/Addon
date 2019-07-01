@@ -60,6 +60,7 @@ function sleep(durationMs) {
  * @property {String} name Addon name
  * @property {String} version
  * @property {Boolean} verbose
+ * @property {String} description
  * @property {String} uid Addon unique id
  * @property {Boolean} isStarted
  * @property {Boolean} isAwake
@@ -83,6 +84,7 @@ class Addon extends SafeEmitter {
      * @param {Object=} options options
      * @param {Boolean} [options.verbose=false] Enable verbose mode
      * @param {String} [options.version=1.0.0] addon version
+     * @param {String} [options.description] addon description
      *
      * @throws {TypeError}
      * @throws {Error}
@@ -96,12 +98,15 @@ class Addon extends SafeEmitter {
             throw new TypeError("options should be a plainObject");
         }
 
-        const { version = "1.0.0", verbose = false } = options;
+        const { version = "1.0.0", verbose = false, description = "" } = options;
         if (typeof version !== "string") {
             throw new TypeError("version argument should be typeof string");
         }
         if (typeof verbose !== "boolean") {
             throw new TypeError("verbose argument should be typeof boolean");
+        }
+        if (typeof description !== "string") {
+            throw new TypeError("description argument should be typeof string");
         }
 
         if (name.length <= 2) {
@@ -111,6 +116,7 @@ class Addon extends SafeEmitter {
         this.name = name;
         this.version = version;
         this.verbose = verbose;
+        this.description = description;
         this.uid = uuid();
         this.isReady = false;
         this.isStarted = false;
@@ -308,6 +314,7 @@ class Addon extends SafeEmitter {
             uid: this.uid,
             name: this.name,
             version: this.version,
+            description: this.description,
             containerVersion: Addon.VERSION,
             ready: this.isReady,
             started: this.isStarted,

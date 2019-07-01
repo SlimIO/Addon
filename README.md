@@ -85,11 +85,13 @@ Available options are:
 | --- | --- | --- |
 | version | 1.0.0 | Addon version |
 | verbose | false | Enable addon verbose mode |
+| description | Empty string | Addon description |
 
 ```js
 const myAddon = new Addon("myAddon", {
     version: "0.1.0",
-    verbose: true
+    verbose: true,
+    description: "My Custom Addon!"
 });
 ```
 </details>

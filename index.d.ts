@@ -102,6 +102,7 @@ declare namespace Addon {
     export interface ConstructorOptions {
         version?: string;
         verbose?: boolean;
+        description?: string;
     }
 
     export interface Rules {
@@ -138,6 +139,7 @@ declare namespace Addon {
         uid: string;
         name: string;
         version: string;
+        description: string;
         containerVersion: string;
         started: boolean;
         ready: boolean;
