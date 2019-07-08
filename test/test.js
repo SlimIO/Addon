@@ -139,12 +139,13 @@ avaTest("Addon.registerCallback - Callback name 'start' is a reserved callback n
     }, { instanceOf: Error, message: "Addon.registerCallback - Callback name 'start' is a reserved callback name!" });
 });
 
-avaTest("Addon.registerCallback->name typo should be formated in snake_case", (test) => {
+avaTest("Addon register camelcase callback", (test) => {
     const myAddon = new Addon("myAddon");
 
-    test.throws(() => {
-        myAddon.registerCallback("snakeCase", async() => {});
-    }, { instanceOf: Error, message: "Addon.registerCallback - Callback name 'snakeCase' should be formated in snake_case" });
+    myAddon.registerCallback(async function getWorld() {
+        return 10;
+    });
+    test.is(myAddon.callbacks.has("get_world"), true);
 });
 
 avaTest("Addon executeCallback (throw errors)", (test) => {

@@ -13,6 +13,7 @@ const timer = require("@slimio/timer");
 // Require Internal dependencie(s)
 const Stream = require("./stream.class");
 const Callback = require("./callback.class");
+const decamelize = require("./decamelize");
 
 // CONSTANTS
 const SYM_INTERVAL = Symbol("interval");
@@ -524,7 +525,8 @@ class Addon extends SafeEmitter {
             throw new Error(`Addon.registerCallback - Callback name '${name}' is a reserved callback name!`);
         }
         if (!isSnakeCase(name)) {
-            throw new Error(`Addon.registerCallback - Callback name '${name}' should be formated in snake_case`);
+            // eslint-disable-next-line
+            name = decamelize(name);
         }
 
         // Register callback on Addon
