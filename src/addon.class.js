@@ -6,6 +6,7 @@ const { extname } = require("path");
 // Require Third-party dependencies
 const is = require("@slimio/is");
 const SafeEmitter = require("@slimio/safe-emitter");
+const Logger = require("@slimio/logger");
 const CallbackScheduler = require("@slimio/scheduler");
 const Observable = require("zen-observable");
 const uuid = require("uuid/v4");
@@ -119,6 +120,7 @@ class Addon extends SafeEmitter {
         this.name = name;
         this.version = version;
         this.verbose = verbose;
+        this.logger = null;
         this.description = description;
         this.uid = uuid();
         this.isReady = false;
@@ -198,6 +200,7 @@ class Addon extends SafeEmitter {
         }
         this.isStarted = true;
         this.lastStart = Date.now();
+        this.logger = new Logger(void 0, { title: this.name });
 
         /**
          * @event Addon#start
@@ -205,7 +208,7 @@ class Addon extends SafeEmitter {
          */
         await this.emitAndWait("start");
         if (this.verbose) {
-            console.log(`[${this.name}] Addon start event triggered!`);
+            this.logger.writeLine("Start event triggered!");
         }
 
         // Check locks
@@ -219,6 +222,9 @@ class Addon extends SafeEmitter {
                 res = await this.sendOne(`${addonName}.get_info`);
                 await sleep(SLEEP_LOCK_MS);
             } while (typeof res === "undefined" || !res.ready);
+            if (this.verbose) {
+                this.logger.writeLine(`Unlocked addon '${addonName}'`);
+            }
         }
 
         // Create Interval only is there is scheduled callbacks!
@@ -451,7 +457,7 @@ class Addon extends SafeEmitter {
         }
         catch (err) {
             if (this.verbose) {
-                console.error(err);
+                this.logger.writeLine(`${err.name}: ${err.message}`);
             }
         }
 
@@ -621,7 +627,7 @@ class Addon extends SafeEmitter {
         // Return callback execution!
         const handler = this.callbacks.get(callbackName);
         if (this.verbose) {
-            console.log(`[${this.name}] Execute callback ${callbackName}`);
+            this.logger.writeLine(`Executing callback ${callbackName}`);
         }
 
         return (new Callback(`${this.name}-${callbackName}`, handler)).execute(header, args);
@@ -725,6 +731,9 @@ class Addon extends SafeEmitter {
              * @param {Array} args
              */
             this.emit("message", messageId, target, is.array(options.args) ? options.args : []);
+            if (this.verbose) {
+                this.logger.writeLine(`Sending message to ${target} with uuid: ${messageId}`);
+            }
         });
 
         // Return void 0 if noReturn is true

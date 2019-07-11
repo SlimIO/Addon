@@ -3,6 +3,7 @@
 /// <reference types="@types/es6-shim" />
 /// <reference types="@slimio/scheduler" />
 /// <reference types="@slimio/safe-emitter" />
+/// <reference types="@slimio/logger" />
 /// <reference types="@types/zen-observable" />
 
 import * as stream from "stream";
@@ -44,6 +45,7 @@ declare class Addon<T extends { [key: string]: any } = Addon.NativeCallbacks> ex
     public asserts: any[];
     public lastStart: number;
     public lastStop: number;
+    public logger: Logger;
     public subscribers: Map<string, ZenObservable.Observer<any>[]>;
     public locks: Map<string, Addon.Rules>;
     public callbacksDescriptor: string;
