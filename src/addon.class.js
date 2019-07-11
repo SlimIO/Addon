@@ -1,3 +1,5 @@
+"use strict";
+
 // Require Node.js Dependencies
 const { extname } = require("path");
 
@@ -20,9 +22,9 @@ const SYM_INTERVAL = Symbol("interval");
 const SLEEP_LOCK_MS = 25;
 
 /**
- * @func sleep
- * @desc Sleep async context for a given time in milliseconds
- * @param {!Number} durationMs sleep duration in milliseconds
+ * @function sleep
+ * @description Sleep async context for a given time in milliseconds
+ * @param {!number} durationMs sleep duration in milliseconds
  * @returns {Promise<void>}
  */
 function sleep(durationMs) {
@@ -35,57 +37,57 @@ function sleep(durationMs) {
  */
 
 /**
- * @typedef {Object} CallbackHeader
- * @property {String} from The addon who made the request
- * @property {String} id Message ID
+ * @typedef {object} CallbackHeader
+ * @property {string} from The addon who made the request
+ * @property {string} id Message ID
  */
 
 /**
- * @typedef {Object} LockRule
- * @property {Boolean} startAfter
- * @property {Boolean} lockCallback
+ * @typedef {object} LockRule
+ * @property {boolean} startAfter
+ * @property {boolean} lockCallback
  */
 
 /**
- * @typedef {Object} MessageOptions
+ * @typedef {object} MessageOptions
  * @property {any[]} args Callback arguments
  * @property {number} timeout Custom timeout
- * @property {Boolean} noReturn Dont expect a response!
+ * @property {boolean} noReturn Dont expect a response!
  */
 
 /**
  * @class Addon
  * @classdesc Slim.IO Addon container
- * @extends Event
+ * @augments Event
  *
- * @property {String} name Addon name
- * @property {String} version
- * @property {Boolean} verbose
- * @property {String} description
- * @property {String} uid Addon unique id
- * @property {Boolean} isStarted
- * @property {Boolean} isAwake
- * @property {Boolean} isReady
- * @property {Number} lastStart
- * @property {Number} lastStop
+ * @property {string} name Addon name
+ * @property {string} version
+ * @property {boolean} verbose
+ * @property {string} description
+ * @property {string} uid Addon unique id
+ * @property {boolean} isStarted
+ * @property {boolean} isAwake
+ * @property {boolean} isReady
+ * @property {number} lastStart
+ * @property {number} lastStop
  * @property {Array} asserts
- * @property {Set<String>} flags
- * @property {Map<String, Callback>} callbacks
- * @property {Map<String, CallbackScheduler>} schedules
- * @property {Map<String, ZenObservable.SubscriptionObserver<any>>} observers
- * @property {Map<String, any[]>} subscribers
- * @property {Map<String, String>} callbacksAlias
- * @property {Map<String, LockRule>} locks
+ * @property {Set<string>} flags
+ * @property {Map<string, Callback>} callbacks
+ * @property {Map<string, CallbackScheduler>} schedules
+ * @property {Map<string, ZenObservable.SubscriptionObserver<any>>} observers
+ * @property {Map<string, any[]>} subscribers
+ * @property {Map<string, string>} callbacksAlias
+ * @property {Map<string, LockRule>} locks
  */
 class Addon extends SafeEmitter {
     /**
-     * @constructor
+     * @class
      * @memberof Addon#
-     * @param {!String} name addon name
-     * @param {Object=} options options
-     * @param {Boolean} [options.verbose=false] Enable verbose mode
-     * @param {String} [options.version=1.0.0] addon version
-     * @param {String} [options.description] addon description
+     * @param {!string} name addon name
+     * @param {object} [options] options
+     * @param {boolean} [options.verbose=false] Enable verbose mode
+     * @param {string} [options.version=1.0.0] addon version
+     * @param {string} [options.description] addon description
      *
      * @throws {TypeError}
      * @throws {Error}
@@ -127,22 +129,22 @@ class Addon extends SafeEmitter {
         this.callbacksDescriptor = null;
         this.asserts = [];
 
-        /** @type {Map<String, any[]>} */
+        /** @type {Map<string, any[]>} */
         this.subscribers = new Map();
 
-        /** @type {Map<String, Callback>} */
+        /** @type {Map<string, Callback>} */
         this.callbacks = new Map();
 
-        /** @type {Map<String, String>} */
+        /** @type {Map<string, string>} */
         this.callbacksAlias = new Map();
 
-        /** @type {Map<String, CallbackScheduler>} */
+        /** @type {Map<string, CallbackScheduler>} */
         this.schedules = new Map();
 
-        /** @type {Map<String, ZenObservable.SubscriptionObserver<any>>} */
+        /** @type {Map<string, ZenObservable.SubscriptionObserver<any>>} */
         this.observers = new Map();
 
-        /** @type {Map<String, LockRule>} */
+        /** @type {Map<string, LockRule>} */
         this.locks = new Map();
 
         // The "start" callback is triggered to start the addon
@@ -180,9 +182,9 @@ class Addon extends SafeEmitter {
     /**
      * @private
      * @static
-     * @method start
+     * @function start
      * @memberof Addon#
-     * @desc Function used to start an addon
+     * @description Function used to start an addon
      * @returns {Promise<boolean>}
      *
      * @fires error
@@ -252,9 +254,9 @@ class Addon extends SafeEmitter {
     /**
      * @private
      * @static
-     * @method stop
+     * @function stop
      * @memberof Addon#
-     * @desc Function used to stop an addon
+     * @description Function used to stop an addon
      * @returns {Promise<boolean>}
      *
      * @fires stop
@@ -293,9 +295,9 @@ class Addon extends SafeEmitter {
     /**
      * @private
      * @static
-     * @method getInfo
+     * @function getInfo
      * @memberof Addon#
-     * @desc Function used to retrieve default options & properties of an addon
+     * @description Function used to retrieve default options & properties of an addon
      * @returns {Addon.CallbackGetInfo}
      *
      * @version 0.1.0
@@ -330,10 +332,10 @@ class Addon extends SafeEmitter {
 
     /**
      * @public
-     * @method lockOn
+     * @function lockOn
      * @memberof Addon#
-     * @desc Create a new lock rule (wait for a given addon to be started).
-     * @param {!String} addonName addonName
+     * @description Create a new lock rule (wait for a given addon to be started).
+     * @param {!string} addonName addonName
      * @param {LockRule} [rules={}] lock rules
      * @returns {Addon}
      *
@@ -363,10 +365,10 @@ class Addon extends SafeEmitter {
 
     /**
      * @public
-     * @method of
+     * @function of
      * @memberof Addon#
-     * @desc Subscribe to a given SlimIO kind of events (these events are managed by the built-in addon "events")
-     * @param {!String} subject subject
+     * @description Subscribe to a given SlimIO kind of events (these events are managed by the built-in addon "events")
+     * @param {!string} subject subject
      * @returns {ZenObservable.ObservableLike<any>}
      *
      * @version 0.12.0
@@ -413,10 +415,10 @@ class Addon extends SafeEmitter {
     /**
      * @async
      * @public
-     * @method ready
+     * @function ready
      * @memberof Addon#
-     * @desc Set/flag the current addon as Ready (will trigger "unlock" for other addons).
-     * @returns {Promise<Boolean>}
+     * @description Set/flag the current addon as Ready (will trigger "unlock" for other addons).
+     * @returns {Promise<boolean>}
      *
      * @version 0.5.0
      *
@@ -458,10 +460,10 @@ class Addon extends SafeEmitter {
 
     /**
      * @public
-     * @method setCallbacksDescriptorFile
+     * @function setCallbacksDescriptorFile
      * @memberof Addon#
-     * @desc Set a new callbacks descriptor file (.prototype)
-     * @param {!String} path Callback name
+     * @description Set a new callbacks descriptor file (.prototype)
+     * @param {!string} path Callback name
      * @returns {void}
      *
      * @throws {TypeError}
@@ -482,11 +484,10 @@ class Addon extends SafeEmitter {
 
     /**
      * @public
-     * @chainable
-     * @method registerCallback
+     * @function registerCallback
      * @memberof Addon#
-     * @desc Register a new callback on the Addon. The callback name should be formatted in snake_case
-     * @param {!(String | Function)} name Callback name
+     * @description Register a new callback on the Addon. The callback name should be formatted in snake_case
+     * @param {!(string|Function)} name Callback name
      * @param {!Callback} callback Async Callback to execute when the callback is triggered by the core or the addon itself
      * @returns {this}
      *
@@ -537,11 +538,11 @@ class Addon extends SafeEmitter {
 
     /**
      * @public
-     * @method setDeprecatedAlias
+     * @function setDeprecatedAlias
      * @memberof Addon#
-     * @desc Register One or Many deprecated Alias for a given callback
-     * @param {!String} callbackName Callback name
-     * @param {String[]} alias List of alias to set for the given callback name (they will throw deprecated warning)
+     * @description Register One or Many deprecated Alias for a given callback
+     * @param {!string} callbackName Callback name
+     * @param {string[]} alias List of alias to set for the given callback name (they will throw deprecated warning)
      * @returns {void}
      *
      * @throws {TypeError}
@@ -575,11 +576,11 @@ class Addon extends SafeEmitter {
     /**
      * @public
      * @template T
-     * @method executeCallback
+     * @function executeCallback
      * @memberof Addon#
-     * @desc Execute a callback of the addon
-     * @param {!String} name Callback name
-     * @param {CallbackHeader=} header callback header
+     * @description Execute a callback of the addon
+     * @param {!string} name Callback name
+     * @param {CallbackHeader} [header] callback header
      * @param {any[]} args Callback arguments
      * @returns {Promise<T>} Return the callback response (or void)
      *
@@ -628,11 +629,10 @@ class Addon extends SafeEmitter {
 
     /**
      * @public
-     * @chainable
-     * @method schedule
+     * @function schedule
      * @memberof Addon#
-     * @desc Schedule the execution of a given callback (not a precision scheduler).
-     * @param {!String} name Callback name
+     * @description Schedule the execution of a given callback (not a precision scheduler).
+     * @param {!string} name Callback name
      * @param {!CallbackScheduler} scheduler CallbackScheduler settings!
      * @returns {this}
      *
@@ -686,11 +686,11 @@ class Addon extends SafeEmitter {
 
     /**
      * @public
-     * @method sendMessage
+     * @function sendMessage
      * @memberof Addon#
-     * @desc Send a message to the Core
-     * @param {!String} target Target path to the callback
-     * @param {MessageOptions=} [options={}] Message options
+     * @description Send a message to the Core
+     * @param {!string} target Target path to the callback
+     * @param {MessageOptions} [options={}] Message options
      * @returns {Observable<any>}
      *
      * @throws {TypeError}
@@ -720,8 +720,8 @@ class Addon extends SafeEmitter {
         setImmediate(() => {
             /**
              * @event Addon#message
-             * @param {String} messageId
-             * @param {String} target
+             * @param {string} messageId
+             * @param {string} target
              * @param {Array} args
              */
             this.emit("message", messageId, target, is.array(options.args) ? options.args : []);
@@ -758,10 +758,10 @@ class Addon extends SafeEmitter {
 
     /**
      * @public
-     * @method sendOne
+     * @function sendOne
      * @memberof Addon#
-     * @desc Send "one" message to the Core (Promise version of sendMessage)
-     * @param {!String} target Target path to the callback
+     * @description Send "one" message to the Core (Promise version of sendMessage)
+     * @param {!string} target Target path to the callback
      * @param {MessageOptions|Array<any>} [options=[]] Message options a response!
      * @returns {Promise<any>}
      *

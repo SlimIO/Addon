@@ -1,5 +1,4 @@
-/* eslint require-await: off */
-/* eslint no-empty-function: off */
+"use strict";
 
 // Require NodeJS Dependencies
 const { join } = require("path");

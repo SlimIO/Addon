@@ -1,18 +1,20 @@
+"use strict";
+
 // Require Node.js Dependencies
 const asyncHooks = require("async_hooks");
 const { performance, PerformanceObserver } = require("perf_hooks");
 
 /**
  * @class Callback
- * @extends AsyncResource
+ * @augments AsyncResource
  *
  * @property {Function} callback
  */
 class Callback extends asyncHooks.AsyncResource {
     /**
-     * @constructor
+     * @class
      * @memberof Callback#
-     * @param {!String} name callback name
+     * @param {!string} name callback name
      * @param {!Function} callback callbackHandler
      *
      * @throws {TypeError}
@@ -30,9 +32,9 @@ class Callback extends asyncHooks.AsyncResource {
     }
 
     /**
-     * @method execute
+     * @function execute
      * @memberof Callback#
-     * @param {Object} header callback header
+     * @param {object} header callback header
      * @param {any[]} args handler arguments
      * @returns {Promise<any>}
      *
@@ -48,15 +50,15 @@ class Callback extends asyncHooks.AsyncResource {
 
 /**
  * @static
- * @const ActiveCallback
- * @type {Map<Number, String>}
+ * @constant ActiveCallback
+ * @type {Map<number, string>}
  */
 Callback.ActiveCallback = new Map();
 
 /**
  * @static
- * @method createHook
- * @return {AsyncHook}
+ * @function createHook
+ * @returns {AsyncHook}
  */
 Callback.createHook = function createHook() {
     return asyncHooks.createHook({
@@ -84,7 +86,7 @@ Callback.createHook = function createHook() {
 
 /**
  * @static
- * @method observePerformance
+ * @function observePerformance
  * @param {perfTrigger} perfTrigger perfTrigger
  * @returns {PerformanceObserver}
  */
