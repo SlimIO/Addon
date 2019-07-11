@@ -16,3 +16,4 @@ tsconfig.json
 .travis.yml
 commitlint.config.js
 CHANGELOG.md
+.eslintignore
