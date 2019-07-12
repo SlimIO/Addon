@@ -294,6 +294,9 @@ class Addon extends SafeEmitter {
          * @type {void}
          */
         await this.emitAndWait("stop");
+        if (this.verbose) {
+            this.logger.writeLine("Stop event triggered!");
+        }
 
         return true;
     }
@@ -626,7 +629,7 @@ class Addon extends SafeEmitter {
 
         // Return callback execution!
         const handler = this.callbacks.get(callbackName);
-        if (this.verbose) {
+        if (this.verbose && this.isStarted) {
             this.logger.writeLine(`Executing callback ${callbackName}`);
         }
 
