@@ -11,7 +11,8 @@
             "index.js",
             "src/addon.class.js",
             "src/callback.class.js",
-            "src/stream.class.js"
+            "src/stream.class.js",
+            "src/decamelize.js"
         ],
         "exclude": [
             "node_modules",
