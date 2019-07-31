@@ -672,8 +672,8 @@ class Addon extends SafeEmitter {
      *     }));
      */
     schedule(name, scheduler) {
-        // If name is an instanceo of Scheduler, replace name by the latest callback registered!
-        if (name instanceof CallbackScheduler) {
+        // If name is an instanceOf Scheduler, replace name by the latest callback registered!
+        if (CallbackScheduler.isScheduler(name)) {
             if (this.callbacks.size <= Addon.RESERVED_CALLBACKS_NAME.size) {
                 throw new Error("Addon.schedule - No custom callback has been registered yet!");
             }
@@ -689,7 +689,7 @@ class Addon extends SafeEmitter {
         if (!this.callbacks.has(name)) {
             throw new Error(`Addon.schedule - Unable to found callback with name ${name}`);
         }
-        if (!(scheduler instanceof CallbackScheduler)) {
+        if (!CallbackScheduler.isScheduler(scheduler)) {
             throw new TypeError("Addon.schedule->scheduler should be an instance of CallbackScheduler");
         }
 
