@@ -19,6 +19,7 @@ const Callback = require("./callback.class");
 const decamelize = require("./decamelize");
 
 // CONSTANTS
+const SYM_ADDON = Symbol.for("Addon");
 const SYM_INTERVAL = Symbol("interval");
 const SLEEP_LOCK_MS = 25;
 
@@ -130,6 +131,7 @@ class Addon extends SafeEmitter {
         this.lastStop = null;
         this.callbacksDescriptor = null;
         this.asserts = [];
+        this[SYM_ADDON] = true;
 
         /** @type {Map<string, any[]>} */
         this.subscribers = new Map();
@@ -179,6 +181,10 @@ class Addon extends SafeEmitter {
 
             return true;
         });
+    }
+
+    static isAddon(obj) {
+        return obj && Boolean(obj[SYM_ADDON]);
     }
 
     /**

@@ -78,6 +78,7 @@ declare class Addon<T extends { [key: string]: any } = Addon.NativeCallbacks> ex
     static start(): Promise<void>;
     static stop(): Promise<void>;
     static getInfo(): Addon.CallbackGetInfo;
+    static isAddon(obj: any): boolean;
 }
 
 /**
