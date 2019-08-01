@@ -31,7 +31,7 @@
   "files": [
       "index.js",
       "index.d.ts",
-      "src/**.js"
+      "src/*.js"
   ],
   "author": "SlimIO",
   "license": "MIT",
