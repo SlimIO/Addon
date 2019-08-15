@@ -223,11 +223,18 @@ class Addon extends SafeEmitter {
                 continue;
             }
 
-            let res;
-            do {
-                res = await this.sendOne(`${addonName}.get_info`);
+            while (1) {
+                try {
+                    const res = await this.sendOne(`${addonName}.get_info`);
+                    if (typeof res !== "undefined" && Boolean(res.ready)) {
+                        break;
+                    }
+                }
+                catch (err) {
+                    this.logger.writeLine(`sendOne failed: ${err.message}`);
+                }
                 await sleep(SLEEP_LOCK_MS);
-            } while (typeof res === "undefined" || !res.ready);
+            }
             if (this.verbose) {
                 this.logger.writeLine(`Unlocked addon '${addonName}'`);
             }
