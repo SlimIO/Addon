@@ -29,9 +29,9 @@
     "addon"
   ],
   "files": [
-      "index.js",
-      "index.d.ts",
-      "src/*.js"
+    "index.js",
+    "index.d.ts",
+    "src/*.js"
   ],
   "author": "SlimIO",
   "license": "MIT",
