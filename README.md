@@ -1,4 +1,10 @@
 # Addon
+![version](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/SlimIO/Addon/master/package.json?token=AOgWw3vrgQuu-U4fz1c7yYZyc7XJPNtrks5catjdwA%3D%3D&query=$.version&label=Version)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/SlimIO/Addon/commit-activity)
+![MIT](https://img.shields.io/github/license/mashape/apistatus.svg)
+![dep](https://img.shields.io/david/SlimIO/Addon)
+![size](https://img.shields.io/github/languages/code-size/SlimIO/Addon)
+
 This package provide the foundation to build Addons that will rely and work with the Core. Addon is just a container that will help you as a developer.
 
 <p align="center">
@@ -8,7 +14,7 @@ This package provide the foundation to build Addons that will rely and work with
 > Scheduler is a external SlimIO Package. If you want to know more about it, follow [this link](https://github.com/SlimIO/Scheduler).
 
 ## Requirements
-- Node.js v10 or higher
+- [Node.js](https://nodejs.org/en/) v10 or higher
 
 ## Getting Started
 
