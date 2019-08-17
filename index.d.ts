@@ -73,11 +73,13 @@ declare class Addon<T extends { [key: string]: any } = Addon.NativeCallbacks> ex
     of(subject: string): ZenObservable.ObservableLike<any>;
     ready(): Promise<boolean>;
     lockOn(addonName: string, rules?: Addon.Rules): this;
+    waitForAllLocks(asStart?: boolean): Promise<boolean>;
 
     // Static Methods
-    static start(): Promise<void>;
-    static stop(): Promise<void>;
+    static start(): Promise<boolean>;
+    static stop(): Promise<boolean>;
     static getInfo(): Addon.CallbackGetInfo;
+    static sleep(): Promise<boolean>;
     static isAddon(obj: any): boolean;
 }
 
@@ -89,6 +91,7 @@ declare namespace Addon {
         "get_info": CallbackGetInfo;
         "start": boolean;
         "stop": boolean;
+        "sleep": boolean;
         "health_check": boolean;
         "event": void;
     }

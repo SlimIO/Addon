@@ -16,7 +16,7 @@ const timer = require("@slimio/timer");
 // Require Internal dependencie(s)
 const Stream = require("./stream.class");
 const Callback = require("./callback.class");
-const decamelize = require("./decamelize");
+const { decamelize } = require("./utils");
 
 // CONSTANTS
 const SYM_ADDON = Symbol.for("Addon");
@@ -151,33 +151,20 @@ class Addon extends SafeEmitter {
         /** @type {Map<string, LockRule>} */
         this.locks = new Map();
 
-        // The "start" callback is triggered to start the addon
         this.callbacks.set("start", Addon.start.bind(this));
-
-        // The "stop" callback is triggered to stop the addon
         this.callbacks.set("stop", Addon.stop.bind(this));
-
-        // The "event" callback is triggered by external addons
-        // eslint-disable-next-line
+        this.callbacks.set("sleep", Addon.sleep.bind(this));
+        this.callbacks.set("get_info", Addon.getInfo.bind(this));
         this.callbacks.set("event", async(header, name, data) => {
-            if (!this.subscribers.has(name)) {
-                return;
-            }
-
-            for (const observer of this.subscribers.get(name)) {
-                observer.next(data);
+            if (this.subscribers.has(name)) {
+                for (const observer of this.subscribers.get(name)) {
+                    observer.next(data);
+                }
             }
         });
 
-        // The "get_info" callback is triggered to retrieve default information about the addon
-        this.callbacks.set("get_info", Addon.getInfo.bind(this));
-
-        // the "health_check" callback is triggered to verify the health of the addon!
         this.callbacks.set("health_check", async() => {
-            // Detect if there is any custom assertion addon by the developer
-            if (this.asserts.length > 0) {
-                await Promise.all(this.asserts);
-            }
+            await Promise.all(this.asserts);
 
             return true;
         });
@@ -218,53 +205,30 @@ class Addon extends SafeEmitter {
         }
 
         // Check locks
-        for (const [addonName, rules] of this.locks.entries()) {
-            if (!rules.startAfter) {
-                continue;
+        await this.waitForAllLocks(true);
+
+        // The interval is used to execute Scheduled callbacks
+        // A Symbol primitive is used to make Interval private
+        this[SYM_INTERVAL] = timer.setInterval(async() => {
+            if (!this.isAwake) {
+                return;
             }
 
-            while (1) {
-                try {
-                    const res = await this.sendOne(`${addonName}.get_info`);
-                    if (typeof res !== "undefined" && Boolean(res.ready)) {
-                        break;
-                    }
-                }
-                catch (err) {
-                    this.logger.writeLine(`sendOne failed: ${err.message}`);
-                }
-                await sleep(SLEEP_LOCK_MS);
-            }
-            if (this.verbose) {
-                this.logger.writeLine(`Unlocked addon '${addonName}'`);
-            }
-        }
+            // Retrieve scheduled callback
+            const toExecute = [...this.schedules.entries()]
+                .filter(([, scheduler]) => scheduler.walk())
+                .map(([name]) => this.callbacks.get(name)());
 
-        // Create Interval only is there is scheduled callbacks!
-        if (this.schedules.size > 0) {
-            // The interval is used to execute Scheduled callbacks
-            // A Symbol primitive is used to make Interval private
-            this[SYM_INTERVAL] = timer.setInterval(async() => {
-                // Retrieve scheduled callback
-                const toExecute = [...this.schedules.entries()]
-                    .filter(([, scheduler]) => scheduler.walk())
-                    .map(([name]) => this.callbacks.get(name)());
-
-                // Execute all calbacks (Promise) in asynchrone
-                try {
-                    await Promise.all(toExecute);
-                }
-                catch (error) {
-                    this.emit("error", error);
-                }
-            }, Addon.MAIN_INTERVAL_MS);
-        }
+            // Execute all calbacks (Promise) in asynchrone
+            try {
+                await Promise.all(toExecute);
+            }
+            catch (error) {
+                this.emit("error", error);
+            }
+        }, Addon.MAIN_INTERVAL_MS);
 
         this.isAwake = true;
-        /**
-         * @event Addon#awake
-         * @type {void}
-         */
         await this.emitAndWait("awake");
 
         return true;
@@ -302,13 +266,95 @@ class Addon extends SafeEmitter {
             this.subscribers.delete(subject);
         }
 
-        /**
-         * @event Addon#stop
-         * @type {void}
-         */
+        // Complete observers
+        // for (const observer of this.observers) {
+        //     observer.complete();
+        // }
+
         await this.emitAndWait("stop");
         if (this.verbose) {
             this.logger.writeLine("Stop event triggered!");
+        }
+
+        return true;
+    }
+
+    /**
+     * @public
+     * @async
+     * @function waitForAllLocks
+     * @memberof Addon#
+     * @param {boolean} [asStart=false]
+     * @returns {Promise<boolean>}
+     *
+     * @version 0.19.1
+     */
+    async waitForAllLocks(asStart = false) {
+        if (this.locks.size === 0) {
+            return true;
+        }
+
+        while (1) {
+            if (!this.isStarted) {
+                return false;
+            }
+
+            let allReady = true;
+            for (const [addonName, rules] of this.locks.entries()) {
+                if (asStart && !rules.startAfter) {
+                    continue;
+                }
+
+                try {
+                    const res = await this.sendOne(`${addonName}.get_info`);
+
+                    if (typeof res === "undefined" || Boolean(res.ready) === false) {
+                        allReady = false;
+                        break;
+                    }
+                }
+                catch (err) {
+                    this.logger.writeLine(`sendOne failed: ${err}`);
+                    allReady = false;
+                    break;
+                }
+            }
+
+            if (allReady) {
+                break;
+            }
+
+            await sleep(SLEEP_LOCK_MS);
+        }
+
+        return true;
+    }
+
+    /**
+     * @private
+     * @static
+     * @function sleep
+     * @memberof Addon#
+     * @description Function used to sleep an addon
+     * @returns {Promise<boolean>}
+     *
+     * @fires sleep
+     *
+     * @version 0.19.1
+     */
+    static async sleep() {
+        if (!this.isAwake) {
+            return false;
+        }
+
+        this.isAwake = false;
+        await this.emitAndWait("sleep");
+
+        // Ensure every locks are okay
+        const lockResult = await this.waitForAllLocks();
+        if (lockResult) {
+            this.isAwake = true;
+            await this.emitAndWait("awake");
         }
 
         return true;
@@ -346,6 +392,7 @@ class Addon extends SafeEmitter {
             awake: this.isAwake,
             lastStart: this.lastStart,
             lastStop: this.lastStop,
+            lockOn: [...this.locks.keys()],
             callbacksDescriptor: this.callbacksDescriptor,
             callbacks: [...this.callbacks.keys()],
             callbacksAlias
@@ -421,9 +468,7 @@ class Addon extends SafeEmitter {
                 publishMsg(observer);
             }
             else {
-                this.once("start", 5000).then(() => {
-                    publishMsg(observer);
-                }).catch(observer.error);
+                this.once("start", 5000).then(() => publishMsg(observer)).catch(observer.error);
             }
 
             const index = this.subscribers.get(subject).push(observer);
@@ -809,7 +854,7 @@ class Addon extends SafeEmitter {
 }
 
 // Register Static (CONSTANTS) Addon variables...
-Addon.RESERVED_CALLBACKS_NAME = new Set(["start", "stop", "event", "get_info", "health_check"]);
+Addon.RESERVED_CALLBACKS_NAME = new Set(["start", "stop", "sleep", "event", "get_info", "health_check"]);
 Addon.MESSAGE_TIMEOUT_MS = 5000;
 Addon.MAIN_INTERVAL_MS = 500;
 Addon.DEFAULT_HEADER = { from: "self" };

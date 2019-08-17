@@ -12,7 +12,7 @@
             "src/addon.class.js",
             "src/callback.class.js",
             "src/stream.class.js",
-            "src/decamelize.js"
+            "src/utils.js"
         ],
         "exclude": [
             "node_modules",

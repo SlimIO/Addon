@@ -70,7 +70,7 @@ avaTest("Addon constructor throw an Error if name length is less or equal 2", (t
 });
 
 avaTest("Verify addonContainer version", async(test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test01");
 
     const buf = await readFile(join(__dirname, "..", "package.json"));
     const { version } = JSON.parse(buf.toString());
@@ -81,10 +81,10 @@ avaTest("Verify addonContainer version", async(test) => {
 });
 
 avaTest("Verify addon initial properties types and values", async(test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test02");
 
     test.true(is.string(myAddon.uid));
-    test.is(myAddon.name, "myAddon");
+    test.is(myAddon.name, "test02");
     test.is(myAddon.lastStart, null);
     test.is(myAddon.lastStop, null);
     test.false(myAddon.verbose);
@@ -108,14 +108,14 @@ avaTest("Verify addon initial properties types and values", async(test) => {
 });
 
 avaTest("Verify addon initial native callbacks", (test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test03");
     for (const callbackName of DEFAULT_CALLBACKS) {
         test.true(myAddon.callbacks.has(callbackName));
     }
 });
 
 avaTest("Addon.registerCallback->name should be typeof <string>", (test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test04");
 
     test.throws(() => {
         myAddon.registerCallback(5);
@@ -123,7 +123,7 @@ avaTest("Addon.registerCallback->name should be typeof <string>", (test) => {
 });
 
 avaTest("Addon.registerCallback->callback should be an AsyncFunction", (test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test05");
 
     test.throws(() => {
         myAddon.registerCallback("test", () => {});
@@ -131,7 +131,7 @@ avaTest("Addon.registerCallback->callback should be an AsyncFunction", (test) =>
 });
 
 avaTest("Addon.registerCallback - Callback name 'start' is a reserved callback name!", (test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test06");
 
     test.throws(() => {
         myAddon.registerCallback("start", async() => {});
@@ -139,7 +139,7 @@ avaTest("Addon.registerCallback - Callback name 'start' is a reserved callback n
 });
 
 avaTest("Addon register camelcase callback", (test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test07");
 
     myAddon.registerCallback(async function getWorld() {
         return 10;
@@ -148,7 +148,7 @@ avaTest("Addon register camelcase callback", (test) => {
 });
 
 avaTest("Addon executeCallback (throw errors)", (test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test08");
 
     // Invalid callback name type
     test.throws(() => {
@@ -162,7 +162,7 @@ avaTest("Addon executeCallback (throw errors)", (test) => {
 });
 
 avaTest("Addon schedule (throw errors)", (test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test09");
 
     // Invalid callback name type
     test.throws(() => {
@@ -183,7 +183,7 @@ avaTest("Addon schedule (throw errors)", (test) => {
 });
 
 avaTest("Addon schedule on latest callback registered (Throw error)", async(test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test10");
 
     // Invalid callback name type
     test.throws(() => {
@@ -192,7 +192,7 @@ avaTest("Addon schedule on latest callback registered (Throw error)", async(test
 });
 
 avaTest("Addon schedule on latest callback registered", async(test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test11");
     const scheduler = new CallbackScheduler({
         interval: 1,
         executeOnStart: true
@@ -205,14 +205,14 @@ avaTest("Addon schedule on latest callback registered", async(test) => {
         executionTime++;
     }).schedule(scheduler);
 
-    myAddon.executeCallback("start");
+    await myAddon.executeCallback("start");
     await sleep(2100);
     test.is(executionTime, 2);
     await myAddon.executeCallback("stop");
 });
 
 avaTest("Create Addon with given version", async(test) => {
-    const myAddon = new Addon("myAddon", {
+    const myAddon = new Addon("test12", {
         version: "2.0.0"
     });
 
@@ -221,13 +221,13 @@ avaTest("Create Addon with given version", async(test) => {
 });
 
 avaTest("Addon execute native get_info callback", async(test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test13");
 
     const info = await myAddon.executeCallback("get_info");
     test.deepEqual(Object.keys(info), [
         "uid", "name", "version", "description", "containerVersion",
         "ready", "started", "awake", "lastStart", "lastStop",
-        "callbacksDescriptor", "callbacks", "callbacksAlias"
+        "lockOn", "callbacksDescriptor", "callbacks", "callbacksAlias"
     ]);
     test.is(info.uid, myAddon.uid);
     test.is(info.name, myAddon.name);
@@ -237,14 +237,14 @@ avaTest("Addon execute native get_info callback", async(test) => {
     test.is(info.version, myAddon.version);
     test.is(info.containerVersion, Addon.VERSION);
     test.false(info.started);
-    test.deepEqual(info.callbacks, DEFAULT_CALLBACKS);
+    test.deepEqual(info.callbacks.sort(), DEFAULT_CALLBACKS.slice(0).sort());
     test.is(info.lastStart, null);
     test.is(info.lastStop, null);
     test.true(is.plainObject(info.callbacksAlias));
 });
 
 avaTest("Addon register & execute a custom callback", async(test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test14");
 
     // Register callback
     myAddon.registerCallback("test", async(header, arg1) => {
@@ -260,7 +260,7 @@ avaTest("Addon register & execute a custom callback", async(test) => {
 });
 
 avaTest("Addon register & execute a custom callback (registered without direct name)", async(test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test15");
 
     // Register callback
     myAddon.registerCallback(async function hello() {
@@ -274,7 +274,7 @@ avaTest("Addon register & execute a custom callback (registered without direct n
 });
 
 avaTest("Addon send a message with an invalid target name", async(test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test16");
 
     test.throws(() => {
         myAddon.sendMessage(5);
@@ -283,7 +283,7 @@ avaTest("Addon send a message with an invalid target name", async(test) => {
 
 avaTest("Addon send a message (Expect no return value)", async(test) => {
     test.plan(3);
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test17");
 
     // Mock a listener
     myAddon.on("message", (messageId) => {
@@ -310,7 +310,7 @@ avaTest("Addon send a message (Expect no return value)", async(test) => {
 
 avaTest("Addon send a message and timeout", async(test) => {
     test.plan(2);
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test18");
 
     await new Promise((resolve) => {
         myAddon.sendMessage("any", { timeout: 500, args: [] }).subscribe(
@@ -325,7 +325,7 @@ avaTest("Addon send a message and timeout", async(test) => {
 });
 
 avaTest("Trigger 'start' and 'stop' callbacks", async(test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test19");
     test.false(myAddon.isStarted);
     let success;
 
@@ -348,7 +348,7 @@ avaTest("Trigger 'start' and 'stop' callbacks", async(test) => {
 });
 
 avaTest("Addon schedule a custom callback by his name", async(test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test20");
     let count = 0;
 
     // Register "test" callback
@@ -372,7 +372,7 @@ avaTest("Addon schedule a custom callback by his name", async(test) => {
 });
 
 avaTest("Addon health_check assert (throw)", async(test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test21");
 
     myAddon.asserts.push(new Promise((resolve, reject) => {
         reject(new Error("oopps!"));
@@ -382,7 +382,7 @@ avaTest("Addon health_check assert (throw)", async(test) => {
 });
 
 avaTest("Addon health_check assert (ok)", async(test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test22");
 
     const ret = await myAddon.executeCallback("health_check");
     test.is(ret, true);
@@ -390,7 +390,7 @@ avaTest("Addon health_check assert (ok)", async(test) => {
 
 avaTest("Set Addon ready", async(test) => {
     test.plan(4);
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test23");
 
     myAddon.on("message", (msgId) => {
         const obs = myAddon.observers.get(msgId);
@@ -418,7 +418,7 @@ avaTest("Set Addon ready", async(test) => {
 });
 
 avaTest("Set Addon ready before Addon was started (should throw an Error)", async(test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test24");
 
     await test.throwsAsync(async() => {
         await myAddon.ready();
@@ -426,7 +426,7 @@ avaTest("Set Addon ready before Addon was started (should throw an Error)", asyn
 });
 
 avaTest("setDeprecatedAlias (no callback registered with the name)", (test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test25");
 
     test.throws(() => {
         myAddon.setDeprecatedAlias("foo");
@@ -434,7 +434,7 @@ avaTest("setDeprecatedAlias (no callback registered with the name)", (test) => {
 });
 
 avaTest("setDeprecatedAlias (alias should be instanceof Array)", (test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test26");
     myAddon.registerCallback("foo", async function foo() {
         console.log("foo!");
     });
@@ -446,7 +446,7 @@ avaTest("setDeprecatedAlias (alias should be instanceof Array)", (test) => {
 
 avaTest("setDeprecatedAlias (Trigger callback with an alias!)", async(test) => {
     test.plan(4);
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test27");
     myAddon.registerCallback("foo", async function foo() {
         return 10;
     });
@@ -467,21 +467,21 @@ avaTest("setDeprecatedAlias (Trigger callback with an alias!)", async(test) => {
 });
 
 avaTest("setCallbacksDescriptor (path should be typeof string)", async(test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test28");
     test.throws(() => {
         myAddon.setCallbacksDescriptorFile(null);
     }, { instanceOf: TypeError, message: "path should be typeof string!" });
 });
 
 avaTest("setCallbacksDescriptor (path should be a .prototype file)", async(test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test29");
     test.throws(() => {
         myAddon.setCallbacksDescriptorFile(join(__dirname, "yo"));
     }, { instanceOf: Error, message: "path should be a .prototype file" });
 });
 
 avaTest("setCallbacksDescriptor", async(test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test30");
     {
         const { callbacksDescriptor } = await myAddon.executeCallback("get_info");
         test.is(callbacksDescriptor, null);
@@ -493,7 +493,7 @@ avaTest("setCallbacksDescriptor", async(test) => {
 });
 
 avaTest("Addon of(subject) should be a string", async(test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test31");
 
     test.throws(() => {
         myAddon.of(10);
@@ -502,7 +502,7 @@ avaTest("Addon of(subject) should be a string", async(test) => {
 
 avaTest("Scheduled callback to throw Error!", async(test) => {
     test.plan(1);
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test32");
     myAddon.on("error", (error) => {
         test.is(error.message, "oops!");
     });
@@ -525,7 +525,12 @@ avaTest("Scheduled callback to throw Error!", async(test) => {
 
 avaTest("Addon Native Event", async(test) => {
     test.plan(2);
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test33");
+    myAddon.on("message", (msgId) => {
+        const obs = myAddon.observers.get(msgId);
+        obs.next(undefined);
+        obs.complete();
+    });
 
     // Subscribe before start
     myAddon.of("any").subscribe(() => {
@@ -548,7 +553,7 @@ avaTest("Addon Native Event", async(test) => {
 
 avaTest("Addon Callback Header", async(test) => {
     test.plan(2);
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test34");
 
     // eslint-disable-next-line
     myAddon.registerCallback(async function cb_test(header) {
@@ -585,7 +590,7 @@ avaTest("Test Addon Streaming Class", async(test) => {
 
 avaTest("Run a verbose test", async(test) => {
     test.plan(1);
-    const myAddon = new Addon("myAddon", {
+    const myAddon = new Addon("test35", {
         verbose: true
     });
 
@@ -600,7 +605,7 @@ avaTest("Run a verbose test", async(test) => {
 });
 
 avaTest("lockOn: addonName must be typeof String", async(test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test36");
 
     test.throws(() => {
         myAddon.lockOn(10);
@@ -608,7 +613,7 @@ avaTest("lockOn: addonName must be typeof String", async(test) => {
 });
 
 avaTest("lockOn: rules.startAfter must be a boolean", async(test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test37");
 
     test.throws(() => {
         myAddon.lockOn("zbla", { startAfter: 10 });
@@ -616,18 +621,19 @@ avaTest("lockOn: rules.startAfter must be a boolean", async(test) => {
 });
 
 avaTest("lockOn: rules.lockCallback must be a boolean", async(test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test38");
 
     test.throws(() => {
         myAddon.lockOn("zbla", { lockCallback: 10 });
     }, { instanceOf: TypeError, message: "rules.lockCallback must be a boolean" });
 });
 
-avaTest("lockOn: emulate fack lock", async(test) => {
+avaTest("lockOn: emulate fake lock", async(test) => {
     let tick = 0;
     test.plan(2);
     const emulateLock = new Addon("emulateLock");
     emulateLock.on("message", (id, target) => {
+        // console.log(`id: ${id}, target: ${target}`);
         if (target === "test.get_info") {
             test.pass();
             const observer = emulateLock.observers.get(id);
@@ -650,7 +656,7 @@ avaTest("lockOn: emulate fack lock", async(test) => {
 });
 
 avaTest("sendOne (target must be a string)", async(test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test39");
 
     await test.throwsAsync(myAddon.sendOne(10), {
         message: "Addon.sendOne->target must be typeof <string>",
@@ -659,7 +665,7 @@ avaTest("sendOne (target must be a string)", async(test) => {
 });
 
 avaTest("sendOne (options must be a plain Object)", async(test) => {
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test40");
 
     await test.throwsAsync(myAddon.sendOne("any", 10), {
         message: "Addon.sendOne->options must be a plain Object",
@@ -669,7 +675,7 @@ avaTest("sendOne (options must be a plain Object)", async(test) => {
 
 avaTest("sendOne (catch message)", async(test) => {
     test.plan(2);
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test41");
 
     myAddon.on("message", (messageId) => {
         if (!myAddon.observers.has(messageId)) {
@@ -687,7 +693,7 @@ avaTest("sendOne (catch message)", async(test) => {
 
 avaTest("sendOne (catch error)", async(test) => {
     test.plan(2);
-    const myAddon = new Addon("myAddon");
+    const myAddon = new Addon("test42");
 
     myAddon.on("message", (messageId) => {
         if (!myAddon.observers.has(messageId)) {
