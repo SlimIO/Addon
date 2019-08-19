@@ -57,6 +57,7 @@ declare class Addon<T extends { [key: string]: any } = Addon.NativeCallbacks> ex
     static RESERVED_CALLBACK_NAME: Set<string>;
     static MESSAGE_TIMEOUT_MS: number;
     static MAIN_INTERVAL_MS: number;
+    static MAX_SLEEP_TIME_MS: number;
     static VERSION: string;
     static Stream: typeof Stream;
     static Callback: typeof Callback;

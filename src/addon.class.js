@@ -300,6 +300,7 @@ class Addon extends SafeEmitter {
             return true;
         }
 
+        let initialLockMs = SLEEP_LOCK_MS;
         while (1) {
             if (!this.isStarted) {
                 return false;
@@ -320,7 +321,9 @@ class Addon extends SafeEmitter {
                     }
                 }
                 catch (err) {
-                    this.logger.writeLine(`sendOne failed: ${err}`);
+                    if (this.verbose) {
+                        this.logger.writeLine(`Unlock failed on addon '${addonName}', breaking for ${SLEEP_LOCK_MS}ms`);
+                    }
                     allReady = false;
                     break;
                 }
@@ -330,7 +333,10 @@ class Addon extends SafeEmitter {
                 break;
             }
 
-            await sleep(SLEEP_LOCK_MS);
+            await sleep(initialLockMs);
+            if (initialLockMs < Addon.MAX_SLEEP_TIME_MS) {
+                initialLockMs = Math.floor(initialLockMs * 1.5);
+            }
         }
 
         return true;
@@ -863,6 +869,7 @@ class Addon extends SafeEmitter {
 Addon.RESERVED_CALLBACKS_NAME = new Set(["start", "stop", "sleep", "event", "get_info", "health_check"]);
 Addon.MESSAGE_TIMEOUT_MS = 5000;
 Addon.MAIN_INTERVAL_MS = 500;
+Addon.MAX_SLEEP_TIME_MS = 250;
 Addon.DEFAULT_HEADER = { from: "self" };
 Addon.VERSION = "0.20.1";
 
