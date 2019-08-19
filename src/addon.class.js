@@ -871,7 +871,7 @@ Addon.MESSAGE_TIMEOUT_MS = 5000;
 Addon.MAIN_INTERVAL_MS = 500;
 Addon.MAX_SLEEP_TIME_MS = 250;
 Addon.DEFAULT_HEADER = { from: "self" };
-Addon.VERSION = "0.20.1";
+Addon.VERSION = "0.20.2";
 
 // Subjects
 Addon.Subjects = {
