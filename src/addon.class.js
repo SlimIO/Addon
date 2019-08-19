@@ -250,6 +250,12 @@ class Addon extends SafeEmitter {
         if (!this.isStarted) {
             return false;
         }
+
+        if (this.isAwake) {
+            this.isAwake = false;
+            await this.emitAndWait("sleep");
+        }
+
         this.isStarted = false;
         this.lastStop = Date.now();
 
