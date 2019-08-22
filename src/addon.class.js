@@ -322,7 +322,7 @@ class Addon extends SafeEmitter {
                 }
                 catch (err) {
                     if (this.verbose) {
-                        this.logger.writeLine(`Unlock failed on addon '${addonName}', breaking for ${SLEEP_LOCK_MS}ms`);
+                        this.logger.writeLine(`Unlock failed on addon '${addonName}', breaking for ${initialLockMs}ms`);
                     }
                     allReady = false;
                     break;
