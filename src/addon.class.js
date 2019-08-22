@@ -170,6 +170,13 @@ class Addon extends SafeEmitter {
         });
     }
 
+    /**
+     * @static
+     * @function isAddon
+     * @memberof Addon#
+     * @param {!any} obj
+     * @returns {boolean}
+     */
     static isAddon(obj) {
         return obj && Boolean(obj[SYM_ADDON]);
     }
