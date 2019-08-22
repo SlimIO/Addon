@@ -840,6 +840,7 @@ class Addon extends SafeEmitter {
 
     /**
      * @public
+     * @async
      * @function sendOne
      * @memberof Addon#
      * @description Send "one" message to the Core (Promise version of sendMessage)
@@ -847,21 +848,21 @@ class Addon extends SafeEmitter {
      * @param {MessageOptions|Array<any>} [options=[]] Message options a response!
      * @returns {Promise<any>}
      *
+     * @throws {TypeError}
+     *
      * @version 0.17.0
      */
-    sendOne(target, options = []) {
-        return new Promise((resolve, reject) => {
-            if (!is.string(target)) {
-                throw new TypeError("Addon.sendOne->target must be typeof <string>");
-            }
+    async sendOne(target, options = []) {
+        if (!is.string(target)) {
+            throw new TypeError("Addon.sendOne->target must be typeof <string>");
+        }
 
-            const args = is.array(options) ? { args: options } : options;
-            if (!is.nullOrUndefined(args) && !is.plainObject(args)) {
-                throw new TypeError("Addon.sendOne->options must be a plain Object");
-            }
+        const args = is.array(options) ? { args: options } : options;
+        if (!is.nullOrUndefined(args) && !is.plainObject(args)) {
+            throw new TypeError("Addon.sendOne->options must be a plain Object");
+        }
 
-            this.sendMessage(target, args).subscribe(resolve, reject);
-        });
+        return new Promise((resolve, reject) => this.sendMessage(target, args).subscribe(resolve, reject));
     }
 }
 
