@@ -70,7 +70,7 @@
     "@slimio/scheduler": "^0.7.0",
     "@slimio/timer": "^1.0.2",
     "is-snake-case": "^0.1.0",
-    "uuid": "^3.3.2",
+    "uuid": "^3.3.3",
     "zen-observable": "^0.8.14"
   }
 }
