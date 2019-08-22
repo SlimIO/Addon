@@ -133,6 +133,9 @@ class Addon extends SafeEmitter {
         this.asserts = [];
         this[SYM_ADDON] = true;
 
+        /** @type {Map<string, any>} */
+        this.intervals = new Map();
+
         /** @type {Map<string, any[]>} */
         this.subscribers = new Map();
 
@@ -179,6 +182,24 @@ class Addon extends SafeEmitter {
      */
     static isAddon(obj) {
         return obj && Boolean(obj[SYM_ADDON]);
+    }
+
+    /**
+     * @private
+     * @function awake
+     * @memberof Addon#
+     * @returns {Promise<void>}
+     */
+    async awake() {
+        for (const interval of this.intervals.values()) {
+            if (interval.nodeTimer !== null) {
+                timer.clearInterval(interval.nodeTimer);
+            }
+            interval.nodeTimer = timer.setInterval(interval.callback, interval.ms);
+        }
+
+        this.isAwake = true;
+        await this.emitAndWait("awake");
     }
 
     /**
@@ -235,8 +256,7 @@ class Addon extends SafeEmitter {
             }
         }, Addon.MAIN_INTERVAL_MS);
 
-        this.isAwake = true;
-        await this.emitAndWait("awake");
+        this.awake();
 
         return true;
     }
@@ -366,14 +386,21 @@ class Addon extends SafeEmitter {
             return false;
         }
 
+        // Cleanup intervals
+        for (const interval of this.intervals.values()) {
+            if (interval.nodeTimer !== null) {
+                timer.clearInterval(interval.nodeTimer);
+                interval.nodeTimer = null;
+            }
+        }
+
         this.isAwake = false;
         await this.emitAndWait("sleep");
 
         // Ensure every locks are okay
-        const lockResult = await this.waitForAllLocks();
-        if (lockResult) {
-            this.isAwake = true;
-            await this.emitAndWait("awake");
+        const awakeAddon = await this.waitForAllLocks();
+        if (awakeAddon) {
+            this.awake();
         }
 
         return true;
@@ -880,6 +907,33 @@ class Addon extends SafeEmitter {
         }
 
         return new Promise((resolve, reject) => this.sendMessage(target, args).subscribe(resolve, reject));
+    }
+
+    /**
+     * @public
+     * @function registerInterval
+     * @memberof Addon#
+     * @description register a new interval (only work when addon is awake).
+     * @param {() => any} callback Target path to the callback
+     * @param {number} [ms=1000] Message options
+     * @returns {string}
+     *
+     * @throws {TypeError}
+     *
+     * @version 0.21.0
+     */
+    registerInterval(callback, ms = 1000) {
+        if (!is.func(callback)) {
+            throw new TypeError("callback must be a function");
+        }
+        if (!is.number(ms)) {
+            throw new TypeError("ms must be a number");
+        }
+
+        const intervalId = uuid();
+        this.intervals.set(intervalId, { callback, ms, nodeTimer: null });
+
+        return intervalId;
     }
 }
 

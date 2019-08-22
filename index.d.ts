@@ -52,6 +52,7 @@ declare class Addon<T extends { [key: string]: any } = Addon.NativeCallbacks> ex
     public callbacks: Map<string, Addon.Callback<any>>;
     public schedules: Map<string, CallbackScheduler>;
     public observers: Map<string, ZenObservable.SubscriptionObserver<any>>;
+    public intervals: Map<string, Addon.Interval>;
 
     // Static Properties
     static RESERVED_CALLBACK_NAME: Set<string>;
@@ -64,30 +65,38 @@ declare class Addon<T extends { [key: string]: any } = Addon.NativeCallbacks> ex
     static Subjects: Addon.Subjects;
 
     // Methods
-    registerCallback(name: string | Addon.Callback<any>, callback?: Addon.Callback<any>): this;
-    schedule(name: string | CallbackScheduler, scheduler?: CallbackScheduler): this;
-    executeCallback<K extends keyof T>(name: K, header?: Addon.CallbackHeader, ...args: any[]): Promise<T[K]>;
-    setDeprecatedAlias(callbackName: string, alias: string[]): void;
-    sendMessage(target: string, options?: Addon.MessageOptions): ZenObservable.ObservableLike<any>;
-    sendOne(target: string, options?: Addon.MessageOptions | any[]): Promise<any>;
-    setCallbacksDescriptorFile(path: string): void;
-    of(subject: string): ZenObservable.ObservableLike<any>;
-    ready(): Promise<boolean>;
-    lockOn(addonName: string, rules?: Addon.Rules): this;
-    waitForAllLocks(asStart?: boolean): Promise<boolean>;
+    public registerCallback(name: string | Addon.Callback<any>, callback?: Addon.Callback<any>): this;
+    public registerInterval(callback: () => any | Promise<any>, ms?: number): string;
+    public schedule(name: string | CallbackScheduler, scheduler?: CallbackScheduler): this;
+    public executeCallback<K extends keyof T>(name: K, header?: Addon.CallbackHeader, ...args: any[]): Promise<T[K]>;
+    public setDeprecatedAlias(callbackName: string, alias: string[]): void;
+    public sendMessage(target: string, options?: Addon.MessageOptions): ZenObservable.ObservableLike<any>;
+    public sendOne(target: string, options?: Addon.MessageOptions | any[]): Promise<any>;
+    public setCallbacksDescriptorFile(path: string): void;
+    public of(subject: string): ZenObservable.ObservableLike<any>;
+    public ready(): Promise<boolean>;
+    public lockOn(addonName: string, rules?: Addon.Rules): this;
+    public waitForAllLocks(asStart?: boolean): Promise<boolean>;
+    private awake(): Promise<void>;
 
     // Static Methods
-    static start(): Promise<boolean>;
-    static stop(): Promise<boolean>;
-    static getInfo(): Addon.CallbackGetInfo;
-    static sleep(): Promise<boolean>;
-    static isAddon(obj: any): boolean;
+    private static start(): Promise<boolean>;
+    private static stop(): Promise<boolean>;
+    private static getInfo(): Addon.CallbackGetInfo;
+    private static sleep(): Promise<boolean>;
+    public static isAddon(obj: any): boolean;
 }
 
 /**
  * CallbackScheduler namespace
  */
 declare namespace Addon {
+    export interface Interval {
+        callback: () => any | Promise<any>;
+        ms: number;
+        nodeTimer: NodeJS.Timer | null;
+    }
+
     export interface NativeCallbacks {
         "get_info": CallbackGetInfo;
         "start": boolean;
