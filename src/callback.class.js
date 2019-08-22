@@ -4,15 +4,10 @@
 const asyncHooks = require("async_hooks");
 const { performance, PerformanceObserver } = require("perf_hooks");
 
-/**
- * @class Callback
- * @augments AsyncResource
- *
- * @property {Function} callback
- */
 class Callback extends asyncHooks.AsyncResource {
     /**
-     * @class
+     * @class Callback
+     * @classdesc Node.js dedicated Async Resource that will allow to monitore callback execution time and count.
      * @memberof Callback#
      * @param {!string} name callback name
      * @param {!Function} callback callbackHandler
