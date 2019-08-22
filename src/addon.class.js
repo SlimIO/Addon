@@ -621,7 +621,7 @@ class Addon extends SafeEmitter {
      * @memberof Addon#
      * @description Register One or Many deprecated Alias for a given callback
      * @param {!string} callbackName Callback name
-     * @param {string[]} alias List of alias to set for the given callback name (they will throw deprecated warning)
+     * @param {!Array<string>} alias List of alias to set for the given callback name (they will throw deprecated warning)
      * @returns {void}
      *
      * @throws {TypeError}
@@ -632,9 +632,10 @@ class Addon extends SafeEmitter {
      * @example
      * const test = new Addon("test");
      *
-     * test.registerCallback("say_hello", function (head) {
+     * async function sayHello(head) {
      *     console.log("hello world!");
-     * });
+     * }
+     * test.registerCallback(sayHello);
      *
      * // A warning will be throw if "log_hello" is used!
      * test.setDeprecatedAlias("say_hello", ["log_hello"]);
