@@ -780,11 +780,11 @@ class Addon extends SafeEmitter {
      * @example
      * const myAddon = new Addon("myAddon");
      *
-     * myAddon.on("start", function() {
+     * myAddon.on("start", async function() {
      *     myAddon
      *         .sendMessage("cpu.get_info")
-     *         .subscribe(console.log);
-     *     myAddon.ready();
+     *         .subscribe(console.log, console.error); // <-- dont forget to catch errors
+     *     await myAddon.ready();
      * });
      */
     sendMessage(target, options = { noReturn: false }) {
@@ -851,6 +851,15 @@ class Addon extends SafeEmitter {
      * @throws {TypeError}
      *
      * @version 0.17.0
+     *
+     * @example
+     * const myAddon = new Addon("myAddon");
+     *
+     * myAddon.on("start", async function() {
+     *     const cpuInfo = await myAddon.sendOne("cpu.get_info");
+     *     console.log(cpuInfo);
+     *     await myAddon.ready();
+     * });
      */
     async sendOne(target, options = []) {
         if (!is.string(target)) {
