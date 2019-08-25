@@ -3,6 +3,7 @@
 // Require NodeJS Dependencies
 const { join } = require("path");
 const { readFile } = require("fs").promises;
+const { promisify } = require("util");
 
 // Require Third-party Dependencies
 const avaTest = require("ava");
@@ -12,14 +13,7 @@ const is = require("@slimio/is");
 const Addon = require("../index");
 const CallbackScheduler = require("@slimio/scheduler");
 
-/**
- * @function sleep
- * @param {!Number} [ms=0] millisecond to sleep
- * @returns {Promise<void>}
- */
-function sleep(ms = 0) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-}
+const sleep = promisify(setTimeout);
 
 // CONSTANTS
 const DEFAULT_CALLBACKS = [...Addon.RESERVED_CALLBACKS_NAME];
