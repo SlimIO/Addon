@@ -13,7 +13,7 @@
  */
 function decamelize(text) {
     if (typeof text !== "string") {
-        throw new TypeError("Expected a string");
+        throw new TypeError("text must be a string");
     }
 
     return text

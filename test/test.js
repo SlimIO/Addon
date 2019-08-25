@@ -8,15 +8,14 @@ const { promisify } = require("util");
 // Require Third-party Dependencies
 const avaTest = require("ava");
 const is = require("@slimio/is");
+const CallbackScheduler = require("@slimio/scheduler");
 
 // Require Internal Depedencies
 const Addon = require("../index");
-const CallbackScheduler = require("@slimio/scheduler");
-
-const sleep = promisify(setTimeout);
 
 // CONSTANTS
 const DEFAULT_CALLBACKS = [...Addon.RESERVED_CALLBACKS_NAME];
+const sleep = promisify(setTimeout);
 
 avaTest("Check Addon static CONSTANTS (type and values)", (test) => {
     test.true(is.number(Addon.MAIN_INTERVAL_MS));
