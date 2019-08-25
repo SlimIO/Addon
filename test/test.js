@@ -10,7 +10,7 @@ const avaTest = require("ava");
 const is = require("@slimio/is");
 const CallbackScheduler = require("@slimio/scheduler");
 
-// Require Internal Depedencies
+// Require Internal Dependencies
 const Addon = require("../index");
 
 // CONSTANTS

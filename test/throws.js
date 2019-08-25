@@ -25,7 +25,7 @@ avaTest("Addon constructor throw a typeError if verbose is not a boolean", (test
     }, { instanceOf: TypeError, message: "verbose argument should be typeof boolean" });
 });
 
-avaTest("Addon constructor throw a typeError if verbose is not a boolean", (test) => {
+avaTest("Addon constructor throw a typeError if description is not a string", (test) => {
     test.throws(() => {
         new Addon("cpu", { description: 10 });
     }, { instanceOf: TypeError, message: "description argument should be typeof string" });
