@@ -45,5 +45,6 @@ avaTest("Register a new interval", async(test) => {
     await addonEx.executeCallback("start");
     await sleep(2000);
     await addonEx.executeCallback("stop");
+    test.true(addonEx.intervals.size === 0);
     test.true(count > 0);
 });

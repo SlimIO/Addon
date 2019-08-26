@@ -290,6 +290,7 @@ class Addon extends SafeEmitter {
         if (typeof this[SYM_INTERVAL] === "number") {
             timer.clearInterval(this[SYM_INTERVAL]);
         }
+        this.intervals.clear();
 
         // Complete subscribers
         for (const [subject, observers] of this.subscribers.entries()) {
@@ -298,11 +299,6 @@ class Addon extends SafeEmitter {
             }
             this.subscribers.delete(subject);
         }
-
-        // Complete observers
-        // for (const observer of this.observers) {
-        //     observer.complete();
-        // }
 
         await this.emitAndWait("stop");
         if (this.verbose) {
