@@ -63,6 +63,7 @@ declare class Addon<T extends { [key: string]: any } = Addon.NativeCallbacks> ex
     static Stream: typeof Stream;
     static Callback: typeof Callback;
     static Subjects: Addon.Subjects;
+    static REQUIRED_CORE_VERSION: string;
 
     // Methods
     public registerCallback(name: string | Addon.Callback<any>, callback?: Addon.Callback<any>): this;

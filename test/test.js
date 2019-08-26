@@ -30,6 +30,7 @@ avaTest("Addon.isAddon must return true when the global Symbol is ok!", (test) =
 })
 
 avaTest("Check Addon static CONSTANTS (type and values)", (test) => {
+    test.true(is.string(Addon.REQUIRED_CORE_VERSION));
     test.true(is.number(Addon.MAIN_INTERVAL_MS));
     test.true(is.number(Addon.MESSAGE_TIMEOUT_MS));
     test.true(is.set(Addon.RESERVED_CALLBACKS_NAME));
