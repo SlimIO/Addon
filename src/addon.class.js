@@ -2,6 +2,7 @@
 
 // Require Node.js Dependencies
 const { extname } = require("path");
+const { promisify } = require("util");
 
 // Require Third-party dependencies
 const is = require("@slimio/is");
@@ -195,7 +196,12 @@ class Addon extends SafeEmitter {
             if (interval.nodeTimer !== null) {
                 timer.clearInterval(interval.nodeTimer);
             }
-            interval.nodeTimer = timer.setInterval(interval.callback, interval.ms);
+
+            const handler = is.asyncFunction(interval.callback) ? interval.callback : promisify(interval.callback);
+            // eslint-disable-next-line
+            interval.nodeTimer = timer.setInterval(() => {
+                handler().catch(console.error);
+            }, interval.ms);
         }
 
         this.isAwake = true;
