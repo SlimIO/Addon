@@ -58,8 +58,17 @@ CPU.on("start", async() => {
 module.exports = CPU;
 ```
 
-## Events
-Addon is extended with a SlimIO Safe EventEmitter. Four kinds of events can be triggered:
+You might find it useful to read the source codes of our other addons, let us give you some nice links:
+
+| name (& link) | Kind | description |
+| --- | --- | --- |
+| [cpu-addon](https://github.com/SlimIO/cpu-addon) | Metrology | Retrieve CPU metrics (cool to understood how works Entities and Metrics cards) |
+| [Prism](https://github.com/SlimIO/Prism) | Custom | Distribution Server (An addon that deal with Stream and very specific behaviors) |
+| [Alerting](https://github.com/SlimIO/Alerting) | Built-in | Manage alerting of the product (Deal with events observables and alarms) |
+| [Gate](https://github.com/SlimIO/Gate) | Built-in | The core extension (Nothing special, just simple callbacks here) |
+
+## Available events
+Addon is extended with a SlimIO Safe [EventEmitter](https://github.com/SlimIO/Safe-emitter). Six kinds of events can be triggered:
 
 | event | description |
 | --- | --- |
@@ -68,6 +77,19 @@ Addon is extended with a SlimIO Safe EventEmitter. Four kinds of events can be t
 | awake | When the addon is ready to awake (all locks are ok) |
 | sleep | When a linked locked addon has been detected as stopped by the core |
 | ready | When the developer trigger ready() method to tell the Core that the addon is Ready for events |
+| error | When a error occur in one of the EventEmitter listener |
+
+An addon have different given state during his life (started, awaken and ready). An addon is started when the core has recognized its existence and that it has been loaded successfully. The state **ready** have to be triggered by the developer itself in the **start** or **awake** event depending the need.
+
+An addon wake up when all its dependencies are ready. A dependency can be added with the **lockOn()** method.
+```js
+const myAddon("test").lockOn("events");
+
+myAddon.on("awake", async() => {
+    // Do something with events safely!
+    const info = await myAddon.send("events.get_info");
+});
+```
 
 ## Interval & Scheduling
 
@@ -81,6 +103,42 @@ You can configure the default interval by editing static Addon variables (**this
 ```js
 Addon.MAIN_INTERVAL_MS = 100; // 100ms
 ```
+
+A concrete production example is to schedule a callback every 24 hours that start at midnight (but this callback can still be triggered manually by calling the callback).
+
+<details><summary>show example</summary>
+<br />
+
+```js
+const myAddon = new Addon("myAddon");
+
+let isCalled = false;
+
+async function ourJob() {
+    isCalled = true;
+    try {
+        await new Promise((resolve) => setTimeout(resolve, 10000));
+    }
+    finally {
+        isCalled = false;
+    }
+}
+
+async function scheduledCallback() {
+    if (isCalled) {
+        return { error: "Job already running!" }
+    }
+
+    ourJob().catch((err) => myAddon.logger.writeLine(err));
+    return { error: null };
+}
+
+myAddon
+    .registerCallback(scheduledCallback)
+    .schedule(new Scheduler({ interval: 86400, startDate: new Date(new Date().setHours(24, 0, 0, 0)) }));
+```
+
+</details>
 
 ## API
 
