@@ -283,6 +283,35 @@ Available options are the same as **sendMessage()**. If options is an Array, the
 
 </details>
 
+<details><summary>registerInterval(callback: () => any | Promise< any >, ms?: number): string</summary>
+<br />
+
+Register a driftless timer interval that will be managed by the Addon itself. These intervals are only executed when the addon is **awake**. These functions (intervals) **are protected against UnhandledPromiseRejection** (so any errors will not lead the process to exit).
+
+Intervals are erased when the `stop` event is triggered to avoid excessive use of memory (So think to register these intervals in the **start** event).
+
+```js
+const myAddon = new Addon("myAddon").lockOn("otherAddon");
+
+async function myInterval() {
+    console.log("Hey ! I'm awake and will be executed every 5 seconds");
+}
+
+myAddon.on("start", () => {
+    myAddon.registerInterval(myInterval, 5000);
+});
+```
+
+The method registerInterval return a unique id which can be used to retrieve the original Node.js timer etc...
+```js
+const uid = myAddon.registerInterval(myInterval, 5000);
+
+const { ms, callback, nodeTimer } = myAddon.intervals.get(uid);
+nodeTimer.unref()
+```
+
+</details>
+
 ## Streaming Communication
 SlimIO Callback support NodeJS Write Streams. Take the following example:
 
