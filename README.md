@@ -8,7 +8,7 @@
 This package provide the foundation to build Addons that will rely and work with the Core. Addon is just a container that will help you as a developer.
 
 <p align="center">
-    <img src="https://i.imgur.com/chhYLun.png" alt="slimio">
+    <img src="https://i.imgur.com/SNAYd7Y.png" alt="slimio">
 </p>
 
 > Scheduler is a external SlimIO Package. If you want to know more about it, follow [this link](https://github.com/SlimIO/Scheduler).
@@ -25,6 +25,8 @@ $ npm i @slimio/addon
 # or
 $ yarn add @slimio/addon
 ```
+
+> 👀 For a guide on how create/setup a first addon, please [check available documentations in our Governance](https://github.com/SlimIO/Governance#documentation) repository.
 
 ## Usage example
 
@@ -357,11 +359,12 @@ myAddon.on("addonLoaded", (addonName) => {
 |Name|Refactoring|Security Risk|Usage|
 |---|---|---|---|
 |[@slimio/is](https://github.com/SlimIO/is#readme)|Minor|Low|Type checker|
+|[@slimio/logger](https://github.com/SlimIO/logger)|Minor|Low|Sonic Logger with low overhead for SlimIO|
 |[@slimio/safe-emitter](https://github.com/SlimIO/safeEmitter#readme)|⚠️Major|Medium|Safe emitter|
 |[@slimio/scheduler](https://github.com/SlimIO/Scheduler#readme)|⚠️Major|Low|Addon Scheduler|
 |[@slimio/timer](https://github.com/SlimIO/Timer#readme)|Minor|Low|Driftless Interval Timer|
-|[hyperid](https://github.com/mcollina/hyperid#readme)|⚠️Major|High|Unique ID generator|
 |[is-snake-case](https://github.com/sunitJindal/is-snake-case#readme)|Minor|Low|Snake case checker|
+|[uuid](https://github.com/kelektiv/node-uuid#readme)|Minor|Low|Simple, fast generation of RFC4122 UUIDS.|
 |[zen-observable](https://github.com/zenparsing/zen-observable)|Minor|Low|Observable Implementation|
 
 ## License
