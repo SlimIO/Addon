@@ -200,7 +200,7 @@ class Addon extends SafeEmitter {
             const handler = is.asyncFunction(interval.callback) ? interval.callback : promisify(interval.callback);
             // eslint-disable-next-line
             interval.nodeTimer = timer.setInterval(() => {
-                handler().catch(console.error);
+                handler().catch((err) => this.logger.writeLine(err.message));
             }, interval.ms);
         }
 
