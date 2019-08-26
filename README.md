@@ -163,6 +163,20 @@ const myAddon = new Addon("myAddon", {
 ```
 </details>
 
+<details><summary>ready(): Promise< boolean ></summary>
+<br />
+
+Flag the addon as ready for the core.
+
+```js
+const myAddon = new Addon("myAddon");
+
+myAddon.on("start", () => {
+    myAddon.ready();
+})
+```
+</details>
+
 <details><summary>registerCallback (name: string | AsyncFunction, callback?: AsyncFunction): this</summary>
 <br />
 
@@ -371,6 +385,17 @@ nodeTimer.unref()
 ```
 
 </details>
+
+## Static method
+
+### isAddon(obj: any): boolean
+Detect if **obj** is an Addon (use a Symbol under the hood).
+
+```js
+const myAddon = new Addon("myAddon");
+
+console.log(Addon.isAddon(myAddon)); // true
+```
 
 ## Streaming Communication
 SlimIO Callback support NodeJS Write Streams. Take the following example:
