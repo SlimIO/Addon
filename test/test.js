@@ -16,6 +16,7 @@ const Addon = require("../index");
 // CONSTANTS
 const DEFAULT_CALLBACKS = [...Addon.RESERVED_CALLBACKS_NAME];
 const sleep = promisify(setTimeout);
+const nextTick = promisify(setImmediate);
 
 avaTest("Addon.isAddon must return true when the global Symbol is ok!", (test) => {
     const exA = new Addon("exA");
@@ -685,4 +686,36 @@ avaTest("sendOne (catch error)", async(test) => {
         message: "oh no!",
         instanceOf: Error
     });
+});
+
+avaTest("trigger native sleep callback", async(test) => {
+    test.plan(10);
+    const myAddon = new Addon("test43").lockOn("events");
+    let count = 0;
+    myAddon.on("start", () => {
+        myAddon.registerInterval(() => (count++), 50);
+    });
+
+    myAddon.on("awake", () => test.pass()); // triggered 2 times
+    myAddon.on("sleep", () => test.pass()); // triggered 2 times
+    myAddon.on("message", async(id, target) => { // triggered 2 times
+        test.pass();
+
+        await sleep(50);
+        const observer = myAddon.observers.get(id);
+        observer.next({ ready: true });
+        observer.complete();
+    });
+
+    const isAwake = await myAddon.executeCallback("sleep");
+    test.false(isAwake);
+    await myAddon.executeCallback("start");
+
+    await sleep(200);
+    const isResumed = await myAddon.executeCallback("sleep");
+    test.true(isResumed);
+    test.true(myAddon.isAwake);
+    test.true(count > 0);
+
+    await myAddon.executeCallback("stop");
 });
