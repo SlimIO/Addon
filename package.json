@@ -64,6 +64,7 @@
     "pkg-ok": "^2.3.1"
   },
   "dependencies": {
+    "@slimio/error": "^0.2.0",
     "@slimio/is": "^1.5.1",
     "@slimio/logger": "^0.1.2",
     "@slimio/safe-emitter": "^1.0.6",

@@ -135,7 +135,7 @@ avaTest("Addon executeCallback (throw errors)", (test) => {
     // Invalid callback name type
     test.throws(() => {
         myAddon.executeCallback("unknow");
-    }, { instanceOf: Error, message: "Addon.executeCallback - Unable to found callback with name unknow" });
+    }, { instanceOf: Error, message: "Unable to found callback with name \'unknow\'" });
 });
 
 avaTest("Addon schedule (throw errors)", (test) => {

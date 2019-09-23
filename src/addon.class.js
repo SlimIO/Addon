@@ -9,6 +9,7 @@ const is = require("@slimio/is");
 const SafeEmitter = require("@slimio/safe-emitter");
 const Logger = require("@slimio/logger");
 const CallbackScheduler = require("@slimio/scheduler");
+const { CallbackNotFound, SlimIOError } = require("@slimio/error");
 const Observable = require("zen-observable");
 const uuid = require("uuid/v4");
 const isSnakeCase = require("is-snake-case");
@@ -201,7 +202,11 @@ class Addon extends SafeEmitter {
             const handler = is.asyncFunction(interval.callback) ? interval.callback : promisify(interval.callback);
             // eslint-disable-next-line
             interval.nodeTimer = timer.setInterval(() => {
-                handler().catch((err) => this.logger.writeLine(err.message));
+                handler().catch((err) => {
+                    const slimError = new SlimIOError(err.message);
+                    slimError.stack = err.stack;
+                    this.emit("error", slimError);
+                });
             }, interval.ms);
         }
 
@@ -738,7 +743,7 @@ class Addon extends SafeEmitter {
         }
 
         if (callbackName === null) {
-            throw new Error(`Addon.executeCallback - Unable to found callback with name ${name}`);
+            throw new CallbackNotFound(name);
         }
 
         // Return callback execution!
