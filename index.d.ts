@@ -45,6 +45,7 @@ declare class Addon<T extends { [key: string]: any } = Addon.NativeCallbacks> ex
     public asserts: any[];
     public lastStart: number;
     public lastStop: number;
+    public currentLockedAddon: null | string;
     public logger: Logger;
     public subscribers: Map<string, ZenObservable.Observer<any>[]>;
     public locks: Map<string, Addon.Rules>;

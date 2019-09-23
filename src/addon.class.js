@@ -130,6 +130,7 @@ class Addon extends SafeEmitter {
         this.isAwake = false;
         this.lastStart = null;
         this.lastStop = null;
+        this.currentLockedAddon = null;
         this.callbacksDescriptor = null;
         this.asserts = [];
         this[SYM_ADDON] = true;
@@ -240,6 +241,7 @@ class Addon extends SafeEmitter {
 
         // Check locks
         await this.waitForAllLocks(true);
+        this.currentLockedAddon = null;
 
         // The interval is used to execute Scheduled callbacks
         // A Symbol primitive is used to make Interval private
@@ -356,6 +358,9 @@ class Addon extends SafeEmitter {
                     allReady = false;
                     break;
                 }
+                finally {
+                    this.currentLockedAddon = addonName;
+                }
             }
 
             if (allReady) {
@@ -401,6 +406,7 @@ class Addon extends SafeEmitter {
 
         // Ensure every locks are okay
         const awakeAddon = await this.waitForAllLocks();
+        this.currentLockedAddon = null;
         if (awakeAddon) {
             this.awake();
         }
@@ -440,6 +446,7 @@ class Addon extends SafeEmitter {
             awake: this.isAwake,
             lastStart: this.lastStart,
             lastStop: this.lastStop,
+            currentLockedAddon: this.currentLockedAddon,
             lockOn: [...this.locks.keys()],
             callbacksDescriptor: this.callbacksDescriptor,
             callbacks: [...this.callbacks.keys()],

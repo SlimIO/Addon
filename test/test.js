@@ -203,7 +203,7 @@ avaTest("Addon execute native get_info callback", async(test) => {
     const info = await myAddon.executeCallback("get_info");
     test.deepEqual(Object.keys(info), [
         "uid", "name", "version", "description", "containerVersion",
-        "ready", "started", "awake", "lastStart", "lastStop",
+        "ready", "started", "awake", "lastStart", "lastStop", "currentLockedAddon",
         "lockOn", "callbacksDescriptor", "callbacks", "callbacksAlias"
     ]);
     test.is(info.uid, myAddon.uid);
