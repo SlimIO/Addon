@@ -950,17 +950,12 @@ Addon.REQUIRED_CORE_VERSION = ">=0.9";
 
 // Subjects
 Addon.Subjects = {
-    Addon: Object.freeze({
-        Ready: "Addon.ready"
-    }),
-    Alarm: Object.freeze({
-        Open: "Alarm.open",
-        Update: "Alarm.update",
-        Close: "Alarm.close"
-    }),
-    Metric: Object.freeze({
-        Update: "Metric.update"
-    })
+    ready: "Addon.ready",
+    alarmOpen: "Alarm.open",
+    alarmUpdate: "Alarm.update",
+    alarmClose: "Alarm.close",
+    micCreate: "Metric.create",
+    micUpdate: "Metric.update"
 };
 
 // Register Sub classes

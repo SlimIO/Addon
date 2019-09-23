@@ -134,17 +134,12 @@ declare namespace Addon {
     }
 
     export interface Subjects {
-        Addon: {
-            readonly Ready: string;
-        };
-        Alarm: {
-            readonly Open: string;
-            readonly Update: string;
-            readonly Close: string;
-        };
-        Metrics: {
-            readonly Update: string;
-        }
+        ready: string;
+        alarmOpen: string;
+        alarmUpdate: string;
+        alarmClose: string;
+        micCreate: string;
+        micUpdate: string;
     }
 
     export interface CallbackHeader {

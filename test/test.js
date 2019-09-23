@@ -40,10 +40,10 @@ avaTest("Check Addon static CONSTANTS (type and values)", (test) => {
     test.deepEqual([...Addon.RESERVED_CALLBACKS_NAME], DEFAULT_CALLBACKS);
 
     test.true(is.plainObject(Addon.Subjects));
-    test.deepEqual(Object.keys(Addon.Subjects), ["Addon", "Alarm", "Metric"]);
-    test.true(Object.isFrozen(Addon.Subjects.Addon));
-    test.true(Object.isFrozen(Addon.Subjects.Alarm));
-    test.true(Object.isFrozen(Addon.Subjects.Metric));
+    test.deepEqual(
+        Object.keys(Addon.Subjects),
+        ["ready", "alarmOpen", "alarmUpdate", "alarmClose", "micCreate", "micUpdate"]
+    );
 });
 
 avaTest("Verify addonContainer version", async(test) => {
