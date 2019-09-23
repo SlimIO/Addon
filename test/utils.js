@@ -9,7 +9,8 @@ const utils = require("../src/utils");
 
 avaTest("src/utils.js must export a plainObject with the right methods", (test) => {
     test.is(is.plainObject(utils), true);
-    test.deepEqual(Object.keys(utils), ["decamelize"]);
+    test.deepEqual(Object.keys(utils), ["decamelize", "assertCallbackName", "CONSTANTS"]);
+    test.true(Object.isFrozen(utils.CONSTANTS));
 });
 
 avaTest("decamelize should throw a TypeError if text arg is not a string primitive", (test) => {

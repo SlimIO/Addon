@@ -46,6 +46,7 @@ declare class Addon<T extends { [key: string]: any } = Addon.NativeCallbacks> ex
     public lastStart: number;
     public lastStop: number;
     public currentLockedAddon: null | string;
+    public readonly lastRegisteredAddon: string;
     public logger: Logger;
     public subscribers: Map<string, ZenObservable.Observer<any>[]>;
     public locks: Map<string, Addon.Rules>;
@@ -65,9 +66,10 @@ declare class Addon<T extends { [key: string]: any } = Addon.NativeCallbacks> ex
     static Callback: typeof Callback;
     static Subjects: Addon.Subjects;
     static REQUIRED_CORE_VERSION: string;
+    readonly static ACL: Addon.ACL;
 
     // Methods
-    public registerCallback(name: string | Addon.Callback<any>, callback?: Addon.Callback<any>): this;
+    public registerCallback(name: string | Addon.Callback<any>, callback?: Addon.Callback<any>, ACL?: Addon.ACL): this;
     public registerInterval(callback: () => any | Promise<any>, ms?: number): string;
     public schedule(name: string | CallbackScheduler, scheduler?: CallbackScheduler): this;
     public executeCallback<K extends keyof T>(name: K, header?: Addon.CallbackHeader, ...args: any[]): Promise<T[K]>;
@@ -75,6 +77,7 @@ declare class Addon<T extends { [key: string]: any } = Addon.NativeCallbacks> ex
     public sendMessage(target: string, options?: Addon.MessageOptions): ZenObservable.ObservableLike<any>;
     public sendOne(target: string, options?: Addon.MessageOptions | any[]): Promise<any>;
     public setCallbacksDescriptorFile(path: string): void;
+    public setACL(callbackName: string, ACL: keyof Addon.ACL): void;
     public of(subject: string): ZenObservable.ObservableLike<any>;
     public ready(): Promise<boolean>;
     public lockOn(addonName: string, rules?: Addon.Rules): this;
@@ -141,6 +144,13 @@ declare namespace Addon {
         alarmClose: string;
         micCreate: string;
         micUpdate: string;
+    }
+
+    export interface ACL {
+        read: 0;
+        write: 1;
+        admin: 2;
+        super: 3;
     }
 
     export interface CallbackHeader {

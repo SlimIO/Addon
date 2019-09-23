@@ -16,7 +16,6 @@ const Addon = require("../index");
 // CONSTANTS
 const DEFAULT_CALLBACKS = [...Addon.RESERVED_CALLBACKS_NAME];
 const sleep = promisify(setTimeout);
-const nextTick = promisify(setImmediate);
 
 avaTest("Addon.isAddon must return true when the global Symbol is ok!", (test) => {
     const exA = new Addon("exA");
@@ -89,30 +88,6 @@ avaTest("Verify addon initial native callbacks", (test) => {
     for (const callbackName of DEFAULT_CALLBACKS) {
         test.true(myAddon.callbacks.has(callbackName));
     }
-});
-
-avaTest("Addon.registerCallback->name should be typeof <string>", (test) => {
-    const myAddon = new Addon("test04");
-
-    test.throws(() => {
-        myAddon.registerCallback(5);
-    }, { instanceOf: TypeError, message: "Addon.registerCallback->name should be typeof <string>" });
-});
-
-avaTest("Addon.registerCallback->callback should be an AsyncFunction", (test) => {
-    const myAddon = new Addon("test05");
-
-    test.throws(() => {
-        myAddon.registerCallback("test", () => {});
-    }, { instanceOf: TypeError, message: "Addon.registerCallback->callback should be an AsyncFunction" });
-});
-
-avaTest("Addon.registerCallback - Callback name 'start' is a reserved callback name!", (test) => {
-    const myAddon = new Addon("test06");
-
-    test.throws(() => {
-        myAddon.registerCallback("start", async() => {});
-    }, { instanceOf: Error, message: "Addon.registerCallback - Callback name 'start' is a reserved callback name!" });
 });
 
 avaTest("Addon register camelcase callback", (test) => {

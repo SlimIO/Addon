@@ -4,6 +4,12 @@
  * @namespace Utils
  */
 
+// Require Third-party Dependencies
+const isSnakeCase = require("is-snake-case");
+
+// CONSTANTS
+const RESERVED_CALLBACK = new Set(["start", "stop", "sleep", "event", "get_info", "health_check"]);
+
 /**
  * @function decamelize
  * @memberof Utils#
@@ -22,4 +28,29 @@ function decamelize(text) {
         .toLowerCase();
 }
 
-module.exports = { decamelize };
+/**
+ * @function assertCallbackName
+ * @param {!string} name callback name
+ * @returns {void}
+ *
+ * @throws {TypeError}
+ * @throws {Error}
+ */
+function assertCallbackName(name) {
+    if (typeof name !== "string") {
+        throw new TypeError("name must be a string");
+    }
+
+    const localName = isSnakeCase(name) ? name : decamelize(name);
+    if (RESERVED_CALLBACK.has(localName)) {
+        throw new Error(`Callback name '${name}' is a reserved callback name!`);
+    }
+
+    return localName;
+}
+
+module.exports = {
+    decamelize,
+    assertCallbackName,
+    CONSTANTS: Object.freeze({ RESERVED_CALLBACK })
+};

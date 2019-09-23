@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 "use strict";
 
 // Require Node.js Dependencies
@@ -12,13 +13,15 @@ const CallbackScheduler = require("@slimio/scheduler");
 const { CallbackNotFound, SlimIOError } = require("@slimio/error");
 const Observable = require("zen-observable");
 const uuid = require("uuid/v4");
-const isSnakeCase = require("is-snake-case");
 const timer = require("@slimio/timer");
 
 // Require Internal dependencie(s)
 const Stream = require("./stream.class");
 const Callback = require("./callback.class");
-const { decamelize } = require("./utils");
+const {
+    assertCallbackName,
+    CONSTANTS: { RESERVED_CALLBACK }
+} = require("./utils");
 
 // CONSTANTS
 const SYM_ADDON = Symbol.for("Addon");
@@ -157,22 +160,36 @@ class Addon extends SafeEmitter {
         /** @type {Map<string, LockRule>} */
         this.locks = new Map();
 
-        this.callbacks.set("start", Addon.start.bind(this));
-        this.callbacks.set("stop", Addon.stop.bind(this));
-        this.callbacks.set("sleep", Addon.sleep.bind(this));
-        this.callbacks.set("get_info", Addon.getInfo.bind(this));
-        this.callbacks.set("event", async(header, name, data) => {
-            if (this.subscribers.has(name)) {
-                for (const observer of this.subscribers.get(name)) {
-                    observer.next(data);
+        this.callbacks.set("start", {
+            ACL: 2, callback: Addon.start.bind(this)
+        });
+        this.callbacks.set("stop", {
+            ACL: 2, callback: Addon.stop.bind(this)
+        });
+        this.callbacks.set("sleep", {
+            ACL: 2, callback: Addon.sleep.bind(this)
+        });
+        this.callbacks.set("get_info", {
+            ACL: 0, callback: Addon.getInfo.bind(this)
+        });
+        this.callbacks.set("event", {
+            ACL: 0,
+            callback: async(header, name, data) => {
+                if (this.subscribers.has(name)) {
+                    for (const observer of this.subscribers.get(name)) {
+                        observer.next(data);
+                    }
                 }
             }
         });
 
-        this.callbacks.set("health_check", async() => {
-            await Promise.all(this.asserts);
+        this.callbacks.set("health_check", {
+            ACL: 1,
+            callback: async() => {
+                await Promise.all(this.asserts);
 
-            return true;
+                return true;
+            }
         });
     }
 
@@ -185,6 +202,10 @@ class Addon extends SafeEmitter {
      */
     static isAddon(obj) {
         return obj && Boolean(obj[SYM_ADDON]);
+    }
+
+    get lastRegisteredAddon() {
+        return [...this.callbacks.keys()].pop();
     }
 
     /**
@@ -258,7 +279,7 @@ class Addon extends SafeEmitter {
             // Retrieve scheduled callback
             const toExecute = [...this.schedules.entries()]
                 .filter(([, scheduler]) => scheduler.walk())
-                .map(([name]) => this.callbacks.get(name)());
+                .map(([name]) => this.callbacks.get(name).callback());
 
             // Execute all calbacks (Promise) in asynchrone
             try {
@@ -611,15 +632,39 @@ class Addon extends SafeEmitter {
 
     /**
      * @public
+     * @function setACL
+     * @memberof Addon#
+     * @description Set a given ACL to a given callback
+     * @param {!string} callbackName Callback name
+     * @param {number} [ACL]
+     * @returns {this}
+     *
+     * @version 0.22.0
+     */
+    setACL(callbackName, ACL = Addon.DEFAULT_ACL) {
+        if (is.nullOrUndefined(callbackName)) {
+            callbackName = this.lastRegisteredAddon;
+        }
+        callbackName = assertCallbackName(callbackName);
+        if (!this.callbacks.has(callbackName)) {
+            throw new Error(`Unable to found callback with name ${callbackName}`);
+        }
+        this.callbacks.get(callbackName).ACL = ACL;
+
+        return this;
+    }
+
+    /**
+     * @public
      * @function registerCallback
      * @memberof Addon#
      * @description Register a new callback on the Addon. The callback name should be formatted in snake_case
      * @param {!(string|Function)} name Callback name
      * @param {!Callback} callback Async Callback to execute when the callback is triggered by the core or the addon itself
+     * @param {number} [ACL=0]
      * @returns {this}
      *
      * @throws {TypeError}
-     * @throws {Error}
      *
      * @version 0.0.0
      *
@@ -634,31 +679,17 @@ class Addon extends SafeEmitter {
      *    assert.equal(ret, "hello world");
      * });
      */
-    registerCallback(name, callback) {
-        // If name is a function, replace name by the function.name
+    registerCallback(name, callback, ACL = 0) {
         if (is.func(name) && is.nullOrUndefined(callback)) {
-            // eslint-disable-next-line
             callback = name;
-            // eslint-disable-next-line
             name = callback.name;
         }
 
-        if (!is.string(name)) {
-            throw new TypeError("Addon.registerCallback->name should be typeof <string>");
-        }
+        name = assertCallbackName(name);
         if (!is.asyncFunction(callback)) {
             throw new TypeError("Addon.registerCallback->callback should be an AsyncFunction");
         }
-        if (Addon.RESERVED_CALLBACKS_NAME.has(name)) {
-            throw new Error(`Addon.registerCallback - Callback name '${name}' is a reserved callback name!`);
-        }
-        if (!isSnakeCase(name)) {
-            // eslint-disable-next-line
-            name = decamelize(name);
-        }
-
-        // Register callback on Addon
-        this.callbacks.set(name, callback);
+        this.callbacks.set(name, { callback, ACL });
 
         return this;
     }
@@ -747,7 +778,7 @@ class Addon extends SafeEmitter {
         }
 
         // Return callback execution!
-        const handler = this.callbacks.get(callbackName);
+        const handler = this.callbacks.get(callbackName).callback;
         if (this.verbose && this.isStarted) {
             this.logger.writeLine(`Executing callback ${callbackName}`);
         }
@@ -790,10 +821,8 @@ class Addon extends SafeEmitter {
             if (this.callbacks.size <= Addon.RESERVED_CALLBACKS_NAME.size) {
                 throw new Error("Addon.schedule - No custom callback has been registered yet!");
             }
-            // eslint-disable-next-line
             scheduler = name;
-            // eslint-disable-next-line
-            name = [...this.callbacks.keys()].pop();
+            name = this.lastRegisteredAddon;
         }
 
         if (!is.string(name)) {
@@ -806,7 +835,6 @@ class Addon extends SafeEmitter {
             throw new TypeError("Addon.schedule->scheduler should be an instance of CallbackScheduler");
         }
 
-        // Register scheduler on Addon
         this.schedules.set(name, scheduler);
 
         return this;
@@ -952,11 +980,13 @@ class Addon extends SafeEmitter {
 }
 
 // Register Static (CONSTANTS) Addon variables...
-Addon.RESERVED_CALLBACKS_NAME = new Set(["start", "stop", "sleep", "event", "get_info", "health_check"]);
+Addon.RESERVED_CALLBACKS_NAME = RESERVED_CALLBACK;
 Addon.MESSAGE_TIMEOUT_MS = 5000;
 Addon.MAIN_INTERVAL_MS = 500;
 Addon.MAX_SLEEP_TIME_MS = 250;
 Addon.DEFAULT_HEADER = { from: "self" };
+Addon.ACL = Object.freeze({ read: 0, write: 1, admin: 2, super: 3 });
+Addon.DEFAULT_ACL = Addon.ACL.write;
 Addon.VERSION = "0.21.1";
 Addon.REQUIRED_CORE_VERSION = ">=0.9";
 
