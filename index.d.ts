@@ -167,10 +167,16 @@ declare namespace Addon {
         started: boolean;
         ready: boolean;
         awake: boolean;
+        lastStart: number;
+        lastStop: number;
+        currentLockedAddon: null | string;
+        lockOn: string[];
         callbacksDescriptor: string;
-        callbacks: string[];
-        callbacksAlias: {
-            [callbackName: string]: string[];
+        callbacks: {
+            [callbackName: string]: {
+                ACL: number;
+                alias: string[];
+            };
         }
     }
 

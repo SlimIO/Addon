@@ -451,14 +451,20 @@ class Addon extends SafeEmitter {
      * @version 0.1.0
      */
     static getInfo() {
-        const callbacksAlias = {};
+        const callbacksAlias = new Map();
         for (const [alias, callbackName] of this.callbacksAlias.entries()) {
-            if (Reflect.has(callbacksAlias, callbackName)) {
-                callbacksAlias[callbackName].push(alias);
+            if (callbacksAlias.has(callbackName)) {
+                callbacksAlias.get(callbackName).push(alias);
             }
             else {
-                callbacksAlias[callbackName] = [alias];
+                callbacksAlias.set(callbackName, [alias]);
             }
+        }
+
+        const callbacks = {};
+        for (const [name, { ACL }] of this.callbacks.entries()) {
+            const alias = callbacksAlias.has(name) ? callbacksAlias.get(name) : [];
+            callbacks[name] = { ACL, alias };
         }
 
         return {
@@ -475,8 +481,7 @@ class Addon extends SafeEmitter {
             currentLockedAddon: this.currentLockedAddon,
             lockOn: [...this.locks.keys()],
             callbacksDescriptor: this.callbacksDescriptor,
-            callbacks: [...this.callbacks.keys()],
-            callbacksAlias
+            callbacks
         };
     }
 
