@@ -992,7 +992,7 @@ Addon.MAX_SLEEP_TIME_MS = 250;
 Addon.DEFAULT_HEADER = { from: "self" };
 Addon.ACL = Object.freeze({ read: 0, write: 1, admin: 2, super: 3 });
 Addon.DEFAULT_ACL = Addon.ACL.write;
-Addon.VERSION = "0.21.1";
+Addon.VERSION = "0.22.0";
 Addon.REQUIRED_CORE_VERSION = ">=0.9";
 
 // Subjects
