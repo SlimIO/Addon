@@ -87,7 +87,7 @@ declare class Addon<T extends { [key: string]: any } = Addon.NativeCallbacks> ex
     // Static Methods
     private static start(): Promise<boolean>;
     private static stop(): Promise<boolean>;
-    private static getInfo(): Addon.CallbackGetInfo;
+    private static status(): Addon.Status;
     private static sleep(): Promise<boolean>;
     public static isAddon(obj: any): boolean;
 }
@@ -103,7 +103,7 @@ declare namespace Addon {
     }
 
     export interface NativeCallbacks {
-        "get_info": CallbackGetInfo;
+        "status": Status;
         "start": boolean;
         "stop": boolean;
         "sleep": boolean;
@@ -158,7 +158,7 @@ declare namespace Addon {
         from: string;
     }
 
-    export interface CallbackGetInfo {
+    export interface Status {
         uid: string;
         name: string;
         version: string;

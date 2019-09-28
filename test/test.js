@@ -51,7 +51,7 @@ avaTest("Verify addonContainer version", async(test) => {
     const buf = await readFile(join(__dirname, "..", "package.json"));
     const { version } = JSON.parse(buf.toString());
 
-    const info = await myAddon.executeCallback("get_info");
+    const info = await myAddon.executeCallback("status");
     test.is(version, info.containerVersion);
     test.is(version, Addon.VERSION);
 });
@@ -168,14 +168,14 @@ avaTest("Create Addon with given version", async(test) => {
         version: "2.0.0"
     });
 
-    const info = await myAddon.executeCallback("get_info");
+    const info = await myAddon.executeCallback("status");
     test.is(info.version, "2.0.0");
 });
 
-avaTest("Addon execute native get_info callback", async(test) => {
+avaTest("Addon execute native status callback", async(test) => {
     const myAddon = new Addon("test13");
 
-    const info = await myAddon.executeCallback("get_info");
+    const info = await myAddon.executeCallback("status");
     test.deepEqual(Object.keys(info), [
         "uid", "name", "version", "description", "containerVersion",
         "ready", "started", "awake", "lastStart", "lastStop", "currentLockedAddon",
@@ -412,7 +412,7 @@ avaTest("setDeprecatedAlias (Trigger callback with an alias!)", async(test) => {
     test.is(ret, 10);
     await new Promise((resolve) => setImmediate(resolve));
 
-    const info = await myAddon.executeCallback("get_info");
+    const info = await myAddon.executeCallback("status");
     test.true(Reflect.has(info.callbacks, "foo"));
     test.deepEqual(info.callbacks.foo.alias, ["foo_old"]);
 });
@@ -434,12 +434,12 @@ avaTest("setCallbacksDescriptor (path should be a .prototype file)", async(test)
 avaTest("setCallbacksDescriptor", async(test) => {
     const myAddon = new Addon("test30");
     {
-        const { callbacksDescriptor } = await myAddon.executeCallback("get_info");
+        const { callbacksDescriptor } = await myAddon.executeCallback("status");
         test.is(callbacksDescriptor, null);
     }
     const path = join(__dirname, "callbacks.proto");
     myAddon.setCallbacksDescriptorFile(path);
-    const { callbacksDescriptor } = await myAddon.executeCallback("get_info");
+    const { callbacksDescriptor } = await myAddon.executeCallback("status");
     test.is(callbacksDescriptor, path);
 });
 
@@ -585,7 +585,7 @@ avaTest("lockOn: emulate fake lock", async(test) => {
     const emulateLock = new Addon("emulateLock");
     emulateLock.on("message", (id, target) => {
         // console.log(`id: ${id}, target: ${target}`);
-        if (target === "test.get_info") {
+        if (target === "test.status") {
             test.pass();
             const observer = emulateLock.observers.get(id);
             if (tick === 0) {

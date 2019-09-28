@@ -8,7 +8,7 @@
 const isSnakeCase = require("is-snake-case");
 
 // CONSTANTS
-const RESERVED_CALLBACK = new Set(["start", "stop", "sleep", "event", "get_info", "health_check"]);
+const RESERVED_CALLBACK = new Set(["start", "stop", "sleep", "event", "status", "health_check"]);
 
 /**
  * @function decamelize

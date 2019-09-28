@@ -169,8 +169,8 @@ class Addon extends SafeEmitter {
         this.callbacks.set("sleep", {
             ACL: 2, callback: Addon.sleep.bind(this)
         });
-        this.callbacks.set("get_info", {
-            ACL: 0, callback: Addon.getInfo.bind(this)
+        this.callbacks.set("status", {
+            ACL: 0, callback: Addon.status.bind(this)
         });
         this.callbacks.set("event", {
             ACL: 0,
@@ -370,7 +370,7 @@ class Addon extends SafeEmitter {
                 }
 
                 try {
-                    const res = await this.sendOne(`${addonName}.get_info`);
+                    const res = await this.sendOne(`${addonName}.status`);
 
                     if (typeof res === "undefined" || Boolean(res.ready) === false) {
                         allReady = false;
@@ -443,14 +443,14 @@ class Addon extends SafeEmitter {
     /**
      * @private
      * @static
-     * @function getInfo
+     * @function status
      * @memberof Addon#
      * @description Function used to retrieve default options & properties of an addon
      * @returns {Addon.CallbackGetInfo}
      *
      * @version 0.1.0
      */
-    static getInfo() {
+    static status() {
         const callbacksAlias = new Map();
         for (const [alias, callbackName] of this.callbacksAlias.entries()) {
             if (callbacksAlias.has(callbackName)) {
@@ -864,7 +864,7 @@ class Addon extends SafeEmitter {
      *
      * myAddon.on("start", async function() {
      *     myAddon
-     *         .sendMessage("cpu.get_info")
+     *         .sendMessage("cpu.status")
      *         .subscribe(console.log, console.error); // <-- dont forget to catch errors
      *     await myAddon.ready();
      * });
@@ -938,7 +938,7 @@ class Addon extends SafeEmitter {
      * const myAddon = new Addon("myAddon");
      *
      * myAddon.on("start", async function() {
-     *     const cpuInfo = await myAddon.sendOne("cpu.get_info");
+     *     const cpuInfo = await myAddon.sendOne("cpu.status");
      *     console.log(cpuInfo);
      *     await myAddon.ready();
      * });
