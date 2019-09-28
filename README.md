@@ -89,7 +89,7 @@ const myAddon("test").lockOn("events");
 
 myAddon.on("awake", async() => {
     // Do something with events safely!
-    const info = await myAddon.send("events.get_info");
+    const info = await myAddon.send("events.status");
 });
 ```
 
@@ -321,7 +321,7 @@ const myAddon = new Addon("myAddon");
 
 myAddon.on("start", function() {
     myAddon
-        .sendMessage("cpu.get_info")
+        .sendMessage("cpu.status")
         .subscribe(console.log);
     myAddon.ready();
 });
