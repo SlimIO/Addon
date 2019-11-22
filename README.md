@@ -36,15 +36,16 @@ $ yarn add @slimio/addon
 A sample cpu addon.
 
 ```js
-const Addon = require("@slimio/addon");
+import Addon from "@slimio/addon";
 
 // Create addon
 const CPU = new Addon("cpu");
 
 // Register a callback
-CPU.registerCallback(async function say_hello(name) {
+async function sayHello(name) {
     console.log(`hello ${name}`);
-});
+}
+CPU.registerCallback(sayHello);
 
 // Catch start event!
 CPU.on("start", async() => {
@@ -54,11 +55,11 @@ CPU.on("start", async() => {
     await CPU.executeCallback("say_hello", void 0, "thomas"); // stdout "hello thomas";
 
     // Tell the core that your addon is ready!
-    CPU.ready();
+    await CPU.ready();
 });
 
 // Export addon for SlimIO Core.
-module.exports = CPU;
+export default CPU;
 ```
 
 You might find it useful to read the source codes of our other addons, let us give you some nice links:
@@ -70,7 +71,7 @@ You might find it useful to read the source codes of our other addons, let us gi
 | [Alerting](https://github.com/SlimIO/Alerting) | Built-in | Manage alerting of the product (Deal with events observables and alarms) |
 | [Gate](https://github.com/SlimIO/Gate) | Built-in | The core extension (Nothing special, just simple callbacks here) |
 
-## Available events
+## Available events and life cycle
 Addon is extended with a SlimIO Safe [EventEmitter](https://github.com/SlimIO/Safe-emitter). Six kinds of events can be triggered:
 
 | event | description |
@@ -83,6 +84,10 @@ Addon is extended with a SlimIO Safe [EventEmitter](https://github.com/SlimIO/Sa
 | error | When a error occur in one of the EventEmitter listener |
 
 An addon have different given state during his life (started, awaken and ready). An addon is started when the core has recognized its existence and that it has been loaded successfully. The state **ready** have to be triggered by the developer itself in the **start** or **awake** event depending the need.
+
+<p align="center">
+    <img src="https://i.imgur.com/jKfuRAB.png">
+</p>
 
 An addon wake up when all its dependencies are ready. A dependency can be added with the **lockOn()** method.
 ```js
