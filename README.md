@@ -16,7 +16,7 @@ This package provide the foundation to build Addons that will rely and work with
 > Scheduler is a external SlimIO Package. If you want to know more about it, follow [this link](https://github.com/SlimIO/Scheduler).
 
 ## Requirements
-- [Node.js](https://nodejs.org/en/) v10 or higher
+- [Node.js](https://nodejs.org/en/) v12 or higher
 
 ## Getting Started
 
