@@ -91,11 +91,12 @@ An addon have different given state during his life (started, awaken and ready).
 
 An addon wake up when all its dependencies are ready. A dependency can be added with the **lockOn()** method.
 ```js
-const myAddon("test").lockOn("events");
+const myAddon = new Addon("test").lockOn("events");
 
 myAddon.on("awake", async() => {
     // Do something with events safely!
-    const info = await myAddon.send("events.status");
+    const info = await myAddon.sendOne("events.status");
+    console.log(info);
 });
 ```
 
