@@ -12,16 +12,12 @@ const Addon = require("../index");
 // Vars
 const sleep = promisify(setTimeout);
 
-avaTest("Addon.registerInterval errors check", (test) => {
+avaTest("Addon.registerInterval errors (callback must be a function)", (test) => {
     const addonEx = new Addon("intA");
 
     test.throws(() => {
         addonEx.registerInterval(10);
     }, { instanceOf: TypeError, message: "callback must be a function" });
-
-    test.throws(() => {
-        addonEx.registerInterval(() => console.log("hello"), "10");
-    }, { instanceOf: TypeError, message: "ms must be a number" });
 });
 
 avaTest("Register a new interval", async(test) => {

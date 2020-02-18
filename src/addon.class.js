@@ -4,6 +4,7 @@
 // Require Node.js Dependencies
 const { extname } = require("path");
 const { promisify } = require("util");
+const assert = require("assert").strict;
 
 // Require Third-party dependencies
 const is = require("@slimio/is");
@@ -14,6 +15,7 @@ const { CallbackNotFound, SlimIOError } = require("@slimio/error");
 const Observable = require("zen-observable");
 const uuid = require("uuid/v4");
 const timer = require("@slimio/timer");
+const oop = require("@slimio/oop");
 
 // Require Internal dependencie(s)
 const Stream = require("./stream.class");
@@ -101,34 +103,16 @@ class Addon extends SafeEmitter {
      */
     constructor(name, options = Object.create(null)) {
         super();
-        if (typeof name !== "string") {
-            throw new TypeError("constructor name argument should be typeof string");
-        }
-        if (!is.plainObject(options)) {
-            throw new TypeError("options should be a plainObject");
-        }
+        const addonName = oop.toString(name);
+        assert.equal(addonName.length <= 2, false, "addon name length must be greater than 2 characters!");
+        const { version = "1.0.0", verbose = false, description = "" } = oop.toPlainObject(options, true);
 
-        const { version = "1.0.0", verbose = false, description = "" } = options;
-        if (typeof version !== "string") {
-            throw new TypeError("version argument should be typeof string");
-        }
-        if (typeof verbose !== "boolean") {
-            throw new TypeError("verbose argument should be typeof boolean");
-        }
-        if (typeof description !== "string") {
-            throw new TypeError("description argument should be typeof string");
-        }
-
-        if (name.length <= 2) {
-            throw new Error("constructor name argument length must be greater than 2");
-        }
-
-        this.name = name;
-        this.version = version;
-        this.verbose = verbose;
-        this.logger = null;
-        this.description = description;
         this.uid = uuid();
+        this.name = addonName;
+        this.version = oop.toString(version);
+        this.verbose = Boolean(verbose);
+        this.description = oop.toNullableString(description) || "";
+        this.logger = null;
         this.isReady = false;
         this.isStarted = false;
         this.isAwake = false;
@@ -494,25 +478,14 @@ class Addon extends SafeEmitter {
      * @param {LockRule} [rules={}] lock rules
      * @returns {Addon}
      *
-     * @throws {TypeError}
-     *
      * @version 0.15.0
      */
     lockOn(addonName, rules = Object.create(null)) {
-        if (typeof addonName !== "string") {
-            throw new TypeError("addonName must be a string");
-        }
+        const { startAfter = true, lockCallback = false } = oop.toPlainObject(rules, true);
 
-        const { startAfter = true, lockCallback = false } = rules;
-        if (typeof startAfter !== "boolean") {
-            throw new TypeError("rules.startAfter must be a boolean");
-        }
-        if (typeof lockCallback !== "boolean") {
-            throw new TypeError("rules.lockCallback must be a boolean");
-        }
-
-        this.locks.set(addonName, {
-            startAfter, lockCallback
+        this.locks.set(oop.toString(addonName), {
+            startAfter: Boolean(startAfter),
+            lockCallback: Boolean(lockCallback)
         });
 
         return this;
@@ -523,7 +496,7 @@ class Addon extends SafeEmitter {
      * @function of
      * @memberof Addon#
      * @description Subscribe to a given SlimIO kind of events (these events are managed by the built-in addon "events")
-     * @param {!string} subject subject
+     * @param {!string} subjectName subject
      * @returns {ZenObservable.ObservableLike<any>}
      *
      * @version 0.12.0
@@ -535,10 +508,8 @@ class Addon extends SafeEmitter {
      *     console.log(`Addon with name ${addonName} is Ready !`);
      * });
      */
-    of(subject) {
-        if (typeof subject !== "string") {
-            throw new TypeError("subject should be typeof string");
-        }
+    of(subjectName) {
+        const subject = oop.toString(subjectName);
         if (!this.subscribers.has(subject)) {
             this.subscribers.set(subject, []);
         }
@@ -619,20 +590,17 @@ class Addon extends SafeEmitter {
      * @param {!string} path Callback name
      * @returns {void}
      *
-     * @throws {TypeError}
      * @throws {Error}
      *
      * @version 0.9.0
      */
     setCallbacksDescriptorFile(path) {
-        if (typeof path !== "string") {
-            throw new TypeError("path should be typeof string!");
-        }
-        if (extname(path) !== ".proto") {
+        const descriptorPath = oop.toString(path);
+        if (extname(descriptorPath) !== ".proto") {
             throw new Error("path should be a .prototype file");
         }
 
-        this.callbacksDescriptor = path;
+        this.callbacksDescriptor = descriptorPath;
     }
 
     /**
@@ -643,6 +611,8 @@ class Addon extends SafeEmitter {
      * @param {!string} callbackName Callback name
      * @param {number} [ACL]
      * @returns {this}
+     *
+     * @throws {Error}
      *
      * @version 0.22.0
      */
@@ -708,7 +678,6 @@ class Addon extends SafeEmitter {
      * @param {!Array<string>} alias List of alias to set for the given callback name (they will throw deprecated warning)
      * @returns {void}
      *
-     * @throws {TypeError}
      * @throws {Error}
      *
      * @version 0.7.0
@@ -728,18 +697,14 @@ class Addon extends SafeEmitter {
         if (!this.callbacks.has(callbackName)) {
             throw new Error(`Unknow callback with name ${callbackName}`);
         }
-        if (!is.array(alias)) {
-            throw new TypeError("alias argument should be instanceof Array");
-        }
 
-        for (const cbAlias of alias) {
+        for (const cbAlias of oop.toIterable(alias)) {
             this.callbacksAlias.set(cbAlias, callbackName);
         }
     }
 
     /**
      * @public
-     * @template T
      * @function executeCallback
      * @memberof Addon#
      * @description Execute a callback of the addon
@@ -765,10 +730,7 @@ class Addon extends SafeEmitter {
      * });
      */
     executeCallback(name, header = Addon.DEFAULT_HEADER, ...args) {
-        if (!is.string(name)) {
-            throw new TypeError("Addon.executeCallback->name should be typeof <string>");
-        }
-        let callbackName = name;
+        let callbackName = oop.toString(name);
         foundCB: if (!this.callbacks.has(callbackName)) {
             if (!this.callbacksAlias.has(callbackName)) {
                 callbackName = null;
@@ -821,7 +783,6 @@ class Addon extends SafeEmitter {
      *     }));
      */
     schedule(name, scheduler) {
-        // If name is an instanceOf Scheduler, replace name by the latest callback registered!
         if (CallbackScheduler.isScheduler(name)) {
             if (this.callbacks.size <= Addon.RESERVED_CALLBACKS_NAME.size) {
                 throw new Error("Addon.schedule - No custom callback has been registered yet!");
@@ -830,11 +791,9 @@ class Addon extends SafeEmitter {
             name = this.lastRegisteredAddon;
         }
 
-        if (!is.string(name)) {
-            throw new TypeError("Addon.schedule->name should be typeof <string>");
-        }
-        if (!this.callbacks.has(name)) {
-            throw new Error(`Addon.schedule - Unable to found callback with name ${name}`);
+        const callbackName = oop.toString(name);
+        if (!this.callbacks.has(callbackName)) {
+            throw new Error(`Addon.schedule - Unable to found callback with name ${callbackName}`);
         }
         if (!CallbackScheduler.isScheduler(scheduler)) {
             throw new TypeError("Addon.schedule->scheduler should be an instance of CallbackScheduler");
@@ -850,7 +809,7 @@ class Addon extends SafeEmitter {
      * @function sendMessage
      * @memberof Addon#
      * @description Send a message to the Core
-     * @param {!string} target Target path to the callback
+     * @param {!string} targetExpr Target path to the callback
      * @param {MessageOptions} [options={}] Message options
      * @returns {Observable<any>}
      *
@@ -869,22 +828,12 @@ class Addon extends SafeEmitter {
      *     await myAddon.ready();
      * });
      */
-    sendMessage(target, options = { noReturn: false }) {
-        if (!is.string(target)) {
-            throw new TypeError("Addon.sendMessage->target should be typeof <string>");
-        }
-
-        // Generate unique id for our message!
+    sendMessage(targetExpr, options = { noReturn: false }) {
+        const target = oop.toString(targetExpr);
         const messageId = uuid();
 
         // Send a message (on the next event loop iteration).
         setImmediate(() => {
-            /**
-             * @event Addon#message
-             * @param {string} messageId
-             * @param {string} target
-             * @param {Array} args
-             */
             this.emit("message", messageId, target, is.array(options.args) ? options.args : []);
             if (this.verbose) {
                 this.logger.writeLine(`Sending message to ${target} with uuid: ${messageId}`);
@@ -898,7 +847,6 @@ class Addon extends SafeEmitter {
 
         // Return an Observable that stream response
         return new Observable((observer) => {
-            // Setup a timeOut for our message
             const timer = setTimeout(() => {
                 if (observer.closed) {
                     return;
@@ -926,11 +874,9 @@ class Addon extends SafeEmitter {
      * @function sendOne
      * @memberof Addon#
      * @description Send "one" message to the Core (Promise version of sendMessage)
-     * @param {!string} target Target path to the callback
+     * @param {!string} targetExpr Target path to the callback
      * @param {MessageOptions|Array<any>} [options=[]] Message options a response!
      * @returns {Promise<any>}
-     *
-     * @throws {TypeError}
      *
      * @version 0.17.0
      *
@@ -943,15 +889,9 @@ class Addon extends SafeEmitter {
      *     await myAddon.ready();
      * });
      */
-    async sendOne(target, options = []) {
-        if (!is.string(target)) {
-            throw new TypeError("Addon.sendOne->target must be typeof <string>");
-        }
-
-        const args = is.array(options) ? { args: options } : options;
-        if (!is.nullOrUndefined(args) && !is.plainObject(args)) {
-            throw new TypeError("Addon.sendOne->options must be a plain Object");
-        }
+    async sendOne(targetExpr, options = []) {
+        const target = oop.toString(targetExpr);
+        const args = is.array(options) ? { args: options } : oop.toPlainObject(options);
 
         return new Promise((resolve, reject) => this.sendMessage(target, args).subscribe(resolve, reject));
     }
@@ -962,22 +902,20 @@ class Addon extends SafeEmitter {
      * @memberof Addon#
      * @description register a new interval (only work when addon is awake).
      * @param {() => any} callback Target path to the callback
-     * @param {number} [ms=1000] Message options
+     * @param {number} [milliseconds=1000] Message options
      * @returns {string}
      *
      * @throws {TypeError}
      *
      * @version 0.21.0
      */
-    registerInterval(callback, ms = 1000) {
+    registerInterval(callback, milliseconds = 1000) {
         if (!is.func(callback)) {
             throw new TypeError("callback must be a function");
         }
-        if (!is.number(ms)) {
-            throw new TypeError("ms must be a number");
-        }
-
+        const ms = oop.toNullableNumber(milliseconds) || 1000;
         const intervalId = uuid();
+
         this.intervals.set(intervalId, { callback, ms, nodeTimer: null });
 
         return intervalId;

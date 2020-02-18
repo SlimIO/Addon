@@ -99,13 +99,8 @@ avaTest("Addon register camelcase callback", (test) => {
     test.is(myAddon.callbacks.has("get_world"), true);
 });
 
-avaTest("Addon executeCallback (throw errors)", (test) => {
+avaTest("Addon executeCallback (Unable to found callback)", (test) => {
     const myAddon = new Addon("test08");
-
-    // Invalid callback name type
-    test.throws(() => {
-        myAddon.executeCallback(5);
-    }, { instanceOf: TypeError, message: "Addon.executeCallback->name should be typeof <string>" });
 
     // Invalid callback name type
     test.throws(() => {
@@ -115,11 +110,6 @@ avaTest("Addon executeCallback (throw errors)", (test) => {
 
 avaTest("Addon schedule (throw errors)", (test) => {
     const myAddon = new Addon("test09");
-
-    // Invalid callback name type
-    test.throws(() => {
-        myAddon.schedule(5);
-    }, { instanceOf: TypeError, message: "Addon.schedule->name should be typeof <string>" });
 
     // Invalid callback name type
     test.throws(() => {
@@ -222,14 +212,6 @@ avaTest("Addon register & execute a custom callback (registered without direct n
     // Execute callback
     const ret = await myAddon.executeCallback("hello");
     test.is(ret, "hello world!");
-});
-
-avaTest("Addon send a message with an invalid target name", async(test) => {
-    const myAddon = new Addon("test16");
-
-    test.throws(() => {
-        myAddon.sendMessage(5);
-    }, { instanceOf: TypeError, message: "Addon.sendMessage->target should be typeof <string>" });
 });
 
 avaTest("Addon send a message (Expect no return value)", async(test) => {
@@ -384,17 +366,6 @@ avaTest("setDeprecatedAlias (no callback registered with the name)", (test) => {
     }, { instanceOf: Error, message: "Unknow callback with name foo" });
 });
 
-avaTest("setDeprecatedAlias (alias should be instanceof Array)", (test) => {
-    const myAddon = new Addon("test26");
-    myAddon.registerCallback("foo", async function foo() {
-        console.log("foo!");
-    });
-
-    test.throws(() => {
-        myAddon.setDeprecatedAlias("foo", 5);
-    }, { instanceOf: TypeError, message: "alias argument should be instanceof Array" });
-});
-
 avaTest("setDeprecatedAlias (Trigger callback with an alias!)", async(test) => {
     test.plan(4);
     const myAddon = new Addon("test27");
@@ -417,13 +388,6 @@ avaTest("setDeprecatedAlias (Trigger callback with an alias!)", async(test) => {
     test.deepEqual(info.callbacks.foo.alias, ["foo_old"]);
 });
 
-avaTest("setCallbacksDescriptor (path should be typeof string)", async(test) => {
-    const myAddon = new Addon("test28");
-    test.throws(() => {
-        myAddon.setCallbacksDescriptorFile(null);
-    }, { instanceOf: TypeError, message: "path should be typeof string!" });
-});
-
 avaTest("setCallbacksDescriptor (path should be a .prototype file)", async(test) => {
     const myAddon = new Addon("test29");
     test.throws(() => {
@@ -441,14 +405,6 @@ avaTest("setCallbacksDescriptor", async(test) => {
     myAddon.setCallbacksDescriptorFile(path);
     const { callbacksDescriptor } = await myAddon.executeCallback("status");
     test.is(callbacksDescriptor, path);
-});
-
-avaTest("Addon of(subject) should be a string", async(test) => {
-    const myAddon = new Addon("test31");
-
-    test.throws(() => {
-        myAddon.of(10);
-    }, { instanceOf: TypeError, message: "subject should be typeof string" });
 });
 
 avaTest("Scheduled callback to throw Error!", async(test) => {
@@ -555,30 +511,6 @@ avaTest("Run a verbose test", async(test) => {
     await myAddon.executeCallback("stop");
 });
 
-avaTest("lockOn: addonName must be typeof String", async(test) => {
-    const myAddon = new Addon("test36");
-
-    test.throws(() => {
-        myAddon.lockOn(10);
-    }, { instanceOf: TypeError, message: "addonName must be a string" });
-});
-
-avaTest("lockOn: rules.startAfter must be a boolean", async(test) => {
-    const myAddon = new Addon("test37");
-
-    test.throws(() => {
-        myAddon.lockOn("zbla", { startAfter: 10 });
-    }, { instanceOf: TypeError, message: "rules.startAfter must be a boolean" });
-});
-
-avaTest("lockOn: rules.lockCallback must be a boolean", async(test) => {
-    const myAddon = new Addon("test38");
-
-    test.throws(() => {
-        myAddon.lockOn("zbla", { lockCallback: 10 });
-    }, { instanceOf: TypeError, message: "rules.lockCallback must be a boolean" });
-});
-
 avaTest("lockOn: emulate fake lock", async(test) => {
     let tick = 0;
     test.plan(2);
@@ -604,24 +536,6 @@ avaTest("lockOn: emulate fake lock", async(test) => {
 
     await emulateLock.executeCallback("start");
     await emulateLock.executeCallback("stop");
-});
-
-avaTest("sendOne (target must be a string)", async(test) => {
-    const myAddon = new Addon("test39");
-
-    await test.throwsAsync(myAddon.sendOne(10), {
-        message: "Addon.sendOne->target must be typeof <string>",
-        instanceOf: TypeError
-    });
-});
-
-avaTest("sendOne (options must be a plain Object)", async(test) => {
-    const myAddon = new Addon("test40");
-
-    await test.throwsAsync(myAddon.sendOne("any", 10), {
-        message: "Addon.sendOne->options must be a plain Object",
-        instanceOf: TypeError
-    });
 });
 
 avaTest("sendOne (catch message)", async(test) => {

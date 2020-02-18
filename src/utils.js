@@ -6,6 +6,7 @@
 
 // Require Third-party Dependencies
 const isSnakeCase = require("is-snake-case");
+const oop = require("@slimio/oop");
 
 // CONSTANTS
 const RESERVED_CALLBACK = new Set(["start", "stop", "sleep", "event", "status", "health_check"]);
@@ -18,11 +19,7 @@ const RESERVED_CALLBACK = new Set(["start", "stop", "sleep", "event", "status", 
  * @returns {string}
  */
 function decamelize(text) {
-    if (typeof text !== "string") {
-        throw new TypeError("text must be a string");
-    }
-
-    return text
+    return oop.toString(text)
         .replace(/([\p{Ll}\d])(\p{Lu})/gu, "$1_$2")
         .replace(/(\p{Lu}+)(\p{Lu}[\p{Ll}\d]+)/gu, "$1_$2")
         .toLowerCase();
@@ -30,20 +27,18 @@ function decamelize(text) {
 
 /**
  * @function assertCallbackName
+ * @description assert (verify) the validity of a given callback name
  * @param {!string} name callback name
  * @returns {void}
  *
- * @throws {TypeError}
  * @throws {Error}
  */
 function assertCallbackName(name) {
-    if (typeof name !== "string") {
-        throw new TypeError("name must be a string");
-    }
+    const originalName = oop.toString(name);
+    const localName = isSnakeCase(originalName) ? originalName : decamelize(originalName);
 
-    const localName = isSnakeCase(name) ? name : decamelize(name);
     if (RESERVED_CALLBACK.has(localName)) {
-        throw new Error(`Callback name '${name}' is a reserved callback name!`);
+        throw new Error(`Callback name '${localName}' is a reserved callback name!`);
     }
 
     return localName;
