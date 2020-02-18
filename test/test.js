@@ -219,7 +219,7 @@ avaTest("Addon send a message (Expect no return value)", async(test) => {
     const myAddon = new Addon("test17");
 
     // Mock a listener
-    myAddon.on("message", (messageId) => {
+    myAddon.on(Symbol.for("addon.message"), (messageId) => {
         if (!myAddon.observers.has(messageId)) {
             return;
         }
@@ -325,7 +325,7 @@ avaTest("Set Addon ready", async(test) => {
     test.plan(4);
     const myAddon = new Addon("test23");
 
-    myAddon.on("message", (msgId) => {
+    myAddon.on(Symbol.for("addon.message"), (msgId) => {
         const obs = myAddon.observers.get(msgId);
 
         obs.next();
@@ -433,7 +433,7 @@ avaTest("Scheduled callback to throw Error!", async(test) => {
 avaTest("Addon Native Event", async(test) => {
     test.plan(2);
     const myAddon = new Addon("test33");
-    myAddon.on("message", (msgId) => {
+    myAddon.on(Symbol.for("addon.message"), (msgId) => {
         const obs = myAddon.observers.get(msgId);
         obs.next(undefined);
         obs.complete();
@@ -515,7 +515,7 @@ avaTest("lockOn: emulate fake lock", async(test) => {
     let tick = 0;
     test.plan(2);
     const emulateLock = new Addon("emulateLock");
-    emulateLock.on("message", (id, target) => {
+    emulateLock.on(Symbol.for("addon.message"), (id, target) => {
         // console.log(`id: ${id}, target: ${target}`);
         if (target === "test.status") {
             test.pass();
@@ -542,7 +542,7 @@ avaTest("sendOne (catch message)", async(test) => {
     test.plan(2);
     const myAddon = new Addon("test41");
 
-    myAddon.on("message", (messageId) => {
+    myAddon.on(Symbol.for("addon.message"), (messageId) => {
         if (!myAddon.observers.has(messageId)) {
             return;
         }
@@ -560,7 +560,7 @@ avaTest("sendOne (catch error)", async(test) => {
     test.plan(2);
     const myAddon = new Addon("test42");
 
-    myAddon.on("message", (messageId) => {
+    myAddon.on(Symbol.for("addon.message"), (messageId) => {
         if (!myAddon.observers.has(messageId)) {
             return;
         }
@@ -586,7 +586,7 @@ avaTest("trigger native sleep callback", async(test) => {
 
     myAddon.on("awake", () => test.pass()); // triggered 2 times
     myAddon.on("sleep", () => test.pass()); // triggered 2 times
-    myAddon.on("message", async(id, target) => { // triggered 2 times
+    myAddon.on(Symbol.for("addon.message"), async(id) => { // triggered 2 times
         test.pass();
 
         await sleep(50);

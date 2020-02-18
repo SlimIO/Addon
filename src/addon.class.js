@@ -29,6 +29,7 @@ const {
 const SYM_ADDON = Symbol.for("Addon");
 const SYM_INTERVAL = Symbol("interval");
 const SLEEP_LOCK_MS = 25;
+const SYM_ADDON_MESSAGE = Symbol.for("addon.message");
 
 /**
  * @function sleep
@@ -834,7 +835,7 @@ class Addon extends SafeEmitter {
 
         // Send a message (on the next event loop iteration).
         setImmediate(() => {
-            this.emit("message", messageId, target, is.array(options.args) ? options.args : []);
+            this.emit(SYM_ADDON_MESSAGE, messageId, target, is.array(options.args) ? options.args : []);
             if (this.verbose) {
                 this.logger.writeLine(`Sending message to ${target} with uuid: ${messageId}`);
             }
