@@ -42,7 +42,7 @@ import Addon from "@slimio/addon";
 const CPU = new Addon("cpu");
 
 // Register a callback
-async function sayHello(name) {
+async function sayHello(header, name = header.from) {
     console.log(`hello ${name}`);
 }
 CPU.registerCallback(sayHello);
@@ -430,19 +430,14 @@ module.exports = streamAddon;
 And now if we call this callback from an another Addon:
 
 ```js
-const myAddon = new Addon("myAddon");
+const myAddon = new Addon("myAddon").lockOn("streamAddon");
 
-myAddon.on("start", () => {
-    myAddon.ready();
-});
-
-myAddon.on("addonLoaded", (addonName) => {
-    if (addonName === "streamAddon") {
-        myAddon.sendMessage("streamAddon.stream_com").subscribe(
-            (message) => console.log(message),
-            () => console.log("Stream completed!")
-        )
-    }
+myAddon.on("awake", async() => {
+    myAddon.sendMessage("streamAddon.stream_com").subscribe(
+        (message) => console.log(message),
+        () => console.log("Stream completed!")
+    )
+    await myAddon.ready();
 });
 ```
 
