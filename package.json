@@ -56,7 +56,7 @@
     "@types/node": "^12.12.11",
     "@types/zen-observable": "^0.8.0",
     "ava": "^2.3.0",
-    "cross-env": "^6.0.3",
+    "cross-env": "^7.0.2",
     "eslint": "^6.7.0",
     "husky": "^3.1.0",
     "jsdoc": "^3.6.2",
