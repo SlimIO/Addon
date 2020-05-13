@@ -73,7 +73,7 @@ declare class Addon<T extends { [key: string]: any } = Addon.NativeCallbacks> ex
     public registerInterval(callback: () => any | Promise<any>, ms?: number): string;
     public schedule(name: string | CallbackScheduler, scheduler?: CallbackScheduler): this;
     public executeCallback<K extends keyof T>(name: K, header?: Addon.CallbackHeader, ...args: any[]): Promise<T[K]>;
-    public setDeprecatedAlias(callbackName: string, alias: string[]): void;
+    public setDeprecatedAlias(callbackName: string, alias: Iterable<string>): void;
     public sendMessage(target: string, options?: Addon.MessageOptions): ZenObservable.ObservableLike<any>;
     public sendOne(target: string, options?: Addon.MessageOptions | any[]): Promise<any>;
     public setCallbacksDescriptorFile(path: string): void;
