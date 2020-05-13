@@ -6,7 +6,6 @@
 ![size](https://img.shields.io/github/languages/code-size/SlimIO/Addon)
 [![Known Vulnerabilities](https://snyk.io//test/github/SlimIO/Addon/badge.svg?targetFile=package.json)](https://snyk.io//test/github/SlimIO/Addon?targetFile=package.json)
 [![Build Status](https://travis-ci.com/SlimIO/Addon.svg?branch=master)](https://travis-ci.com/SlimIO/Addon)
-[![Greenkeeper badge](https://badges.greenkeeper.io/SlimIO/Addon.svg)](https://greenkeeper.io/)
 
 This package provide the foundation to build Addons that will rely and work with the Core. Addon is just a container that will help you as a developer.
 
