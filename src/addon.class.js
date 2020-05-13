@@ -13,7 +13,7 @@ const Logger = require("@slimio/logger");
 const CallbackScheduler = require("@slimio/scheduler");
 const { CallbackNotFound, SlimIOError } = require("@slimio/error");
 const Observable = require("zen-observable");
-const uuid = require("uuid/v4");
+const uuid = require("@lukeed/uuid");
 const timer = require("@slimio/timer");
 const oop = require("@slimio/oop");
 

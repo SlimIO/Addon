@@ -64,6 +64,7 @@
     "pkg-ok": "^2.3.1"
   },
   "dependencies": {
+    "@lukeed/uuid": "^1.0.1",
     "@slimio/error": "^0.2.0",
     "@slimio/is": "^1.5.1",
     "@slimio/logger": "^0.1.2",
@@ -72,7 +73,6 @@
     "@slimio/scheduler": "^0.8.0",
     "@slimio/timer": "^1.0.2",
     "is-snake-case": "^0.1.0",
-    "uuid": "^3.3.3",
     "zen-observable": "^0.8.15"
   }
 }
