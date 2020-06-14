@@ -11,7 +11,9 @@
     "test": "cross-env psp && nyc --reporter=lcov ava --verbose",
     "doc": "jsdoc -c ./jsdoc.json -r -R ./README.md -P ./package.json --verbose",
     "coverage": "codecov",
-    "report": "nyc report --reporter=html"
+    "report": "nyc report --reporter=html",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "husky": {
     "hooks": {
@@ -75,6 +77,8 @@
     "@slimio/scheduler": "^0.8.0",
     "@slimio/timer": "^1.0.2",
     "is-snake-case": "^0.1.0",
-    "zen-observable": "^0.8.15"
-  }
+    "zen-observable": "^0.8.15",
+    "snyk": "^1.339.3"
+  },
+  "snyk": true
 }
