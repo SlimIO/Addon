@@ -388,13 +388,6 @@ avaTest("setDeprecatedAlias (Trigger callback with an alias!)", async(test) => {
     test.deepEqual(info.callbacks.foo.alias, ["foo_old"]);
 });
 
-avaTest("setCallbacksDescriptor (path should be a .prototype file)", async(test) => {
-    const myAddon = new Addon("test29");
-    test.throws(() => {
-        myAddon.setCallbacksDescriptorFile(join(__dirname, "yo"));
-    }, { instanceOf: Error, message: "path should be a .prototype file" });
-});
-
 avaTest("setCallbacksDescriptor", async(test) => {
     const myAddon = new Addon("test30");
     {

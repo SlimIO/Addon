@@ -587,21 +587,14 @@ class Addon extends SafeEmitter {
      * @public
      * @function setCallbacksDescriptorFile
      * @memberof Addon#
-     * @description Set a new callbacks descriptor file (.prototype)
-     * @param {!string} path Callback name
+     * @description Setup a new callbacks descriptor file (.prototype)
+     * @param {!string} path Path to the callbacks descriptor file on the filesystem.
      * @returns {void}
-     *
-     * @throws {Error}
      *
      * @version 0.9.0
      */
     setCallbacksDescriptorFile(path) {
-        const descriptorPath = oop.toString(path);
-        if (extname(descriptorPath) !== ".proto") {
-            throw new Error("path should be a .prototype file");
-        }
-
-        this.callbacksDescriptor = descriptorPath;
+        this.callbacksDescriptor = oop.toString(path);
     }
 
     /**
