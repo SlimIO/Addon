@@ -4,6 +4,9 @@
 const asyncHooks = require("async_hooks");
 const { performance, PerformanceObserver } = require("perf_hooks");
 
+// Require Third-party Dependencies
+const oop = require("@slimio/oop");
+
 class Callback extends asyncHooks.AsyncResource {
     /**
      * @class Callback
@@ -11,35 +14,29 @@ class Callback extends asyncHooks.AsyncResource {
      * @memberof Callback#
      * @param {!string} name callback name
      * @param {!Function} callback callbackHandler
-     *
-     * @throws {TypeError}
      */
     constructor(name, callback) {
-        if (typeof name !== "string") {
-            throw new TypeError("name should be typeof string!");
-        }
-        if (typeof callback !== "function") {
-            throw new TypeError("callback should be typeof function!");
-        }
-
-        super(`Callback-${name}`);
+        super(`Callback-${oop.toString(name)}`);
         this.callback = callback;
     }
 
     /**
      * @function execute
      * @memberof Callback#
-     * @param {object} header callback header
      * @param {any[]} args handler arguments
      * @returns {Promise<any>}
      *
      * @throws {Error}
      */
-    async execute(header, args = []) {
-        const ret = await this.runInAsyncScope(this.callback, null, header, ...args);
-        this.emitDestroy();
+    async execute(args = []) {
+        try {
+            const ret = await this.runInAsyncScope(this.callback, null, ...args);
 
-        return ret;
+            return ret;
+        }
+        finally {
+            this.emitDestroy();
+        }
     }
 }
 

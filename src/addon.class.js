@@ -2,8 +2,8 @@
 "use strict";
 
 // Require Node.js Dependencies
-const { extname } = require("path");
 const { promisify } = require("util");
+const { AsyncLocalStorage } = require("async_hooks");
 const assert = require("assert").strict;
 
 // Require Third-party dependencies
@@ -67,7 +67,7 @@ function sleep(durationMs) {
 
 /**
  * @class Addon
- * @classdesc Slim.IO Addon container
+ * @classdesc SlimIO Addon container
  * @augments Event
  *
  * @property {string} name Addon name
@@ -122,6 +122,7 @@ class Addon extends SafeEmitter {
         this.currentLockedAddon = null;
         this.callbacksDescriptor = null;
         this.asserts = [];
+        this.localStorage = new AsyncLocalStorage();
         this[SYM_ADDON] = true;
 
         /** @type {Map<string, any>} */
@@ -159,7 +160,7 @@ class Addon extends SafeEmitter {
         });
         this.callbacks.set("event", {
             ACL: 0,
-            callback: async(header, name, data) => {
+            callback: async(name, data) => {
                 if (this.subscribers.has(name)) {
                     for (const observer of this.subscribers.get(name)) {
                         observer.next(data);
@@ -191,6 +192,10 @@ class Addon extends SafeEmitter {
 
     get lastRegisteredAddon() {
         return [...this.callbacks.keys()].pop();
+    }
+
+    get callbackMetaData() {
+        return this.localStorage.getStore();
     }
 
     /**
@@ -707,8 +712,7 @@ class Addon extends SafeEmitter {
      * @param {any[]} args Callback arguments
      * @returns {Promise<T>} Return the callback response (or void)
      *
-     * @throws {TypeError}
-     * @throws {Error}
+     * @throws {CallbackNotFound}
      *
      * @version 0.0.0
      *
@@ -744,7 +748,12 @@ class Addon extends SafeEmitter {
             this.logger.writeLine(`Executing callback ${callbackName}`);
         }
 
-        return (new Callback(`${this.name}-${callbackName}`, handler)).execute(header, args);
+        return new Promise((resolve, reject) => {
+            this.localStorage.run(header, () => {
+                // TODO: add caching of the Callback Async Rec
+                (new Callback(`${this.name}-${callbackName}`, handler)).execute(args).then(resolve).catch(reject);
+            });
+        });
     }
 
     /**

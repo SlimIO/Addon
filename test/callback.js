@@ -6,18 +6,6 @@ const avaTest = require("ava");
 // Require Internal Depedencies
 const Addon = require("../index");
 
-avaTest("Callback name should be typeof string", (assert) => {
-    assert.throws(() => {
-        new Addon.Callback(10);
-    }, { instanceOf: TypeError, message: "name should be typeof string!" });
-});
-
-avaTest("Callback callback should be typeof Function", (assert) => {
-    assert.throws(() => {
-        new Addon.Callback("handler", void 0);
-    }, { instanceOf: TypeError, message: "callback should be typeof function!" });
-});
-
 avaTest("Callback perfTrigger should be typeof function", (assert) => {
     assert.throws(() => {
         Addon.Callback.observePerformance(void 0);

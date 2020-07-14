@@ -188,7 +188,7 @@ avaTest("Addon register & execute a custom callback", async(test) => {
     const myAddon = new Addon("test14");
 
     // Register callback
-    myAddon.registerCallback("test", async(header, arg1) => {
+    myAddon.registerCallback("test", async(arg1) => {
         return { ok: 1, arg: arg1 };
     });
     test.true(myAddon.callbacks.has("test"));
@@ -455,17 +455,17 @@ avaTest("Addon Callback Header", async(test) => {
     test.plan(2);
     const myAddon = new Addon("test34");
 
-    // eslint-disable-next-line
-    myAddon.registerCallback(async function cb_test(header) {
-        test.is(header.from, "self");
+    myAddon.registerCallback(async function cb_test() {
+        const { from } = myAddon.callbackMetaData;
+        test.is(from, "self");
     });
 
-    // eslint-disable-next-line
-    myAddon.registerCallback(async function cb_custom(header) {
-        test.is(header.from, "custom");
+    myAddon.registerCallback(async function cb_custom() {
+        const { from } = myAddon.callbackMetaData;
+        test.is(from, "custom");
     });
 
-    await Promise.all([
+    await Promise.allSettled([
         myAddon.executeCallback("cb_test", void 0),
         myAddon.executeCallback("cb_custom", { from: "custom" })
     ]);
@@ -494,8 +494,7 @@ avaTest("Run a verbose test", async(test) => {
         verbose: true
     });
 
-    // eslint-disable-next-line
-    myAddon.registerCallback(async function cb_test(header) {
+    myAddon.registerCallback(async function cb_test() {
         test.pass();
     });
 
