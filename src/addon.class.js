@@ -4,6 +4,7 @@
 // Require Node.js Dependencies
 const { promisify } = require("util");
 const { AsyncLocalStorage } = require("async_hooks");
+const { EventEmitter, on } = require("events");
 const assert = require("assert").strict;
 
 // Require Third-party dependencies
@@ -18,12 +19,8 @@ const timer = require("@slimio/timer");
 const oop = require("@slimio/oop");
 
 // Require Internal dependencie(s)
-const Stream = require("./stream.class");
 const Callback = require("./callback.class");
-const {
-    assertCallbackName,
-    CONSTANTS: { RESERVED_CALLBACK }
-} = require("./utils");
+const Utils = require("./utils");
 
 // CONSTANTS
 const SYM_ADDON = Symbol.for("Addon");
@@ -31,77 +28,16 @@ const SYM_INTERVAL = Symbol("interval");
 const SLEEP_LOCK_MS = 25;
 const SYM_ADDON_MESSAGE = Symbol.for("addon.message");
 
-/**
- * @function sleep
- * @description Sleep async context for a given time in milliseconds
- * @param {!number} durationMs sleep duration in milliseconds
- * @returns {Promise<void>}
- */
-function sleep(durationMs) {
-    return new Promise((resolve) => setTimeout(resolve, durationMs));
-}
+const kCommunicationSymbols = Object.freeze({
+    next: Symbol("next"),
+    completed: Symbol("completed"),
+    timeout: Symbol("timeout"),
+    roundtrip: Symbol("roundtrip")
+});
 
-/**
- * @callback Callback
- * @returns {Promise<any>}
- */
-
-/**
- * @typedef {object} CallbackHeader
- * @property {string} from The addon who made the request
- * @property {string} id Message ID
- */
-
-/**
- * @typedef {object} LockRule
- * @property {boolean} startAfter
- * @property {boolean} lockCallback
- */
-
-/**
- * @typedef {object} MessageOptions
- * @property {any[]} args Callback arguments
- * @property {number} timeout Custom timeout
- * @property {boolean} noReturn Dont expect a response!
- */
-
-/**
- * @class Addon
- * @classdesc SlimIO Addon container
- * @augments Event
- *
- * @property {string} name Addon name
- * @property {string} version
- * @property {boolean} verbose
- * @property {string} description
- * @property {string} uid Addon unique id
- * @property {boolean} isStarted
- * @property {boolean} isAwake
- * @property {boolean} isReady
- * @property {number} lastStart
- * @property {number} lastStop
- * @property {Array} asserts
- * @property {Set<string>} flags
- * @property {Map<string, Callback>} callbacks
- * @property {Map<string, CallbackScheduler>} schedules
- * @property {Map<string, ZenObservable.SubscriptionObserver<any>>} observers
- * @property {Map<string, any[]>} subscribers
- * @property {Map<string, string>} callbacksAlias
- * @property {Map<string, LockRule>} locks
- */
 class Addon extends SafeEmitter {
-    /**
-     * @class
-     * @memberof Addon#
-     * @param {!string} name addon name
-     * @param {object} [options] options
-     * @param {boolean} [options.verbose=false] Enable verbose mode
-     * @param {string} [options.version=1.0.0] addon version
-     * @param {string} [options.description] addon description
-     *
-     * @throws {TypeError}
-     * @throws {Error}
-     */
+    #storage = new AsyncLocalStorage();
+
     constructor(name, options = Object.create(null)) {
         super();
         const addonName = oop.toString(name);
@@ -122,28 +58,14 @@ class Addon extends SafeEmitter {
         this.currentLockedAddon = null;
         this.callbacksDescriptor = null;
         this.asserts = [];
-        this.localStorage = new AsyncLocalStorage();
+        this.messages = new EventEmitter();
+        this.messages.setMaxListeners(300);
         this[SYM_ADDON] = true;
-
-        /** @type {Map<string, any>} */
         this.intervals = new Map();
-
-        /** @type {Map<string, any[]>} */
         this.subscribers = new Map();
-
-        /** @type {Map<string, Callback>} */
         this.callbacks = new Map();
-
-        /** @type {Map<string, string>} */
         this.callbacksAlias = new Map();
-
-        /** @type {Map<string, CallbackScheduler>} */
         this.schedules = new Map();
-
-        /** @type {Map<string, ZenObservable.SubscriptionObserver<any>>} */
-        this.observers = new Map();
-
-        /** @type {Map<string, LockRule>} */
         this.locks = new Map();
 
         this.callbacks.set("start", {
@@ -179,13 +101,6 @@ class Addon extends SafeEmitter {
         });
     }
 
-    /**
-     * @static
-     * @function isAddon
-     * @memberof Addon#
-     * @param {!any} obj
-     * @returns {boolean}
-     */
     static isAddon(obj) {
         return obj && Boolean(obj[SYM_ADDON]);
     }
@@ -195,15 +110,9 @@ class Addon extends SafeEmitter {
     }
 
     get callbackMetaData() {
-        return this.localStorage.getStore();
+        return this.#storage.getStore();
     }
 
-    /**
-     * @private
-     * @function awake
-     * @memberof Addon#
-     * @returns {Promise<void>}
-     */
     async awake() {
         for (const interval of this.intervals.values()) {
             if (interval.nodeTimer !== null) {
@@ -225,19 +134,6 @@ class Addon extends SafeEmitter {
         await this.emitAndWait("awake");
     }
 
-    /**
-     * @private
-     * @static
-     * @function start
-     * @memberof Addon#
-     * @description Function used to start an addon
-     * @returns {Promise<boolean>}
-     *
-     * @fires error
-     * @fires start
-     *
-     * @version 0.1.0
-     */
     static async start() {
         if (this.isStarted) {
             return false;
@@ -285,18 +181,6 @@ class Addon extends SafeEmitter {
         return true;
     }
 
-    /**
-     * @private
-     * @static
-     * @function stop
-     * @memberof Addon#
-     * @description Function used to stop an addon
-     * @returns {Promise<boolean>}
-     *
-     * @fires stop
-     *
-     * @version 0.1.0
-     */
     static async stop() {
         if (!this.isStarted) {
             return false;
@@ -332,16 +216,6 @@ class Addon extends SafeEmitter {
         return true;
     }
 
-    /**
-     * @public
-     * @async
-     * @function waitForAllLocks
-     * @memberof Addon#
-     * @param {boolean} [asStart=false]
-     * @returns {Promise<boolean>}
-     *
-     * @version 0.19.1
-     */
     async waitForAllLocks(asStart = false) {
         if (this.locks.size === 0) {
             return true;
@@ -383,7 +257,7 @@ class Addon extends SafeEmitter {
                 break;
             }
 
-            await sleep(initialLockMs);
+            await Utils.sleep(initialLockMs);
             if (initialLockMs < Addon.MAX_SLEEP_TIME_MS) {
                 initialLockMs = Math.floor(initialLockMs * 1.5);
             }
@@ -392,18 +266,6 @@ class Addon extends SafeEmitter {
         return true;
     }
 
-    /**
-     * @private
-     * @static
-     * @function sleep
-     * @memberof Addon#
-     * @description Function used to sleep an addon
-     * @returns {Promise<boolean>}
-     *
-     * @fires sleep
-     *
-     * @version 0.19.1
-     */
     static async sleep() {
         if (!this.isAwake) {
             return false;
@@ -430,16 +292,6 @@ class Addon extends SafeEmitter {
         return true;
     }
 
-    /**
-     * @private
-     * @static
-     * @function status
-     * @memberof Addon#
-     * @description Function used to retrieve default options & properties of an addon
-     * @returns {Addon.CallbackGetInfo}
-     *
-     * @version 0.1.0
-     */
     static status() {
         const callbacksAlias = new Map();
         for (const [alias, callbackName] of this.callbacksAlias.entries()) {
@@ -475,17 +327,6 @@ class Addon extends SafeEmitter {
         };
     }
 
-    /**
-     * @public
-     * @function lockOn
-     * @memberof Addon#
-     * @description Create a new lock rule (wait for a given addon to be started).
-     * @param {!string} addonName addonName
-     * @param {LockRule} [rules={}] lock rules
-     * @returns {Addon}
-     *
-     * @version 0.15.0
-     */
     lockOn(addonName, rules = Object.create(null)) {
         const { startAfter = true, lockCallback = false } = oop.toPlainObject(rules, true);
 
@@ -497,23 +338,6 @@ class Addon extends SafeEmitter {
         return this;
     }
 
-    /**
-     * @public
-     * @function of
-     * @memberof Addon#
-     * @description Subscribe to a given SlimIO kind of events (these events are managed by the built-in addon "events")
-     * @param {!string} subjectName subject
-     * @returns {ZenObservable.ObservableLike<any>}
-     *
-     * @version 0.12.0
-     *
-     * @example
-     * const myAddon = new Addon("myAddon");
-     *
-     * myAddon.of(Addon.Subjects.Addon.Ready).subscribe((addonName) => {
-     *     console.log(`Addon with name ${addonName} is Ready !`);
-     * });
-     */
     of(subjectName) {
         const subject = oop.toString(subjectName);
         if (!this.subscribers.has(subject)) {
@@ -542,26 +366,6 @@ class Addon extends SafeEmitter {
         });
     }
 
-    /**
-     * @async
-     * @public
-     * @function ready
-     * @memberof Addon#
-     * @description Set/flag the current addon as Ready (will trigger "unlock" for other addons).
-     * @returns {Promise<boolean>}
-     *
-     * @version 0.5.0
-     *
-     * @throws {Error}
-     *
-     * @example
-     * const test = new Addon("test");
-     *
-     * // can be triggered on "start" or "awake".
-     * test.on("start", () => {
-     *      test.ready();
-     * });
-     */
     async ready() {
         if (!this.isStarted) {
             throw new Error("Addon should be started before being ready!");
@@ -588,38 +392,15 @@ class Addon extends SafeEmitter {
         return true;
     }
 
-    /**
-     * @public
-     * @function setCallbacksDescriptorFile
-     * @memberof Addon#
-     * @description Setup a new callbacks descriptor file (.prototype)
-     * @param {!string} path Path to the callbacks descriptor file on the filesystem.
-     * @returns {void}
-     *
-     * @version 0.9.0
-     */
     setCallbacksDescriptorFile(path) {
         this.callbacksDescriptor = oop.toString(path);
     }
 
-    /**
-     * @public
-     * @function setACL
-     * @memberof Addon#
-     * @description Set a given ACL to a given callback
-     * @param {!string} callbackName Callback name
-     * @param {number} [ACL]
-     * @returns {this}
-     *
-     * @throws {Error}
-     *
-     * @version 0.22.0
-     */
     setACL(callbackName, ACL = Addon.DEFAULT_ACL) {
         if (is.nullOrUndefined(callbackName)) {
             callbackName = this.lastRegisteredAddon;
         }
-        callbackName = assertCallbackName(callbackName);
+        callbackName = Utils.assertCallbackName(callbackName);
         if (!this.callbacks.has(callbackName)) {
             throw new Error(`Unable to found callback with name ${callbackName}`);
         }
@@ -628,38 +409,13 @@ class Addon extends SafeEmitter {
         return this;
     }
 
-    /**
-     * @public
-     * @function registerCallback
-     * @memberof Addon#
-     * @description Register a new callback on the Addon. The callback name should be formatted in snake_case
-     * @param {!(string|Function)} name Callback name
-     * @param {!Callback} callback Async Callback to execute when the callback is triggered by the core or the addon itself
-     * @param {number} [ACL=0]
-     * @returns {this}
-     *
-     * @throws {TypeError}
-     *
-     * @version 0.0.0
-     *
-     * @example
-     * const myAddon = new Addon("test");
-     *
-     * async function hello() {
-     *     return "hello world";
-     * }
-     * myAddon.registerCallback(hello);
-     * myAddon.executeCallback("hello").then((ret) => {
-     *    assert.equal(ret, "hello world");
-     * });
-     */
     registerCallback(name, callback, ACL = 0) {
         if (is.func(name) && is.nullOrUndefined(callback)) {
             callback = name;
             name = callback.name;
         }
 
-        name = assertCallbackName(name);
+        name = Utils.assertCallbackName(name);
         if (!is.asyncFunction(callback)) {
             throw new TypeError("Addon.registerCallback->callback should be an AsyncFunction");
         }
@@ -668,30 +424,6 @@ class Addon extends SafeEmitter {
         return this;
     }
 
-    /**
-     * @public
-     * @function setDeprecatedAlias
-     * @memberof Addon#
-     * @description Register One or Many deprecated Alias for a given callback
-     * @param {!string} callbackName Callback name
-     * @param {!Array<string>} alias List of alias to set for the given callback name (they will throw deprecated warning)
-     * @returns {void}
-     *
-     * @throws {Error}
-     *
-     * @version 0.7.0
-     *
-     * @example
-     * const test = new Addon("test");
-     *
-     * async function sayHello(head) {
-     *     console.log("hello world!");
-     * }
-     * test.registerCallback(sayHello);
-     *
-     * // A warning will be throw if "log_hello" is used!
-     * test.setDeprecatedAlias("say_hello", ["log_hello"]);
-     */
     setDeprecatedAlias(callbackName, alias) {
         if (!this.callbacks.has(callbackName)) {
             throw new Error(`Unknow callback with name ${callbackName}`);
@@ -702,31 +434,6 @@ class Addon extends SafeEmitter {
         }
     }
 
-    /**
-     * @public
-     * @function executeCallback
-     * @memberof Addon#
-     * @description Execute a callback of the addon
-     * @param {!string} name Callback name
-     * @param {CallbackHeader} [header] callback header
-     * @param {any[]} args Callback arguments
-     * @returns {Promise<T>} Return the callback response (or void)
-     *
-     * @throws {CallbackNotFound}
-     *
-     * @version 0.0.0
-     *
-     * @example
-     * const myAddon = new Addon("test");
-     *
-     * async function hello() {
-     *     return "hello world";
-     * }
-     * myAddon.registerCallback(hello);
-     * myAddon.executeCallback("hello").then((ret) => {
-     *    assert.equal(ret, "hello world");
-     * });
-     */
     executeCallback(name, header = Addon.DEFAULT_HEADER, ...args) {
         let callbackName = oop.toString(name);
         foundCB: if (!this.callbacks.has(callbackName)) {
@@ -749,42 +456,13 @@ class Addon extends SafeEmitter {
         }
 
         return new Promise((resolve, reject) => {
-            this.localStorage.run(header, () => {
+            this.#storage.run(header, () => {
                 // TODO: add caching of the Callback Async Rec
                 (new Callback(`${this.name}-${callbackName}`, handler)).execute(args).then(resolve).catch(reject);
             });
         });
     }
 
-    /**
-     * @public
-     * @function schedule
-     * @memberof Addon#
-     * @description Schedule the execution of a given callback (not a precision scheduler).
-     * @param {!string} name Callback name
-     * @param {!CallbackScheduler} scheduler CallbackScheduler settings!
-     * @returns {this}
-     *
-     * @throws {TypeError}
-     * @throws {Error}
-     *
-     * @version 0.0.0
-     *
-     * @example
-     * const Scheduler = require("@slimio/scheduler");
-     * const myAddon = new Addon("test");
-     *
-     * // Schedule hello to be executed every second!
-     * async function hello() {
-     *     console.log("hello world!");
-     * }
-     * myAddon
-     *     .registerCallback(hello)
-     *     .schedule("hello", new Scheduler({
-     *         interval: 1000,
-     *         executeOnStart: true
-     *     }));
-     */
     schedule(name, scheduler) {
         if (CallbackScheduler.isScheduler(name)) {
             if (this.callbacks.size <= Addon.RESERVED_CALLBACKS_NAME.size) {
@@ -807,31 +485,7 @@ class Addon extends SafeEmitter {
         return this;
     }
 
-    /**
-     * @public
-     * @function sendMessage
-     * @memberof Addon#
-     * @description Send a message to the Core
-     * @param {!string} targetExpr Target path to the callback
-     * @param {MessageOptions} [options={}] Message options
-     * @returns {Observable<any>}
-     *
-     * @throws {TypeError}
-     * @fires Addon#message
-     *
-     * @version 0.0.0
-     *
-     * @example
-     * const myAddon = new Addon("myAddon");
-     *
-     * myAddon.on("start", async function() {
-     *     myAddon
-     *         .sendMessage("cpu.status")
-     *         .subscribe(console.log, console.error); // <-- dont forget to catch errors
-     *     await myAddon.ready();
-     * });
-     */
-    sendMessage(targetExpr, options = { noReturn: false }) {
+    send(targetExpr) {
         const target = oop.toString(targetExpr);
         const messageId = uuid();
 
@@ -842,76 +496,48 @@ class Addon extends SafeEmitter {
                 this.logger.writeLine(`Sending message to ${target} with uuid: ${messageId}`);
             }
         });
+        const messages = this.messages;
+        const name = this.name;
 
-        // Return void 0 if noReturn is true
-        if (options.noReturn) {
-            return null;
-        }
+        return {
+            async* toAsyncIter(options) {
+                const timeout = is.number(options.timeout) ? options.timeout : Addon.MESSAGE_TIMEOUT_MS;
+                const breakSymbol = kCommunicationSymbols[is.bool(options.roundtrip) ? "roundtrip" : "completed"];
 
-        // Return an Observable that stream response
-        return new Observable((observer) => {
-            const timer = setTimeout(() => {
-                if (observer.closed) {
-                    return;
+                const timer = setTimeout(() => messages.emit(messageId, { kind: "timeout" }), timeout);
+
+                for await (const { kind = kCommunicationSymbols.completed, body } of on(message, messageId)) {
+                    if (kind === breakSymbol) {
+                        break;
+                    }
+
+                    if (kind === kCommunicationSymbols.next) {
+                        yield body;
+                    }
+                    else if (kind === kCommunicationSymbols.timeout) {
+                        // eslint-disable-next-line
+                        throw new Error(`Failed to receive response for message id ${messageId} (from: ${name}, to: ${target}) in a delay of ${timeout}ms`);
+                    }
                 }
-                observer.error(
-                    // eslint-disable-next-line
-                    `Failed to receive response for message id ${messageId} (from: ${this.name}, to: ${target}) in a delay of ${Addon.MESSAGE_TIMEOUT_MS}ms`
-                );
-            }, is.number(options.timeout) ? options.timeout : Addon.MESSAGE_TIMEOUT_MS);
 
-            // Setup the observer on the Addon.
-            this.observers.set(messageId, observer);
-
-            // On unsubcription clear the timeOut timer and the registered observer
-            return () => {
                 clearTimeout(timer);
-                this.observers.delete(messageId);
-            };
-        });
+            },
+            async roundtrip() {
+                // do nothing
+            },
+            async toPromise(options) {
+                const response = [];
+
+                for await (const data of this.toIter(options)) {
+                    response.push(data);
+                }
+
+                return response.length === 1 ? response[0] : response;
+            },
+            id: () => messageId
+        };
     }
 
-    /**
-     * @public
-     * @async
-     * @function sendOne
-     * @memberof Addon#
-     * @description Send "one" message to the Core (Promise version of sendMessage)
-     * @param {!string} targetExpr Target path to the callback
-     * @param {MessageOptions|Array<any>} [options=[]] Message options a response!
-     * @returns {Promise<any>}
-     *
-     * @version 0.17.0
-     *
-     * @example
-     * const myAddon = new Addon("myAddon");
-     *
-     * myAddon.on("start", async function() {
-     *     const cpuInfo = await myAddon.sendOne("cpu.status");
-     *     console.log(cpuInfo);
-     *     await myAddon.ready();
-     * });
-     */
-    async sendOne(targetExpr, options = []) {
-        const target = oop.toString(targetExpr);
-        const args = is.array(options) ? { args: options } : oop.toPlainObject(options);
-
-        return new Promise((resolve, reject) => this.sendMessage(target, args).subscribe(resolve, reject));
-    }
-
-    /**
-     * @public
-     * @function registerInterval
-     * @memberof Addon#
-     * @description register a new interval (only work when addon is awake).
-     * @param {() => any} callback Target path to the callback
-     * @param {number} [milliseconds=1000] Message options
-     * @returns {string}
-     *
-     * @throws {TypeError}
-     *
-     * @version 0.21.0
-     */
     registerInterval(callback, milliseconds = 1000) {
         if (!is.func(callback)) {
             throw new TypeError("callback must be a function");
@@ -926,7 +552,7 @@ class Addon extends SafeEmitter {
 }
 
 // Register Static (CONSTANTS) Addon variables...
-Addon.RESERVED_CALLBACKS_NAME = RESERVED_CALLBACK;
+Addon.RESERVED_CALLBACKS_NAME = Utils.CONSTANTS.RESERVED_CALLBACK;
 Addon.MESSAGE_TIMEOUT_MS = 5000;
 Addon.MAIN_INTERVAL_MS = 500;
 Addon.MAX_SLEEP_TIME_MS = 250;
@@ -945,10 +571,6 @@ Addon.Subjects = {
     micCreate: "Metric.create",
     micUpdate: "Metric.update"
 };
-
-// Register Sub classes
-Addon.Stream = Stream;
-Addon.Callback = Callback;
 
 // Export (default) Addon
 module.exports = Addon;

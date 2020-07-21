@@ -44,8 +44,20 @@ function assertCallbackName(name) {
     return localName;
 }
 
+/**
+ * @function sleep
+ * @description Sleep async context for a given time in milliseconds
+ * @param {!number} durationMs sleep duration in milliseconds
+ * @returns {Promise<void>}
+ */
+function sleep(durationMs) {
+    return new Promise((resolve) => setTimeout(resolve, durationMs));
+}
+
 module.exports = {
     decamelize,
     assertCallbackName,
+    parseEventData,
+    sleep,
     CONSTANTS: Object.freeze({ RESERVED_CALLBACK })
 };
